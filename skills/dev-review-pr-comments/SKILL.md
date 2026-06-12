@@ -1,30 +1,32 @@
 ---
 name: dev-review-pr-comments
-description: Process pull request review comments - classify, fix, reply, and re-request review. Use when a PR has reviewer feedback to address.
-argument-hint: "[pr number or url]"
+description: "Triage PR review comments: fix, discuss, or decline with reason - every thread answered"
+argument-hint: "[pr number]"
 ---
 
-# dev-review-pr-comments
+# Handle PR Review Comments
 
-Work through reviewer feedback so every comment gets a fix or an explicit, reasoned answer. Silence is never a response.
-
-## Project profile
-
-Resolve `platform` and `cli` from `dev-project-profile.md`; otherwise detect from the remote URL (`gh` for GitHub).
+Drain reviewer feedback: every thread ends with a fix commit or a reasoned reply. Silence is never a response.
 
 ## Steps
 
-1. **Fetch all comments** for the PR (review comments and conversation comments), including resolved state. Identify which are still open.
-2. **Classify each open comment:**
-   - **Fix**: the reviewer is right, or the cost of the change is lower than the cost of the debate.
-   - **Discuss**: a real tradeoff where the reviewer may lack context; answer with the reasoning, do not change code yet.
-   - **Decline with reason**: the suggestion conflicts with a project rule or an accepted decision record; cite it.
-3. **Apply the fixes** grouped into logical commits per `dev-commit-conventions`, gates re-run before push (`dev-verification-gates`).
-4. **Reply to every comment**: what was changed (with the commit reference), or the reasoning for discuss/decline. Match the reviewer's tone; keep replies short.
-5. **Re-request review** once all comments have a response and CI is green.
-6. **Report**: counts per category and anything left open for a human decision.
+1. Resolve the PR for the current branch: `gh pr list --head <branch> --state open --json number --jq '.[0].number'`.
+2. Fetch open threads: GraphQL `reviewThreads(first: 100) { nodes { id isResolved comments(first: 1) { nodes { path line body author { login } } } } }` - keep `isResolved == false`; plus `gh pr view <pr> --json reviews,comments` for conversation-level notes.
+3. Classify each: **fix** (reviewer is right, or the change is cheaper than the debate) / **discuss** (real tradeoff - answer with the reasoning, no code yet) / **decline with reason** (conflicts with a project rule or an accepted ADR - cite it).
+4. Apply fixes grouped into logical commits via `dev-commit-push` (gates run before push).
+5. Reply to every thread: the commit reference for fixes, the reasoning for discuss/decline. Match the reviewer's tone; keep replies short.
+6. Out-of-scope asks: agree in the reply, file a follow-up item, link it - do not grow the PR.
+7. Report counts per category plus anything needing an owner decision.
 
-## Failure modes
+## Verify
 
-- A comment requires a scope change beyond this PR: agree in the reply, create a follow-up work item, and link it instead of growing the PR.
-- Conflicting comments from two reviewers: surface the conflict explicitly to both rather than silently picking one.
+- Zero unanswered threads; every fix commit pushed; gates green.
+
+## Scope / hand-off
+
+- CI babysitting and the outcome label - `dev-finalize-pr`; merging - `dev-merge-pr`.
+
+## CRITICAL
+
+- Never resolve a thread without a reply.
+- Conflicting reviewer asks - surface to both, never silently pick one.

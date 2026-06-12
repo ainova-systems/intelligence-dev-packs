@@ -5,10 +5,10 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 # Project Profile (dev pack)
 
 > Copy this file into your project's rules source (for example `intelligence/rules/dev-project-profile.md`),
-> fill in the values, and delete the guidance comments. Every `dev-*` skill reads this
-> file first; missing values fall back to auto-detection from the repository, then to
-> asking once. Keep entries as plain `key: value` lines so both humans and agents parse
-> them reliably.
+> fill in the values, and delete the guidance comments. Every `dev-*` skill resolves
+> project specifics in this order: this profile, then auto-detection from the repository,
+> then asking once. Keep entries as plain `key: value` lines so both humans and agents
+> parse them reliably.
 
 ## Branching
 
@@ -21,7 +21,7 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 ## Commits
 
 - commit_style: pack-default        <!-- pack-default = one line, capital first letter, past tense -->
-- reference_ids: none               <!-- work-item id pattern to include in subjects, e.g. FR-0xx, PROJ-123; none -->
+- reference_ids: none               <!-- work-item id pattern for subjects, e.g. FR-0xx, PROJ-123; none -->
 
 ## Verification
 
@@ -35,6 +35,7 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 - platform: github                  <!-- github | gitlab | bitbucket -->
 - cli: gh                           <!-- gh | glab | bitbucket api wrapper -->
 - pr_target: auto                   <!-- auto = integration branch when set, else default branch -->
+- merge_method: squash              <!-- squash | merge | rebase -->
 
 ## Releases
 
@@ -44,5 +45,8 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 
 ## Documentation
 
-- decisions_dir: docs/decisions
-- plans_dir: docs/plans
+- specs_dir: docs/specs             <!-- change specs: NNN-<slug>/ with requirements/plan/tasks -->
+- spec_grouping: flat               <!-- flat | quarterly (docs/specs/<yyyy>-Q<n>/NNN-<slug>/) -->
+- features_dir: docs/features      <!-- behavior-baseline feature docs -->
+- rules_dir: docs/rules             <!-- business rules as contracts -->
+- decisions_dir: docs/decisions     <!-- numbered ADRs -->

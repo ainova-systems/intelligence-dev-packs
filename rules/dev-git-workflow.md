@@ -10,4 +10,4 @@ Branch model comes from `dev-project-profile.md`. Without it, detect (default br
 - PRs target the integration branch when one exists, otherwise the default branch.
 - Update long-running branches per profile `update_strategy` (default: merge from target). Delete branches after merge.
 
-Forbidden: committing directly to a protected branch (default and integration branches always are) - branch first via `dev-start-feature`; merging on red CI; rewriting history on shared branches.
+Forbidden: committing directly to a protected branch (default and integration branches always are) - branch first (the orchestrators do this in `dev-execute-spec` Phase B); merging on red CI; rewriting history on shared branches.

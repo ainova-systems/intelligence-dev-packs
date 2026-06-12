@@ -1,27 +1,32 @@
 ---
 name: dev-scan-secrets
-description: Scan the diff, working tree, and branch history for committed credentials and report exposure with severity. Use before pushing, during reviews, or on suspicion of a leak.
+description: "Scan diff, tree, or branch history for committed credentials"
 argument-hint: "[scope: diff|tree|history]"
+allowed-tools: Read, Grep, Glob, Bash
 ---
 
-# dev-scan-secrets
+# Scan for Secrets
 
-Find credentials before they reach a remote, and treat anything already pushed as an incident, not a cleanup.
+Find credentials before they reach a remote; anything already pushed is an incident, not a cleanup. Default scope: the pending diff plus commits ahead of the target branch.
 
 ## Steps
 
-1. **Pick the scope.** Default: the pending diff plus commits ahead of the branch target. `tree` scans tracked files; `history` additionally walks the branch's commit history for secrets added then removed.
-2. **Scan for the patterns:** private keys (`-----BEGIN`), cloud and API key shapes (`AKIA`, `sk-`, `ghp_`, `xox`, `AIza`, JWT-looking blobs), connection strings with passwords, `password=`/`secret=`/`token=` assignments with literal values, and `.env`-style files that are not in `.gitignore`.
-3. **Classify each hit:**
-   - **Live secret** (real credential, plausibly valid): critical.
-   - **Test or placeholder value**: verify it is genuinely fake (documented dummy, obviously synthetic); downgrade only with evidence.
-   - **Template reference** (`${VAR}`, vault paths): not a finding.
-4. **Report** each finding with `file:line` (or commit hash for history hits), the credential type, and the classification reasoning.
-5. **For a live secret already committed:**
-   - Not yet pushed: remove it from the commit (amend or rewrite the local history) and move the value to the environment or secret store.
-   - Already pushed: **rotation first** - the secret is compromised regardless of any history rewrite. Then purge it from history per the platform's procedure and add the path to `.gitignore`.
+1. Build the file set: `git diff --name-only` + `git diff --cached --name-only` (+ `git log -p <target>..HEAD` for branch commits; `history` scope walks `git log -p --all -- <paths>`).
+2. Grep the patterns: `-----BEGIN`, `AKIA[0-9A-Z]{16}`, `sk-`, `ghp_`, `xox[bp]-`, `AIza`, `eyJ[A-Za-z0-9_-]+\.` (JWT), `(password|secret|token|api[_-]?key)\s*[:=]\s*['"][^'"]+`, connection strings with embedded credentials, `.env`-style files not covered by `.gitignore`.
+3. Classify each hit: **live secret** (critical) / **test or placeholder** (downgrade only with evidence it is fake) / **template reference** (`${VAR}`, vault path - not a finding).
+4. Report: `file:line` (or commit SHA for history hits), credential type, classification reasoning, redacted value.
+5. Live secret not yet pushed - remove it from the commit and move the value to the environment or secret store. Already pushed - **rotate first** (it is compromised regardless of history), then purge per the platform procedure and add the path to `.gitignore`.
 
-## Failure modes
+## Verify
 
-- High-entropy strings that are hashes, IDs, or fixtures: verify before flagging; a report full of false positives trains people to ignore it.
-- Never print a discovered live secret back in full; reference its location and a redacted form.
+- Every hit classified with evidence; zero live secrets remain in the outgoing diff.
+
+## Scope / hand-off
+
+- Invoked by `dev-review-changes` and the orchestrators pre-push; rotation itself belongs to the owner's secret store.
+
+## CRITICAL
+
+- Rotation precedes any history rewrite - always.
+- Never print a discovered live secret in full.
+- Verify before flagging: a report full of false positives trains people to ignore it.

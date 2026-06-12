@@ -1,30 +1,33 @@
 ---
 name: dev-create-release
-description: Cut a release - resolve the next version, update the changelog, tag, and follow the project's release flow. Use when the integration branch (or main) is ready to ship.
-argument-hint: "[version override, e.g. 1.4.0]"
+description: "Cut a release: version, changelog, tag, per the project's release flow"
+argument-hint: "[version, e.g. 1.4.0]"
 ---
 
-# dev-create-release
+# Create a Release
 
-Produce a release that is reproducible from its tag and honest in its changelog. Releases are outward-facing: confirm before anything is pushed.
-
-## Project profile
-
-Resolve `flow` (`tag-on-default` or `gitflow-merge`), `version_source`, `tag_format`, and branch names from `dev-project-profile.md`; otherwise detect (a `develop` branch implies gitflow-merge) and confirm the flow in one line before acting.
+A release reproducible from its tag, with an honest changelog. Releases are outward-facing: pushing the tag is the confirmation gate.
 
 ## Steps
 
-1. **Pre-flight.** The release source branch is current, CI is green, and the working tree is clean. A red pipeline stops the release; never ship around it.
-2. **Determine the version.** Explicit argument wins. Otherwise derive from the changes since the last tag: breaking changes bump major, features minor, fixes patch. When the history is ambiguous, propose a version and ask.
-3. **Update the changelog.** Move `[Unreleased]` content into a new `[X.Y.Z] - <date>` section; write entries as user-visible changes, grouped Added / Changed / Fixed / Breaking. An empty release section is a signal to stop and ask what is actually being shipped.
-4. **Execute the flow:**
-   - **tag-on-default**: commit the changelog on the default branch (via the normal PR flow when the branch is protected), then tag.
-   - **gitflow-merge**: merge the integration branch into the default branch, then tag the merge commit.
-5. **Tag** with the profile format (default `vX.Y.Z`), annotated, message = version plus the changelog headline.
-6. **Confirm, then push** the branch and the tag explicitly. Pushing a tag publishes the release and typically triggers deploy pipelines; this is the confirmation gate.
-7. **Watch the release pipeline** to completion when one exists, and report the outcome with the tag name and changelog section.
+1. Resolve the flow: profile `release_flow` (`tag-on-default` | `gitflow-merge`) and `tag_format`; else detect (a `develop` branch implies gitflow-merge) and confirm in one line.
+2. Pre-flight: source branch current (`git pull --ff-only`), `git status --porcelain` clean, CI green on HEAD. Red - STOP; that is `dev-finalize-pr` territory.
+3. Version: an explicit argument wins; else derive from `git log $(git describe --tags --abbrev=0)..HEAD --oneline` - breaking changes bump major, features minor, fixes patch. Ambiguous - propose and ask.
+4. Changelog: move `[Unreleased]` into `[X.Y.Z] - <date>`; entries as user-visible changes grouped Added / Changed / Fixed / Breaking. An empty section - STOP and ask what is actually being shipped.
+5. Execute the flow: `tag-on-default` - changelog commit (via the normal PR flow when the branch is protected), then tag; `gitflow-merge` - merge the integration branch into the default branch, tag the merge commit.
+6. Tag annotated per `tag_format` (default `vX.Y.Z`), message = version plus the changelog headline.
+7. **Confirm with the owner, then** push the branch and the tag explicitly - the tag push publishes the release and usually triggers deploy pipelines.
+8. Watch the release pipeline to completion when one exists; report the tag, the changelog section, and the pipeline outcome.
 
-## Failure modes
+## Verify
 
-- Version already tagged: stop and report; never retag or force-move a published tag.
-- Release pipeline fails after the tag: report precisely; the fix ships as a new patch release, not as a rewrite of the failed one.
+- `git describe --tags` on the release commit prints the new tag; the changelog section matches the shipped diff; the release pipeline is green.
+
+## Scope / hand-off
+
+- Getting branches green and merged - `dev-finalize-pr` / `dev-merge-pr`.
+
+## CRITICAL
+
+- Never release around a red pipeline; never retag or force-move a published tag.
+- A release-pipeline failure after the tag ships as a new patch release, never as a rewrite of the failed one.

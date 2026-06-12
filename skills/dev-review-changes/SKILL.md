@@ -1,27 +1,48 @@
 ---
 name: dev-review-changes
-description: Read-only review of pending changes against project rules - correctness, conventions, tests, security, hygiene. Use before committing or when asked to review the working tree or a branch diff.
-argument-hint: "[base ref to diff against]"
+description: "Read-only review of pending changes against project rules, with a severity verdict"
+argument-hint: "[base ref]"
+agent: dev-code-reviewer
+allowed-tools: Read, Grep, Glob, Bash
 ---
 
-# dev-review-changes
+# Review Pending Changes
 
-Review the pending diff the way a senior reviewer would, before it becomes a commit or a PR. Read-only: findings, never edits.
+Read-only review before commit or PR - findings only, never edits.
 
 ## Steps
 
-1. **Establish the diff.** Default: uncommitted changes plus commits ahead of the branch's target (resolve the target per `dev-git-workflow`). An explicit base ref argument overrides.
-2. **Read the surrounding code, not just the diff.** A change that is locally clean can still break a caller, violate a boundary, or duplicate an existing helper.
-3. **Review against the dimensions:**
-   - **Correctness**: logic errors, unhandled edge cases and error paths, concurrency hazards.
-   - **Conventions**: project rules and pack rules; layering and dependency direction; naming.
-   - **Tests**: new logic without tests; bug fix without a regression test; weakened gates (`dev-verification-gates`).
-   - **Security**: unvalidated input, secrets in the diff (run `dev-scan-secrets` mentally or explicitly), authorization gaps.
-   - **Hygiene**: dead code, debug leftovers, accidental files, oversized diff that should be split.
-4. **Verify each finding** before reporting it: re-read the code and confirm the problem is real, not pattern-matched. Drop anything you cannot evidence.
-5. **Report.** Findings ordered by severity, each with `file:line`, what is wrong, why it matters (cite the rule or the failure), and a suggested fix. Blocking findings separated from suggestions. If the diff is clean, say so plainly.
+1. Enumerate: `git status --porcelain`, `git diff --stat`. Diff = uncommitted changes plus commits ahead of the target branch (an explicit base ref overrides). Nothing changed - report and stop.
+2. Load the rules that apply to the changed paths (project rules plus pack rules).
+3. Read the full diffs (`git diff`, `git diff --cached`) AND the surrounding code - a locally clean change can still break a caller or violate a boundary.
+4. Check, grouped by severity:
+   - **Critical** (block): correctness bugs; boundary/layering violations; secrets staged (`dev-scan-secrets` patterns); weakened gates (skipped tests, suppressions, lowered thresholds); new logic without tests; cross-cutting drift - grep every removed/renamed symbol across the tree.
+   - **Warning**: convention violations, oversized files or diffs, duplicated helpers, missing validation at external boundaries.
+   - **Suggestion**: naming, comments restating code, extractable helpers.
+5. Verify each finding by re-reading the code - drop anything you cannot evidence.
+6. Report:
 
-## Failure modes
+```
+## Critical
+- `path/file.ts:42` - <what> - <why / rule>
+## Warning
+...
+## Suggestion
+...
+## Summary
+- files: N, +A/-D; critical: N, warning: N, suggestion: N
+- verdict: BLOCK | PASS-WITH-WARNINGS | CLEAN
+```
 
-- The diff mixes unrelated changes: the first finding is to split it; review each part on its own merits.
-- A finding depends on a project convention you cannot locate: ask instead of inventing a rule.
+## Verify
+
+- Every finding carries `file:line` plus evidence; a verdict is stated.
+
+## Scope / hand-off
+
+- Fixing - the author/orchestrator; committing - `dev-commit-push` (a BLOCK verdict means fix first).
+
+## CRITICAL
+
+- Read-only: never edit, stage, or commit.
+- A diff mixing unrelated changes - the first finding is "split it".

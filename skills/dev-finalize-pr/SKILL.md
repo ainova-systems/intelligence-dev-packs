@@ -1,0 +1,55 @@
+---
+name: dev-finalize-pr
+description: "Drive the current branch's PR to merge-ready: CI green and every review comment handled, ending with an outcome label"
+argument-hint: "[pr number]"
+---
+
+# Finalize the PR
+
+Take a freshly pushed PR through fix/push iterations until CI is green AND every review comment is answered - merge-ready for the owner's accept. Runs autonomously across CI rounds (typically 15-30 min each); wait reactively, never busy-poll.
+
+## Pre-flight
+
+1. `git branch --show-current` - abort on the default/integration/protected branch.
+2. Resolve the PR: `gh pr list --head <branch> --state open --json number --jq '.[0].number'`. An explicit argument must match this branch's PR. None - abort.
+3. Latest commit: `git rev-parse HEAD`. Every check below filters runs by `headSha == HEAD`; stale runs for older commits are ignored.
+
+## Loop 1 - CI to green
+
+1. Probe: `gh pr checks <pr>` plus `gh run list --branch <branch> --limit 8 --json databaseId,headSha,name,status,conclusion`.
+2. Decide:
+   - all latest-SHA workflows `success` - proceed to Loop 2;
+   - any `in_progress` / `queued` - wait, sized to the longest job's typical duration;
+   - any latest-SHA `failure` - drill in.
+3. Drill in: failed step via `gh run view <run_id> --json jobs --jq '.jobs[] | select(.conclusion == "failure")'`; log via `gh run view --job <job_id> --log` (fallback `gh api repos/{owner}/{repo}/actions/jobs/<job_id>/logs` while sibling jobs still run). Find the root-cause file:line; read it and the surrounding code.
+4. Fix smallest-correct, top-down (what happened - what changed since last green - fix or delete per the feature doc - existing primitive?). Run the relevant local gates (`dev-run-tests`) before pushing. Batch multi-file fixes into one commit so concurrency cancels prior runs cleanly.
+5. Push, repeat from 1.
+
+## Loop 2 - comments drained
+
+1. Fetch unresolved threads: GraphQL `reviewThreads(first: 100) { nodes { id isResolved comments(first: 1) { nodes { path line body author { login } } } } }`; plus `gh pr view <pr> --json reviews,comments`.
+2. Process via `dev-review-pr-comments`: fix / discuss / decline-with-reason; reply to every thread.
+3. New pushes restart Loop 1; repeat until green AND drained.
+
+## Outcome
+
+Exactly one label, then report (PR URL, label, what needs the owner):
+
+- `ai:ready-to-merge` - green, comments drained, `mergeable: MERGEABLE`;
+- `ai:manual` - needs an owner decision (state precisely which);
+- `ai:failed` - cannot reach green (state the blocking failure and what was tried).
+
+## Verify
+
+- `gh pr checks <pr>` all green on HEAD; zero unresolved threads; exactly one `ai:*` label on the PR.
+
+## Scope / hand-off
+
+- Merging - `dev-merge-pr` after the owner accepts.
+- `mergeable: CONFLICTING` - `dev-resolve-conflicts`, then back into Loop 1.
+
+## CRITICAL
+
+- Fix the cause, never the gate: no skipped tests, no loosened checks, no retry-until-green on flaky failures - flag flakes explicitly.
+- A failure that already exists on the target branch is reported as pre-existing, never "fixed" on this PR.
+- Never merge from this skill, even when everything is green.

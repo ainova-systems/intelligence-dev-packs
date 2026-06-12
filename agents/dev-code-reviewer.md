@@ -2,7 +2,7 @@
 description: Reviews pending changes and pull requests for correctness, conventions, boundaries, tests, and security. Read-only.
 tier: standard
 access: readonly
-skills: dev-review-changes, dev-review-pr-comments
+skills: dev-review-changes
 ---
 
 # dev-code-reviewer

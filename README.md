@@ -4,54 +4,79 @@ Shared AI-first engineering practices, packaged as portable rules, agents, and s
 
 Built and maintained by [Ainova Systems](https://www.ainovasystems.com). Extracted from running multiple production AI-coded systems, including a 571k-line enterprise codebase where AI writes the majority of the code.
 
-## Why
+## The owner flow
 
-Every project re-derives the same engineering workflow: how to branch, how to commit, what to verify before pushing, when to write a plan, how to record decisions. Teams keep it as tribal knowledge; AI coding agents re-invent it every session. This pack codifies that workflow once, as artifacts every AI coding tool can consume:
+The pack is built around one operating model: the owner touches the work at three gates, and everything between runs autonomously with reviews, checks, and fallbacks built in.
 
-- **Rules** are the standing conventions agents follow on every task (commit style, verification gates, spec thresholds).
-- **Agents** are role personas with clear boundaries (architect, code reviewer, test engineer, docs writer).
-- **Skills** are step-by-step procedures for the repeatable operations (start a feature, commit and push, open a PR, plan a feature, cut a release).
+| Step | Who | Skill |
+|---|---|---|
+| 1. State the task | **Owner** | - |
+| 2. Spec written (requirements, plan, tasks) | AI | `dev-create-spec` |
+| 3. **Gate 1 - review the spec** | **Owner** | - |
+| 4. Implementation: branch, parallel subagents, tests, milestone commits | AI | `dev-execute-spec` |
+| 5. PR opened, CI driven to green, review comments handled, outcome label | AI | `dev-finalize-pr` |
+| 6. **Gate 2 - accept the PR** | **Owner** | - |
+| 7. Squash-merge, base sync, cleanup | AI | `dev-merge-pr` |
 
-All artifacts are project-independent. Project specifics (branch model, test commands, release flow) come from a small per-project profile, so the same pack runs on a `main`-only repo and a `master` + `develop` gitflow repo without edits.
+Fully autonomous mode: `dev-execute-next` picks the highest-value ready spec from the backlog, drives it to an outcome-labeled PR, and resets the workspace - suitable for scheduled and looped runs. Every autonomous run ends with exactly one outcome label: `ai:ready-to-merge`, `ai:manual`, or `ai:failed`.
 
 ## What's inside
 
-### Rules (`rules/`)
+### Rules (`rules/`) - always-on conventions
 
 | Rule | Governs |
 |---|---|
+| `dev-orchestration` | Multi-agent doctrine: consistency first, delegation by pointers, outcome labels, conflict gate |
 | `dev-commit-conventions` | Commit message format, push discipline, forbidden trailers |
 | `dev-git-workflow` | Branch model, protected branches, feature-branch flow |
 | `dev-skill-first` | Check the skill catalog before improvising a workflow |
-| `dev-context-engineering` | Conventions, decisions, and domain knowledge live in the repo |
-| `dev-spec-discipline` | When a task needs a written plan, and when it does not |
-| `dev-verification-gates` | Typecheck, lint, and tests pass before every commit; gates are never weakened |
-| `dev-rollback-safety` | Reversible migrations, feature flags, backout plans |
+| `dev-context-engineering` | Conventions, decisions, and the docs chain live in the repo |
+| `dev-spec-discipline` | When a change needs a spec, and when it does not |
+| `dev-verification-gates` | Typecheck, lint, tests pass before every commit; gates never weakened |
+| `dev-rollback-safety` | Reversible migrations, feature flags, expand-contract sequencing |
 
 ### Agents (`agents/`)
 
 | Agent | Role | Access |
 |---|---|---|
-| `dev-architect` | Specs, ADRs, module boundaries, implementation plans | full |
+| `dev-architect` | Specs, ADRs, module boundaries | full |
 | `dev-code-reviewer` | Reviews changes for correctness, conventions, tests, security | read-only |
-| `dev-test-engineer` | Test strategy and coverage across unit, integration, e2e | full |
-| `dev-docs-writer` | Keeps documentation and decision records in sync with code | full |
+| `dev-test-engineer` | Test strategy and coverage across all levels | full |
+| `dev-docs-writer` | Documentation and decision records in sync with code | full |
 
 ### Skills (`skills/`)
 
-| Group | Skills |
+**Orchestrators** - the owner-facing interface:
+
+| Skill | Responsibility |
 |---|---|
-| Git and PR | `dev-start-feature`, `dev-commit-push`, `dev-open-pr`, `dev-resolve-conflicts`, `dev-review-pr-comments` |
-| Quality | `dev-review-changes`, `dev-run-tests`, `dev-scan-secrets` |
-| Planning | `dev-plan-feature`, `dev-impact-analysis` |
-| Documentation | `dev-add-decision`, `dev-docs-sync-check` |
-| Session and release | `dev-generate-handoff`, `dev-create-release` |
+| `dev-create-spec` | Task to spec: grills the owner on ambiguity (checkpointed interview), writes EARS requirements + plan with sibling citations + tasks |
+| `dev-execute-spec` | Approved spec to PR: parallel subagents, consistency gates, docs reconciliation, outcome label |
+| `dev-continue-spec` | Resume a mid-flight spec: inherited-work drift audit first, then execution |
+| `dev-execute-next` | Pick the highest-value ready item, drive it end-to-end, reset the workspace |
+| `dev-finalize-pr` | CI to green plus every review comment handled - PR ready to merge |
+| `dev-merge-pr` | After owner accept: guard-checked squash-merge, base sync, cleanup |
+
+**Building blocks** - invoked by the orchestrators (and directly when useful):
+
+| Skill | Responsibility |
+|---|---|
+| `dev-commit-push` | Verified milestone commit and fast-forward push |
+| `dev-review-pr-comments` | Triage reviewer feedback: fix, discuss, or decline with reason |
+| `dev-resolve-conflicts` | Semantic conflict resolution, full gates after |
+| `dev-run-tests` | Typecheck, lint, tests with scope detection and failure analysis |
+| `dev-review-changes` | Read-only diff review with severity verdict |
+| `dev-scan-secrets` | Credential scan over diff, tree, or history |
+| `dev-handoff` | Self-contained continuation prompt for a fresh session |
+| `dev-add-decision` | Numbered ADR behind a three-condition gate |
+| `dev-docs-sync-check` | Docs claims verified against code: drift vs violation |
+| `dev-create-release` | Version, changelog, tag per the project's release flow |
 
 ## Install
 
 ### Mode A - git submodule + intelligence-sync (recommended)
 
-Works with [intelligence-sync](https://github.com/ainova-systems/intelligence-sync) 0.3.1 or later. The pack content is plugged in as additional source paths; the sync engine projects it to every enabled tool (Claude Code, Cursor, Copilot, Codex, opencode, AGENTS.md).
+Works with [intelligence-sync](https://github.com/ainova-systems/intelligence-sync) 0.3.1 or later. The pack plugs in as additional source paths; the sync engine projects it to every enabled tool (Claude Code, Cursor, Copilot, Codex, opencode, AGENTS.md).
 
 ```bash
 git submodule add https://github.com/ainova-systems/intelligence-dev-pack intelligence/dev-pack
@@ -82,7 +107,7 @@ Then sync:
 bash intelligence/sync/scripts/sync.sh
 ```
 
-Update to the latest pack version later:
+Update later:
 
 ```bash
 git submodule update --remote intelligence/dev-pack
@@ -91,18 +116,14 @@ bash intelligence/sync/scripts/sync.sh
 
 ### Mode B - global skills (Claude Code)
 
-Installs the skills for your user, available in every project without touching the project repo:
-
 ```bash
 git clone https://github.com/ainova-systems/intelligence-dev-pack
 bash intelligence-dev-pack/scripts/install-global.sh
 ```
 
-Globally installed skills have no project profile to read, so they fall back to auto-detection and ask when a value is ambiguous.
+Installs the skills for your user, available in every project. Without a project profile, skills fall back to auto-detection and ask when a value is ambiguous.
 
 ### Mode C - plain copy
-
-No tooling required. Copy the folders into your existing intelligence sources (or straight into `.claude/`) and adapt freely:
 
 ```bash
 cp -r intelligence-dev-pack/rules/*  my-project/intelligence/rules/
@@ -120,29 +141,30 @@ Copy the profile template into your project's rules source and fill it in:
 cp intelligence/dev-pack/templates/dev-project-profile.md intelligence/rules/dev-project-profile.md
 ```
 
-The profile declares the branch model (`main`, `master`, or `master` + `develop`), branch prefixes, verification commands, PR platform, and release flow. Every skill resolves project specifics in this order:
+The profile declares the branch model (`main`, `master`, or `master` + `develop`), verification commands, PR platform and merge method, release flow, and the docs structure (`specs_dir`, `features_dir`, `rules_dir`, `decisions_dir`, `spec_grouping`).
 
-1. The `dev-project-profile.md` rule in the project.
-2. Auto-detection from the repository (default branch from git, `develop` branch presence, test commands from manifests).
-3. Ask once, then suggest persisting the answer into the profile.
+Every skill resolves project specifics in a fixed order:
 
-A missing profile is never an error; it just means more detection and an occasional question.
+1. **Learn from the project** - the existing structure and the closest shipped sibling artifact are the template; nothing is hardcoded in skill text.
+2. **The profile** pins values when detection is ambiguous.
+3. **Ask once**, then suggest persisting the answer into the profile.
+
+The greenfield default for documentation follows the ai-first-docs tree: feature docs as the behavior baseline, change specs as `docs/specs/NNN-<slug>/` with `requirements.md` (EARS), `plan.md`, and `tasks.md`, business rules as contracts, numbered ADRs.
 
 ## Design principles
 
-The pack encodes one thesis: AI-first development is re-architecting the information environment the team and its agents share, so AI can write a large share of the code at speed without drift.
-
 1. **Context engineering over prompt engineering.** Output quality is governed by the information environment in the repository, not by prompt tricks.
-2. **Maximum context in the repository.** Conventions, decisions, and domain knowledge are durable repo artifacts that humans and agents both read. Context written once pays back across the whole backlog.
-3. **Skill-first.** Repeatable work starts from a skill, so the output stops depending on who prompted it, and the team's capability compounds as the catalog grows.
-4. **Spec discipline at the right threshold.** Small clear tasks ship directly; boundary-crossing or multi-module work gets a short contract + plan first. Ceremony where it pays, nowhere else.
-5. **Verifiability and rollback over trust.** Strict gates catch AI errors before production; reversible changes make the remaining errors cheap.
+2. **Maximum context in the repository.** Conventions, decisions, and domain knowledge are durable repo artifacts that humans and agents both read.
+3. **Skill-first.** Repeatable work starts from a skill, so output stops depending on who prompted it, and capability compounds with the catalog.
+4. **Spec discipline at the right threshold.** Small clear tasks ship directly; boundary-crossing work gets requirements + plan + tasks first.
+5. **Consistency over creativity in execution.** The spec is the contract; subagents receive pointers to the same sources, never re-explained instructions.
+6. **Verifiability and rollback over trust.** Strict gates catch AI errors before production; reversible changes make the remaining errors cheap.
 
 ## Compatibility
 
-- **intelligence-sync**: 0.3.1 or later (path-list `sources:` schema). The pack also works without the sync engine, consumed directly by Claude Code or any tool that reads `SKILL.md` folders.
+- **intelligence-sync**: 0.3.1 or later. The pack also works without the sync engine, consumed directly by Claude Code or any tool that reads `SKILL.md` folders.
 - **Tools**: anything intelligence-sync targets (Claude Code, Cursor, GitHub Copilot, Codex, Pi, opencode, AGENTS.md readers), plus direct use.
-- **Naming**: every artifact carries the `dev-` prefix, so pack content never collides with project artifacts or with the reserved `intelligence-` meta-skills.
+- **Naming**: every artifact carries the `dev-` prefix, so pack content never collides with project artifacts or the reserved `intelligence-` meta-skills.
 
 ## Versioning
 
