@@ -1,6 +1,6 @@
 ---
-name: dev-docs-sync-check
-description: "Verify documentation claims against the code; report drift vs violation"
+name: dev-audit-docs
+description: "Audit documentation claims against the code; report drift vs violation"
 argument-hint: "[doc path or directory]"
 agent: dev-docs-writer
 allowed-tools: Read, Grep, Glob, Bash

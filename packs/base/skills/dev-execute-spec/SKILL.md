@@ -40,7 +40,7 @@ The spec is the contract. Two sessions executing the same spec must produce conv
 1. Update the feature doc to the new behavior - it must describe TODAY after this change.
 2. Extract what the build paid for: durable business rules into the project's rules area; conventions into intelligence rules; decisions via `dev-add-decision`.
 3. Append new lessons to the spec's MUST READ FIRST so the next spec inherits them.
-4. `dev-docs-sync-check` over the touched docs.
+4. `dev-audit-docs` over the touched docs.
 5. Close the spec per project convention (follow what shipped specs do: keep the numbered folder, or delete the completed plan file; default keep).
 
 ## Phase E - PR finalization

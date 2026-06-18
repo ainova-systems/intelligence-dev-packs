@@ -24,7 +24,7 @@ One decision = one numbered file with explicit status, so readers learn why inst
 
 ## Scope / hand-off
 
-- Updating prose in feature/architecture docs - `dev-docs-sync-check` / the docs flow.
+- Updating prose in feature/architecture docs - `dev-audit-docs` / the docs flow.
 
 ## CRITICAL
 

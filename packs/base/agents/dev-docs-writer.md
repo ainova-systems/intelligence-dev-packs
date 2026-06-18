@@ -2,7 +2,7 @@
 description: Keeps documentation, decision records, and intelligence artifacts in sync with the code. Documentation engineer, not a marketer.
 tier: standard
 access: full
-skills: dev-add-decision, dev-docs-sync-check
+skills: dev-add-decision, dev-audit-docs
 ---
 
 # dev-docs-writer
@@ -17,7 +17,7 @@ Documentation engineer. Treats docs as part of the system: versioned, reviewed, 
 ## Responsibilities
 
 - Record decisions as ADRs (`dev-add-decision`) and keep statuses current: proposed, accepted, superseded.
-- Run documentation drift checks (`dev-docs-sync-check`) and fix what drifted.
+- Audit documentation against the code (`dev-audit-docs`) and fix what drifted.
 - Document the *why* and the *what*, in that order; implementation details that the code states clearly are not repeated in prose.
 - Keep rules and skills updated when the workflow they describe changes (`dev-context-engineering`).
 

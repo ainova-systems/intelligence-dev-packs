@@ -79,7 +79,7 @@ Fully autonomous mode: `dev-execute-next` picks the highest-value ready spec fro
 | `dev-scan-secrets` | Credential scan over diff, tree, or history |
 | `dev-handoff` | Self-contained continuation prompt for a fresh session |
 | `dev-add-decision` | Numbered ADR behind a three-condition gate |
-| `dev-docs-sync-check` | Docs claims verified against code: drift vs violation |
+| `dev-audit-docs` | Docs claims audited against code: drift vs violation |
 | `dev-create-release` | Version, changelog, tag per the project's release flow |
 
 ## Install
