@@ -5,9 +5,9 @@
 # Project-level rules and agents are not installed globally; see docs/INTEGRATION.md.
 #
 # Usage:
-#   bash scripts/install-global.sh             # the default 'base' pack
-#   bash scripts/install-global.sh base react  # named packs
-#   bash scripts/install-global.sh all         # every pack under packs/
+#   bash scripts/install-global.sh             # every pack (core + spec + ...)
+#   bash scripts/install-global.sh core        # named packs only
+#   bash scripts/install-global.sh all         # every pack (explicit)
 # Override target: CLAUDE_SKILLS_DIR=/path/to/skills bash scripts/install-global.sh
 
 set -euo pipefail
@@ -18,10 +18,8 @@ TARGET="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
 
 [ -d "$PACKS_DIR" ] || { echo "ERROR: packs/ not found at $PACK_ROOT — run from a full checkout." >&2; exit 1; }
 
-# Resolve which packs to install.
-if [ "$#" -eq 0 ]; then
-    PACKS=(base)
-elif [ "$1" = "all" ]; then
+# Resolve which packs to install. No args or `all` => every pack.
+if [ "$#" -eq 0 ] || [ "$1" = "all" ]; then
     PACKS=()
     for d in "$PACKS_DIR"/*/; do
         [ -d "$d" ] && PACKS+=("$(basename "$d")")

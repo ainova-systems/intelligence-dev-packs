@@ -4,148 +4,154 @@ Shared AI-first engineering practices, packaged as portable rules, agents, and s
 
 Built and maintained by [Ainova Systems](https://www.ainovasystems.com). Extracted from running multiple production AI-coded systems, including a 571k-line enterprise codebase where AI writes the majority of the code.
 
-## Packs
+## Packs and domains
 
-Content is organized into **packs** under [`packs/`](packs/). A consuming project opts into the packs it wants.
+Two decoupled ideas (see [`packs/README.md`](packs/README.md)):
 
-| Pack | Scope | Prefix |
-|---|---|---|
-| **base** (default) | The universal AI-first engineering workflow below. Stack-independent. | `dev-` |
+- A **pack** is what you install together. A **domain prefix** (`dev-`/`git-`/`spec-`) is the namespace on each artifact.
 
-`base` is the default; future packs (stack- or concern-specific) sit beside it and are selected explicitly. See [`packs/README.md`](packs/README.md).
+| Pack | Domains | Scope | Depends on |
+|---|---|---|---|
+| **core** | `dev-`, `git-` | Universal - engineering discipline, session hygiene, git/PR/release. Install everywhere. | - |
+| **spec** | `spec-` | Opt-in - spec-driven development. Not every project adopts it, so it ships separately. | core |
 
-## The owner flow (base pack)
+## The owner flow (spec pack)
 
-The base pack is built around one operating model: the owner touches the work at three gates, and everything between runs autonomously with reviews, checks, and fallbacks built in.
+When a project adopts spec-driven development, the owner touches the work at three gates, and everything between runs autonomously with reviews, checks, and fallbacks built in.
 
 | Step | Who | Skill |
 |---|---|---|
 | 1. State the task | **Owner** | - |
-| 2. Spec written (requirements, plan, tasks) | AI | `dev-create-spec` |
+| 2. Spec written (requirements, plan, tasks) | AI | `spec-create` |
 | 3. **Gate 1 - review the spec** | **Owner** | - |
-| 4. Implementation: branch, parallel subagents, tests, milestone commits | AI | `dev-execute-spec` |
-| 5. PR opened, CI driven to green, review comments handled, outcome label | AI | `dev-finalize-pr` |
+| 4. Implementation: branch, parallel subagents, tests, milestone commits | AI | `spec-execute` |
+| 5. PR opened, CI driven to green, review comments handled, outcome label | AI | `git-finalize-pr` |
 | 6. **Gate 2 - accept the PR** | **Owner** | - |
-| 7. Squash-merge, base sync, cleanup | AI | `dev-merge-pr` |
+| 7. Squash-merge, base sync, cleanup | AI | `git-merge-pr` |
 
-Fully autonomous mode: `dev-execute-next` picks the highest-value ready spec from the backlog, drives it to an outcome-labeled PR, and resets the workspace - suitable for scheduled and looped runs. Every autonomous run ends with exactly one outcome label: `ai:ready-to-merge`, `ai:manual`, or `ai:failed`.
+Fully autonomous mode: `spec-execute-next` picks the highest-value ready spec from the backlog, drives it to an outcome-labeled PR, and resets the workspace - suitable for scheduled and looped runs. Every autonomous run ends with exactly one outcome label: `ai:ready-to-merge`, `ai:manual`, or `ai:failed`.
 
-## What's inside the base pack
+A project that has not adopted spec-driven development still uses the `core` pack on its own: the git/PR/review/release skills and the engineering-discipline rules work standalone.
 
-### Rules (`packs/base/rules/`) - always-on conventions
+## core pack
 
-| Rule | Governs |
-|---|---|
-| `dev-orchestration` | Multi-agent doctrine: consistency first, delegation by pointers, outcome labels, conflict gate |
-| `dev-commit-conventions` | Commit message format, push discipline, forbidden trailers |
-| `dev-git-workflow` | Branch model, protected branches, feature-branch flow |
-| `dev-skill-first` | Check the skill catalog before improvising a workflow |
-| `dev-context-engineering` | Conventions, decisions, and the docs chain live in the repo |
-| `dev-spec-discipline` | When a change needs a spec, and when it does not |
-| `dev-verification-gates` | Typecheck, lint, tests pass before every commit; gates never weakened |
-| `dev-rollback-safety` | Reversible migrations, feature flags, expand-contract sequencing |
+### `dev-` domain - engineering discipline and session hygiene
 
-### Agents (`packs/base/agents/`)
-
-| Agent | Role | Access |
+| Artifact | Kind | Role |
 |---|---|---|
-| `dev-architect` | Specs, ADRs, module boundaries | full |
-| `dev-code-reviewer` | Reviews changes for correctness, conventions, tests, security | read-only |
-| `dev-test-engineer` | Test strategy and coverage across all levels | full |
-| `dev-docs-writer` | Documentation and decision records in sync with code | full |
+| `dev-skill-first` | rule | Check the skill catalog before improvising a workflow |
+| `dev-context-engineering` | rule | Conventions, decisions, and domain knowledge live in the repo |
+| `dev-verification-gates` | rule | Typecheck, lint, tests pass before every commit; gates never weakened |
+| `dev-rollback-safety` | rule | Reversible migrations, feature flags, expand-contract sequencing |
+| `dev-code-reviewer` | agent | Reviews changes for correctness, conventions, tests, security (read-only) |
+| `dev-test-engineer` | agent | Test strategy and coverage across all levels |
+| `dev-run-tests` | skill | Typecheck, lint, tests with scope detection and failure analysis |
+| `dev-review-changes` | skill | Read-only diff review with severity verdict |
+| `dev-handoff` | skill | Self-contained continuation prompt for a fresh session |
 
-### Skills (`packs/base/skills/`)
+### `git-` domain - git / PR / release
 
-**Orchestrators** - the owner-facing interface:
+| Artifact | Kind | Role |
+|---|---|---|
+| `git-commit-conventions` | rule | Commit message format, push discipline, forbidden trailers |
+| `git-workflow` | rule | Branch model, protected branches, feature-branch flow |
+| `git-commit-push` | skill | Verified milestone commit and fast-forward push |
+| `git-resolve-conflicts` | skill | Semantic conflict resolution, full gates after |
+| `git-review-pr-comments` | skill | Triage reviewer feedback: fix, discuss, or decline with reason |
+| `git-finalize-pr` | skill | CI to green plus every review comment handled - PR ready to merge |
+| `git-merge-pr` | skill | After owner accept: guard-checked squash-merge, base sync, cleanup |
+| `git-create-release` | skill | Version, changelog, tag per the project's release flow |
+| `git-scan-secrets` | skill | Credential scan over diff, tree, or history |
 
-| Skill | Responsibility |
-|---|---|
-| `dev-create-spec` | Task to spec: grills the owner on ambiguity (checkpointed interview), writes EARS requirements + plan with sibling citations + tasks |
-| `dev-execute-spec` | Approved spec to PR: parallel subagents, consistency gates, docs reconciliation, outcome label |
-| `dev-continue-spec` | Resume a mid-flight spec: inherited-work drift audit first, then execution |
-| `dev-execute-next` | Pick the highest-value ready item, drive it end-to-end, reset the workspace |
-| `dev-finalize-pr` | CI to green plus every review comment handled - PR ready to merge |
-| `dev-merge-pr` | After owner accept: guard-checked squash-merge, base sync, cleanup |
+## spec pack
 
-**Building blocks** - invoked by the orchestrators (and directly when useful):
+Domain **`spec-`**. Depends on `core`.
 
-| Skill | Responsibility |
-|---|---|
-| `dev-commit-push` | Verified milestone commit and fast-forward push |
-| `dev-review-pr-comments` | Triage reviewer feedback: fix, discuss, or decline with reason |
-| `dev-resolve-conflicts` | Semantic conflict resolution, full gates after |
-| `dev-run-tests` | Typecheck, lint, tests with scope detection and failure analysis |
-| `dev-review-changes` | Read-only diff review with severity verdict |
-| `dev-scan-secrets` | Credential scan over diff, tree, or history |
-| `dev-handoff` | Self-contained continuation prompt for a fresh session |
-| `dev-add-decision` | Numbered ADR behind a three-condition gate |
-| `dev-audit-docs` | Docs claims audited against code: drift vs violation |
-| `dev-create-release` | Version, changelog, tag per the project's release flow |
+| Artifact | Kind | Role |
+|---|---|---|
+| `spec-discipline` | rule | When a change needs a spec, and the docs chain |
+| `spec-orchestration` | rule | Multi-agent doctrine: consistency, delegation by pointers, outcome labels |
+| `spec-architect` | agent | Authors specs, ADRs, module boundaries |
+| `spec-docs-writer` | agent | Documentation and decision records in sync with code |
+| `spec-create` | skill | Task to spec: grills the owner on ambiguity, writes requirements + plan + tasks |
+| `spec-execute` | skill | Approved spec to PR: parallel subagents, consistency gates, docs reconciliation |
+| `spec-continue` | skill | Resume a mid-flight spec: inherited-work drift audit, then execution |
+| `spec-execute-next` | skill | Pick the highest-value ready spec, drive it end-to-end, reset the workspace |
+| `spec-add-decision` | skill | Numbered ADR behind a three-condition gate |
+| `spec-audit-docs` | skill | Docs claims audited against code: drift vs violation |
 
 ## Install
 
 ### Mode A - remote source (recommended)
 
-For an intelligence-sync that supports `git+` remote sources, no submodule or copy is needed: point `intelligence/config.yaml` straight at the pack. The `#subpath` selects the pack and type; the `@ref` pins the version.
+For an intelligence-sync that supports `git+` remote sources, no submodule or copy is needed: point `intelligence/config.yaml` straight at the packs. The `#subpath` selects the pack and type; the `@ref` pins the version. Add `core` always; add `spec` only for spec-driven projects.
 
 ```yaml
 sources:
   rules:
     - "intelligence/rules"
-    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/base/rules"
+    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/core/rules"
+    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/spec/rules"
   agents:
     - "intelligence/agents"
-    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/base/agents"
+    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/core/agents"
+    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/spec/agents"
   skills:
     - "intelligence/skills"
     - "intelligence/sync/skills"
-    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/base/skills"
+    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/core/skills"
+    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/spec/skills"
 ```
 
-Then `bash intelligence/sync/scripts/sync.sh`. Pin to a tag or SHA (the `@ref` must be slashless - use a tag, SHA, or slashless branch). Update by bumping the `@ref`. URL rules and the full reference are in [docs/INTEGRATION.md](docs/INTEGRATION.md).
+Then `bash intelligence/sync/scripts/sync.sh`. Pin the `@ref` to a tag or SHA (it must be slashless). URL rules and the full reference are in [docs/INTEGRATION.md](docs/INTEGRATION.md).
 
 ### Mode B - git submodule (vendored)
 
-For offline / air-gapped CI or teams that want the pack checked into their tree. Works with intelligence-sync 0.3.1 or later.
+For offline / air-gapped CI or teams that want the packs checked into their tree. Works with intelligence-sync 0.3.1 or later.
 
 ```bash
-git submodule add https://github.com/ainova-systems/intelligence-dev-packs intelligence/dev-pack
+git submodule add https://github.com/ainova-systems/intelligence-dev-packs intelligence/dev-packs
 ```
 
 ```yaml
 sources:
   rules:
     - "intelligence/rules"
-    - "intelligence/dev-pack/packs/base/rules"
+    - "intelligence/dev-packs/packs/core/rules"
+    - "intelligence/dev-packs/packs/spec/rules"
   agents:
     - "intelligence/agents"
-    - "intelligence/dev-pack/packs/base/agents"
+    - "intelligence/dev-packs/packs/core/agents"
+    - "intelligence/dev-packs/packs/spec/agents"
   skills:
     - "intelligence/skills"
     - "intelligence/sync/skills"
-    - "intelligence/dev-pack/packs/base/skills"
+    - "intelligence/dev-packs/packs/core/skills"
+    - "intelligence/dev-packs/packs/spec/skills"
 
 submodules:
-  - "intelligence/dev-pack"
+  - "intelligence/dev-packs"
 ```
 
-Then `bash intelligence/sync/scripts/sync.sh`. Update with `git submodule update --remote intelligence/dev-pack`.
+Then `bash intelligence/sync/scripts/sync.sh`. Update with `git submodule update --remote intelligence/dev-packs`.
 
 ### Mode C - global skills (Claude Code)
 
 ```bash
 git clone https://github.com/ainova-systems/intelligence-dev-packs
-bash intelligence-dev-packs/scripts/install-global.sh        # base pack
+bash intelligence-dev-packs/scripts/install-global.sh          # every pack
+bash intelligence-dev-packs/scripts/install-global.sh core     # core only
 ```
 
-Installs the pack skills for your user, available in every project. `install-global.sh <pack> [pack...]` selects packs (`all` for every pack). Without a project profile, skills fall back to auto-detection and ask when a value is ambiguous.
+Installs the skills for your user, available in every project. Without a project profile, skills fall back to auto-detection and ask when a value is ambiguous.
 
 ### Mode D - plain copy
 
 ```bash
-cp -r intelligence-dev-packs/packs/base/rules/*  my-project/intelligence/rules/
-cp -r intelligence-dev-packs/packs/base/agents/* my-project/intelligence/agents/
-cp -r intelligence-dev-packs/packs/base/skills/* my-project/intelligence/skills/
+cp -r intelligence-dev-packs/packs/core/rules/*  my-project/intelligence/rules/
+cp -r intelligence-dev-packs/packs/core/agents/* my-project/intelligence/agents/
+cp -r intelligence-dev-packs/packs/core/skills/* my-project/intelligence/skills/
+# add packs/spec/* the same way for spec-driven projects
 ```
 
 See [docs/INTEGRATION.md](docs/INTEGRATION.md) for the full reference, including uninstall.
@@ -155,7 +161,7 @@ See [docs/INTEGRATION.md](docs/INTEGRATION.md) for the full reference, including
 Copy the profile template into your project's rules source and fill it in:
 
 ```bash
-cp intelligence/dev-pack/packs/base/templates/dev-project-profile.md intelligence/rules/dev-project-profile.md
+cp intelligence/dev-packs/packs/core/templates/dev-project-profile.md intelligence/rules/dev-project-profile.md
 ```
 
 The profile declares the branch model (`main`, `master`, or `master` + `develop`), verification commands, PR platform and merge method, release flow, and the docs structure (`specs_dir`, `features_dir`, `rules_dir`, `decisions_dir`, `spec_grouping`).
@@ -179,9 +185,9 @@ The greenfield default for documentation follows the ai-first-docs tree: feature
 
 ## Compatibility
 
-- **intelligence-sync**: remote `git+` sources (Mode A) need a build that supports them; submodule / copy (Modes B-D) work with 0.3.1 or later. The pack also works without the sync engine, consumed directly by Claude Code or any tool that reads `SKILL.md` folders.
+- **intelligence-sync**: remote `git+` sources (Mode A) need a build that supports them; submodule / copy (Modes B-D) work with 0.3.1 or later. The packs also work without the sync engine, consumed directly by Claude Code or any tool that reads `SKILL.md` folders.
 - **Tools**: anything intelligence-sync targets (Claude Code, Cursor, GitHub Copilot, Codex, Pi, opencode, AGENTS.md readers), plus direct use.
-- **Naming**: every artifact in a pack carries that pack's prefix (`dev-` for base), so pack content never collides with project artifacts or the reserved `intelligence-` meta-skills.
+- **Naming**: every artifact carries a domain prefix (`dev-`/`git-`/`spec-`), so pack content never collides with project artifacts or the reserved `intelligence-` meta-skills.
 
 ## Versioning
 

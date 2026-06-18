@@ -9,8 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Restructured content under `packs/<name>/`, with `base` as the default pack, so the repo can host multiple packs and consumers can select one by subpath. Source paths are now `packs/base/{rules,agents,skills}`.
-- `validate-pack.sh` and `install-global.sh` are pack-aware; the validator derives and enforces each pack's prefix.
+- Split content into two adoption-based packs with domain prefixes: `core` (`dev-` discipline + `git-` vcs, install everywhere) and `spec` (`spec-`, opt-in spec-driven development, depends on core). Pack (adoption unit) and domain prefix (namespace) are decoupled, so a pack may hold several domains and re-grouping never forces a rename.
+- Renamed artifacts to domain prefixes: git/PR/release skills to `git-*` (`git-commit-push`, `git-finalize-pr`, `git-merge-pr`, `git-create-release`, `git-scan-secrets`, …); spec-driven skills to `spec-*` (`spec-create`, `spec-execute`, `spec-execute-next`, `spec-add-decision`, `spec-audit-docs`, …); discipline/session skills stay `dev-*` (`dev-handoff`, `dev-run-tests`, `dev-review-changes`). Rules and agents follow the same scheme.
+- Restructured the repo under `packs/<name>/`; consumers select packs by subpath. Source paths are now `packs/{core,spec}/{rules,agents,skills}`.
+- `validate-pack.sh` validates artifacts against a known domain-prefix set (multi-domain packs allowed); `install-global.sh` installs every pack by default, or named packs.
+- Renamed the repository to `intelligence-dev-packs`.
 
 ### Added
 

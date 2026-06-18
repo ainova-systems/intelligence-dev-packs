@@ -1,22 +1,32 @@
 #!/usr/bin/env bash
 # Validate every pack under packs/:
-# - each pack derives one prefix (from its first skill, else rule, else agent)
-# - every rule / agent / skill / template name carries that prefix
-# - rules and agents have description frontmatter; agents have tier + access
-# - each skill folder has SKILL.md whose `name` matches the folder
-# - a templates/ folder, if present, is non-empty
+# - every rule / agent / skill / template name carries a known DOMAIN prefix
+#   (dev- | git- | spec-); a pack may hold more than one domain.
+# - rules and agents have description frontmatter; agents have tier + access.
+# - each skill folder has SKILL.md whose `name` matches the folder.
+# - a templates/ folder, if present, is non-empty.
 # Zero dependencies: bash + awk + grep.
 
 set -euo pipefail
 
 PACK_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PACKS_DIR="$PACK_ROOT/packs"
-errors=0
 
+# Known domain prefixes. Add a row here when a new domain (e.g. react-, sec-) is introduced.
+KNOWN_PREFIXES="dev- git- spec-"
+
+errors=0
 fail() { echo "FAIL: $1" >&2; errors=$((errors + 1)); }
 
+has_known_prefix() {
+    local name="$1"
+    for p in $KNOWN_PREFIXES; do
+        case "$name" in "$p"*) return 0 ;; esac
+    done
+    return 1
+}
+
 has_frontmatter_key() {
-    # $1 file, $2 key — key must appear between the opening and closing --- lines
     awk -v key="$2" '
         NR == 1 && $0 != "---" { exit 1 }
         NR > 1 && $0 == "---" { exit found ? 0 : 1 }
@@ -31,35 +41,19 @@ for pack_dir in "$PACKS_DIR"/*/; do
     [ -d "$pack_dir" ] || continue
     pack="$(basename "$pack_dir")"
     pack_count=$((pack_count + 1))
-
-    # Derive the pack prefix from the first skill, else rule, else agent.
-    prefix=""
-    for probe in skills rules agents; do
-        for p in "$pack_dir$probe"/*; do
-            [ -e "$p" ] || continue
-            n="$(basename "$p" .md)"
-            prefix="${n%%-*}-"
-            break
-        done
-        [ -n "$prefix" ] && break
-    done
-    if [ -z "$prefix" ]; then
-        fail "[$pack] no rules/agents/skills to derive a prefix from"
-        continue
-    fi
-    echo "pack '$pack' — prefix '$prefix'"
+    echo "pack '$pack'"
 
     for f in "$pack_dir"rules/*.md; do
         [ -e "$f" ] || break
         base="$(basename "$f" .md)"
-        case "$base" in "$prefix"*) ;; *) fail "[$pack] rule '$base' missing '$prefix' prefix" ;; esac
+        has_known_prefix "$base" || fail "[$pack] rule '$base' has no known domain prefix ($KNOWN_PREFIXES)"
         has_frontmatter_key "$f" "description" || fail "[$pack] rule '$base' missing description frontmatter"
     done
 
     for f in "$pack_dir"agents/*.md; do
         [ -e "$f" ] || break
         base="$(basename "$f" .md)"
-        case "$base" in "$prefix"*) ;; *) fail "[$pack] agent '$base' missing '$prefix' prefix" ;; esac
+        has_known_prefix "$base" || fail "[$pack] agent '$base' has no known domain prefix ($KNOWN_PREFIXES)"
         has_frontmatter_key "$f" "description" || fail "[$pack] agent '$base' missing description frontmatter"
         has_frontmatter_key "$f" "tier" || fail "[$pack] agent '$base' missing tier frontmatter"
         has_frontmatter_key "$f" "access" || fail "[$pack] agent '$base' missing access frontmatter"
@@ -68,7 +62,7 @@ for pack_dir in "$PACKS_DIR"/*/; do
     for d in "$pack_dir"skills/*/; do
         [ -d "$d" ] || break
         name="$(basename "$d")"
-        case "$name" in "$prefix"*) ;; *) fail "[$pack] skill folder '$name' missing '$prefix' prefix" ;; esac
+        has_known_prefix "$name" || fail "[$pack] skill folder '$name' has no known domain prefix ($KNOWN_PREFIXES)"
         if [ ! -f "$d/SKILL.md" ]; then
             fail "[$pack] skill '$name' missing SKILL.md"
             continue
