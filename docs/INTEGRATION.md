@@ -1,6 +1,6 @@
 # Integration Guide
 
-How to attach intelligence-dev-pack to a project, configure it, keep it updated, and remove it.
+How to attach intelligence-dev-packs to a project, configure it, keep it updated, and remove it.
 
 ## Pack layout
 
@@ -39,14 +39,14 @@ into a clone, and reads the rules / agents / skills from `<subpath>` inside it. 
 sources:
   rules:
     - "intelligence/rules"
-    - "git+https://github.com/ainova-systems/intelligence-dev-pack@v0.1.0#packs/base/rules"
+    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/base/rules"
   agents:
     - "intelligence/agents"
-    - "git+https://github.com/ainova-systems/intelligence-dev-pack@v0.1.0#packs/base/agents"
+    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/base/agents"
   skills:
     - "intelligence/skills"
     - "intelligence/sync/skills"
-    - "git+https://github.com/ainova-systems/intelligence-dev-pack@v0.1.0#packs/base/skills"
+    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/base/skills"
 ```
 
 Then `bash intelligence/sync/scripts/sync.sh`.
@@ -71,7 +71,7 @@ Bump the `@ref` to a newer tag and re-sync. Read the pack `CHANGELOG.md` between
 For offline / air-gapped CI or vendored-in-tree setups. Works with intelligence-sync 0.3.1 or later.
 
 ```bash
-git submodule add https://github.com/ainova-systems/intelligence-dev-pack intelligence/dev-pack
+git submodule add https://github.com/ainova-systems/intelligence-dev-packs intelligence/dev-pack
 cd intelligence/dev-pack && git checkout v0.1.0 && cd -   # pin
 git add intelligence/dev-pack
 ```
@@ -100,9 +100,9 @@ Update: `git submodule update --remote intelligence/dev-pack` (or check out a ne
 ## Mode C - global skills (Claude Code)
 
 ```bash
-git clone https://github.com/ainova-systems/intelligence-dev-pack
-bash intelligence-dev-pack/scripts/install-global.sh        # base pack
-bash intelligence-dev-pack/scripts/install-global.sh all    # every pack
+git clone https://github.com/ainova-systems/intelligence-dev-packs
+bash intelligence-dev-packs/scripts/install-global.sh        # base pack
+bash intelligence-dev-packs/scripts/install-global.sh all    # every pack
 ```
 
 The script copies each selected pack's `skills/*` folders into `~/.claude/skills/` (override with `CLAUDE_SKILLS_DIR`). Re-run after pulling a new version; it replaces installed skills in place.
@@ -116,9 +116,9 @@ Uninstall: delete the installed skill folders from `~/.claude/skills/`.
 ## Mode D - plain copy
 
 ```bash
-cp -r intelligence-dev-pack/packs/base/rules/*  my-project/intelligence/rules/
-cp -r intelligence-dev-pack/packs/base/agents/* my-project/intelligence/agents/
-cp -r intelligence-dev-pack/packs/base/skills/* my-project/intelligence/skills/
+cp -r intelligence-dev-packs/packs/base/rules/*  my-project/intelligence/rules/
+cp -r intelligence-dev-packs/packs/base/agents/* my-project/intelligence/agents/
+cp -r intelligence-dev-packs/packs/base/skills/* my-project/intelligence/skills/
 ```
 
 The copy is yours: adapt the text, drop what does not apply. The cost is that updates become a manual diff. Keep the `dev-` prefix for a clean upgrade path back to Mode A/B later.

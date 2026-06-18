@@ -1,4 +1,4 @@
-# intelligence-dev-pack
+# intelligence-dev-packs
 
 Shared AI-first engineering practices, packaged as portable rules, agents, and skills. Author the workflow once, reuse it in every repository, and let both your team and your AI coding agents read the same source.
 
@@ -92,14 +92,14 @@ For an intelligence-sync that supports `git+` remote sources, no submodule or co
 sources:
   rules:
     - "intelligence/rules"
-    - "git+https://github.com/ainova-systems/intelligence-dev-pack@v0.1.0#packs/base/rules"
+    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/base/rules"
   agents:
     - "intelligence/agents"
-    - "git+https://github.com/ainova-systems/intelligence-dev-pack@v0.1.0#packs/base/agents"
+    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/base/agents"
   skills:
     - "intelligence/skills"
     - "intelligence/sync/skills"
-    - "git+https://github.com/ainova-systems/intelligence-dev-pack@v0.1.0#packs/base/skills"
+    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/base/skills"
 ```
 
 Then `bash intelligence/sync/scripts/sync.sh`. Pin to a tag or SHA (the `@ref` must be slashless - use a tag, SHA, or slashless branch). Update by bumping the `@ref`. URL rules and the full reference are in [docs/INTEGRATION.md](docs/INTEGRATION.md).
@@ -109,7 +109,7 @@ Then `bash intelligence/sync/scripts/sync.sh`. Pin to a tag or SHA (the `@ref` m
 For offline / air-gapped CI or teams that want the pack checked into their tree. Works with intelligence-sync 0.3.1 or later.
 
 ```bash
-git submodule add https://github.com/ainova-systems/intelligence-dev-pack intelligence/dev-pack
+git submodule add https://github.com/ainova-systems/intelligence-dev-packs intelligence/dev-pack
 ```
 
 ```yaml
@@ -134,8 +134,8 @@ Then `bash intelligence/sync/scripts/sync.sh`. Update with `git submodule update
 ### Mode C - global skills (Claude Code)
 
 ```bash
-git clone https://github.com/ainova-systems/intelligence-dev-pack
-bash intelligence-dev-pack/scripts/install-global.sh        # base pack
+git clone https://github.com/ainova-systems/intelligence-dev-packs
+bash intelligence-dev-packs/scripts/install-global.sh        # base pack
 ```
 
 Installs the pack skills for your user, available in every project. `install-global.sh <pack> [pack...]` selects packs (`all` for every pack). Without a project profile, skills fall back to auto-detection and ask when a value is ambiguous.
@@ -143,9 +143,9 @@ Installs the pack skills for your user, available in every project. `install-glo
 ### Mode D - plain copy
 
 ```bash
-cp -r intelligence-dev-pack/packs/base/rules/*  my-project/intelligence/rules/
-cp -r intelligence-dev-pack/packs/base/agents/* my-project/intelligence/agents/
-cp -r intelligence-dev-pack/packs/base/skills/* my-project/intelligence/skills/
+cp -r intelligence-dev-packs/packs/base/rules/*  my-project/intelligence/rules/
+cp -r intelligence-dev-packs/packs/base/agents/* my-project/intelligence/agents/
+cp -r intelligence-dev-packs/packs/base/skills/* my-project/intelligence/skills/
 ```
 
 See [docs/INTEGRATION.md](docs/INTEGRATION.md) for the full reference, including uninstall.

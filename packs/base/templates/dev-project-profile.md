@@ -1,5 +1,5 @@
 ---
-description: Project-specific configuration consumed by the intelligence-dev-pack rules and skills
+description: Project-specific configuration consumed by the intelligence-dev-packs rules and skills
 ---
 
 # Project Profile (dev pack)
