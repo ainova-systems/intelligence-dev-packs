@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Restructured content under `packs/<name>/`, with `base` as the default pack, so the repo can host multiple packs and consumers can select one by subpath. Source paths are now `packs/base/{rules,agents,skills}`.
+- `validate-pack.sh` and `install-global.sh` are pack-aware; the validator derives and enforces each pack's prefix.
+
+### Added
+
+- Documented the remote `git+<url>[@<ref>][#<subpath>]` source mode as the recommended install method (no submodule), including the URL scheme and slashless-ref rules.
+
 ## [0.1.0] - 2026-06-12
 
 ### Added

@@ -1,38 +1,58 @@
 #!/usr/bin/env bash
-# Install the pack skills as Claude Code user-level (global) skills.
-# Copies every skills/dev-* folder into the user skills directory, replacing
-# previously installed versions of the same skills. Project-level rules and
-# agents are not installed globally; see docs/INTEGRATION.md Mode A or C.
+# Install pack skills as Claude Code user-level (global) skills.
+# Copies every skills/<prefix>-* folder of the selected pack(s) into the user
+# skills directory, replacing previously installed versions of the same skills.
+# Project-level rules and agents are not installed globally; see docs/INTEGRATION.md.
 #
-# Usage: bash scripts/install-global.sh
+# Usage:
+#   bash scripts/install-global.sh             # the default 'base' pack
+#   bash scripts/install-global.sh base react  # named packs
+#   bash scripts/install-global.sh all         # every pack under packs/
 # Override target: CLAUDE_SKILLS_DIR=/path/to/skills bash scripts/install-global.sh
 
 set -euo pipefail
 
 PACK_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PACKS_DIR="$PACK_ROOT/packs"
 TARGET="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
 
-if [ ! -d "$PACK_ROOT/skills" ]; then
-    echo "ERROR: skills/ not found at $PACK_ROOT - run from a full pack checkout." >&2
-    exit 1
+[ -d "$PACKS_DIR" ] || { echo "ERROR: packs/ not found at $PACK_ROOT — run from a full checkout." >&2; exit 1; }
+
+# Resolve which packs to install.
+if [ "$#" -eq 0 ]; then
+    PACKS=(base)
+elif [ "$1" = "all" ]; then
+    PACKS=()
+    for d in "$PACKS_DIR"/*/; do
+        [ -d "$d" ] && PACKS+=("$(basename "$d")")
+    done
+else
+    PACKS=("$@")
 fi
 
 mkdir -p "$TARGET"
 
 installed=0
-for skill_dir in "$PACK_ROOT"/skills/dev-*/; do
-    [ -d "$skill_dir" ] || continue
-    name="$(basename "$skill_dir")"
-    if [ ! -f "$skill_dir/SKILL.md" ]; then
-        echo "WARN: $name has no SKILL.md, skipped." >&2
+for pack in "${PACKS[@]}"; do
+    src="$PACKS_DIR/$pack/skills"
+    if [ ! -d "$src" ]; then
+        echo "WARN: pack '$pack' has no skills/ ($src), skipped." >&2
         continue
     fi
-    rm -rf "${TARGET:?}/$name"
-    cp -r "$skill_dir" "$TARGET/$name"
-    echo "installed: $name"
-    installed=$((installed + 1))
+    for skill_dir in "$src"/*/; do
+        [ -d "$skill_dir" ] || continue
+        name="$(basename "$skill_dir")"
+        if [ ! -f "$skill_dir/SKILL.md" ]; then
+            echo "WARN: [$pack] $name has no SKILL.md, skipped." >&2
+            continue
+        fi
+        rm -rf "${TARGET:?}/$name"
+        cp -r "$skill_dir" "$TARGET/$name"
+        echo "installed: [$pack] $name"
+        installed=$((installed + 1))
+    done
 done
 
 echo ""
 echo "Done: $installed skills installed to $TARGET"
-echo "Uninstall: remove the dev-* folders from $TARGET"
+echo "Uninstall: remove the installed skill folders from $TARGET"

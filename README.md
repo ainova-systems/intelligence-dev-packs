@@ -4,9 +4,19 @@ Shared AI-first engineering practices, packaged as portable rules, agents, and s
 
 Built and maintained by [Ainova Systems](https://www.ainovasystems.com). Extracted from running multiple production AI-coded systems, including a 571k-line enterprise codebase where AI writes the majority of the code.
 
-## The owner flow
+## Packs
 
-The pack is built around one operating model: the owner touches the work at three gates, and everything between runs autonomously with reviews, checks, and fallbacks built in.
+Content is organized into **packs** under [`packs/`](packs/). A consuming project opts into the packs it wants.
+
+| Pack | Scope | Prefix |
+|---|---|---|
+| **base** (default) | The universal AI-first engineering workflow below. Stack-independent. | `dev-` |
+
+`base` is the default; future packs (stack- or concern-specific) sit beside it and are selected explicitly. See [`packs/README.md`](packs/README.md).
+
+## The owner flow (base pack)
+
+The base pack is built around one operating model: the owner touches the work at three gates, and everything between runs autonomously with reviews, checks, and fallbacks built in.
 
 | Step | Who | Skill |
 |---|---|---|
@@ -20,9 +30,9 @@ The pack is built around one operating model: the owner touches the work at thre
 
 Fully autonomous mode: `dev-execute-next` picks the highest-value ready spec from the backlog, drives it to an outcome-labeled PR, and resets the workspace - suitable for scheduled and looped runs. Every autonomous run ends with exactly one outcome label: `ai:ready-to-merge`, `ai:manual`, or `ai:failed`.
 
-## What's inside
+## What's inside the base pack
 
-### Rules (`rules/`) - always-on conventions
+### Rules (`packs/base/rules/`) - always-on conventions
 
 | Rule | Governs |
 |---|---|
@@ -35,7 +45,7 @@ Fully autonomous mode: `dev-execute-next` picks the highest-value ready spec fro
 | `dev-verification-gates` | Typecheck, lint, tests pass before every commit; gates never weakened |
 | `dev-rollback-safety` | Reversible migrations, feature flags, expand-contract sequencing |
 
-### Agents (`agents/`)
+### Agents (`packs/base/agents/`)
 
 | Agent | Role | Access |
 |---|---|---|
@@ -44,7 +54,7 @@ Fully autonomous mode: `dev-execute-next` picks the highest-value ready spec fro
 | `dev-test-engineer` | Test strategy and coverage across all levels | full |
 | `dev-docs-writer` | Documentation and decision records in sync with code | full |
 
-### Skills (`skills/`)
+### Skills (`packs/base/skills/`)
 
 **Orchestrators** - the owner-facing interface:
 
@@ -74,61 +84,68 @@ Fully autonomous mode: `dev-execute-next` picks the highest-value ready spec fro
 
 ## Install
 
-### Mode A - git submodule + intelligence-sync (recommended)
+### Mode A - remote source (recommended)
 
-Works with [intelligence-sync](https://github.com/ainova-systems/intelligence-sync) 0.3.1 or later. The pack plugs in as additional source paths; the sync engine projects it to every enabled tool (Claude Code, Cursor, Copilot, Codex, opencode, AGENTS.md).
-
-```bash
-git submodule add https://github.com/ainova-systems/intelligence-dev-pack intelligence/dev-pack
-```
-
-Add the pack paths to `intelligence/config.yaml`:
+For an intelligence-sync that supports `git+` remote sources, no submodule or copy is needed: point `intelligence/config.yaml` straight at the pack. The `#subpath` selects the pack and type; the `@ref` pins the version.
 
 ```yaml
 sources:
   rules:
     - "intelligence/rules"
-    - "intelligence/dev-pack/rules"
+    - "git+https://github.com/ainova-systems/intelligence-dev-pack@v0.1.0#packs/base/rules"
   agents:
     - "intelligence/agents"
-    - "intelligence/dev-pack/agents"
+    - "git+https://github.com/ainova-systems/intelligence-dev-pack@v0.1.0#packs/base/agents"
   skills:
     - "intelligence/skills"
     - "intelligence/sync/skills"
-    - "intelligence/dev-pack/skills"
+    - "git+https://github.com/ainova-systems/intelligence-dev-pack@v0.1.0#packs/base/skills"
+```
+
+Then `bash intelligence/sync/scripts/sync.sh`. Pin to a tag or SHA (the `@ref` must be slashless - use a tag, SHA, or slashless branch). Update by bumping the `@ref`. URL rules and the full reference are in [docs/INTEGRATION.md](docs/INTEGRATION.md).
+
+### Mode B - git submodule (vendored)
+
+For offline / air-gapped CI or teams that want the pack checked into their tree. Works with intelligence-sync 0.3.1 or later.
+
+```bash
+git submodule add https://github.com/ainova-systems/intelligence-dev-pack intelligence/dev-pack
+```
+
+```yaml
+sources:
+  rules:
+    - "intelligence/rules"
+    - "intelligence/dev-pack/packs/base/rules"
+  agents:
+    - "intelligence/agents"
+    - "intelligence/dev-pack/packs/base/agents"
+  skills:
+    - "intelligence/skills"
+    - "intelligence/sync/skills"
+    - "intelligence/dev-pack/packs/base/skills"
 
 submodules:
   - "intelligence/dev-pack"
 ```
 
-Then sync:
+Then `bash intelligence/sync/scripts/sync.sh`. Update with `git submodule update --remote intelligence/dev-pack`.
 
-```bash
-bash intelligence/sync/scripts/sync.sh
-```
-
-Update later:
-
-```bash
-git submodule update --remote intelligence/dev-pack
-bash intelligence/sync/scripts/sync.sh
-```
-
-### Mode B - global skills (Claude Code)
+### Mode C - global skills (Claude Code)
 
 ```bash
 git clone https://github.com/ainova-systems/intelligence-dev-pack
-bash intelligence-dev-pack/scripts/install-global.sh
+bash intelligence-dev-pack/scripts/install-global.sh        # base pack
 ```
 
-Installs the skills for your user, available in every project. Without a project profile, skills fall back to auto-detection and ask when a value is ambiguous.
+Installs the pack skills for your user, available in every project. `install-global.sh <pack> [pack...]` selects packs (`all` for every pack). Without a project profile, skills fall back to auto-detection and ask when a value is ambiguous.
 
-### Mode C - plain copy
+### Mode D - plain copy
 
 ```bash
-cp -r intelligence-dev-pack/rules/*  my-project/intelligence/rules/
-cp -r intelligence-dev-pack/agents/* my-project/intelligence/agents/
-cp -r intelligence-dev-pack/skills/* my-project/intelligence/skills/
+cp -r intelligence-dev-pack/packs/base/rules/*  my-project/intelligence/rules/
+cp -r intelligence-dev-pack/packs/base/agents/* my-project/intelligence/agents/
+cp -r intelligence-dev-pack/packs/base/skills/* my-project/intelligence/skills/
 ```
 
 See [docs/INTEGRATION.md](docs/INTEGRATION.md) for the full reference, including uninstall.
@@ -138,7 +155,7 @@ See [docs/INTEGRATION.md](docs/INTEGRATION.md) for the full reference, including
 Copy the profile template into your project's rules source and fill it in:
 
 ```bash
-cp intelligence/dev-pack/templates/dev-project-profile.md intelligence/rules/dev-project-profile.md
+cp intelligence/dev-pack/packs/base/templates/dev-project-profile.md intelligence/rules/dev-project-profile.md
 ```
 
 The profile declares the branch model (`main`, `master`, or `master` + `develop`), verification commands, PR platform and merge method, release flow, and the docs structure (`specs_dir`, `features_dir`, `rules_dir`, `decisions_dir`, `spec_grouping`).
@@ -162,13 +179,13 @@ The greenfield default for documentation follows the ai-first-docs tree: feature
 
 ## Compatibility
 
-- **intelligence-sync**: 0.3.1 or later. The pack also works without the sync engine, consumed directly by Claude Code or any tool that reads `SKILL.md` folders.
+- **intelligence-sync**: remote `git+` sources (Mode A) need a build that supports them; submodule / copy (Modes B-D) work with 0.3.1 or later. The pack also works without the sync engine, consumed directly by Claude Code or any tool that reads `SKILL.md` folders.
 - **Tools**: anything intelligence-sync targets (Claude Code, Cursor, GitHub Copilot, Codex, Pi, opencode, AGENTS.md readers), plus direct use.
-- **Naming**: every artifact carries the `dev-` prefix, so pack content never collides with project artifacts or the reserved `intelligence-` meta-skills.
+- **Naming**: every artifact in a pack carries that pack's prefix (`dev-` for base), so pack content never collides with project artifacts or the reserved `intelligence-` meta-skills.
 
 ## Versioning
 
-Semantic versioning, history in [CHANGELOG.md](CHANGELOG.md). Pin the submodule to a tag for reproducible setups; track `main` for the latest practices.
+Semantic versioning, history in [CHANGELOG.md](CHANGELOG.md). Pin the `@ref` (Mode A) or the submodule (Mode B) to a tag for reproducible setups; track `main` for the latest practices.
 
 ## License
 
