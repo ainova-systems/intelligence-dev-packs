@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `spec-init` skill: one-time bootstrap that scaffolds the in-repo docs substrate (Layer C knowledge base + Layer B rules-as-contracts, decision log, dependency map) and safely migrates existing documentation into it (quarantine to `_inbox/`, reclassify one-by-one, nothing deleted), drafting core docs from code for owner review. Learns and adopts an existing docs structure rather than imposing one. Grounded in the Ainova Systems AI-First readiness methodology and the ai-first-docs tree.
 - Documented the remote `git+<url>[@<ref>][#<subpath>]` source mode as the recommended install method (no submodule), including the URL scheme and slashless-ref rules.
 
 ## [0.1.0] - 2026-06-12

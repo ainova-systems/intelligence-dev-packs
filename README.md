@@ -31,6 +31,8 @@ When a project adopts spec-driven development, the owner touches the work at thr
 
 Fully autonomous mode: `spec-execute-next` picks the highest-value ready spec from the backlog, drives it to an outcome-labeled PR, and resets the workspace - suitable for scheduled and looped runs. Every autonomous run ends with exactly one outcome label: `ai:ready-to-merge`, `ai:manual`, or `ai:failed`.
 
+Before the first spec, `spec-init` is a one-time bootstrap: it scaffolds the in-repo docs substrate (domain model, glossary, rules-as-contracts, feature baselines, decisions, the `specs/` tree) and safely migrates existing documentation into it, drafting from code for owner review. It learns and adopts a project's existing docs structure rather than imposing one.
+
 A project that has not adopted spec-driven development still uses the `core` pack on its own: the git/PR/review/release skills and the engineering-discipline rules work standalone.
 
 ## core pack
@@ -73,6 +75,7 @@ Domain **`spec-`**. Depends on `core`.
 | `spec-orchestration` | rule | Multi-agent doctrine: consistency, delegation by pointers, outcome labels |
 | `spec-architect` | agent | Authors specs, ADRs, module boundaries |
 | `spec-docs-writer` | agent | Documentation and decision records in sync with code |
+| `spec-init` | skill | One-time bootstrap: scaffold the in-repo docs substrate and migrate existing docs into it, drafting core docs from code |
 | `spec-create` | skill | Task to spec: grills the owner on ambiguity, writes requirements + plan + tasks |
 | `spec-execute` | skill | Approved spec to PR: parallel subagents, consistency gates, docs reconciliation |
 | `spec-continue` | skill | Resume a mid-flight spec: inherited-work drift audit, then execution |

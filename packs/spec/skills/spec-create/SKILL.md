@@ -15,6 +15,8 @@ Turn a task into a spec a cold-context session can execute without re-discoverin
 2. Profile pins it when ambiguous: `specs_dir`, `features_dir`, `spec_grouping` (`flat` | `quarterly`) in `dev-project-profile.md`.
 3. Greenfield default: `docs/specs/NNN-<slug>/` with `requirements.md` + `plan.md` + `tasks.md` (the ai-first-docs tree); `quarterly` grouping nests as `docs/specs/<yyyy>-Q<n>/NNN-<slug>/`.
 
+If the project has no docs substrate yet (no `model.md` / `glossary.md` / `features/` / `specs/`), run `spec-init` first to scaffold it - this skill writes one change spec into an existing structure, it does not bootstrap the whole tree.
+
 ## Steps
 
 1. **Deep learning first.** Read the feature doc for the touched area (`features_dir`), the project rules, the decision records, and the closest shipped sibling spec end-to-end. Note rules the request might contradict - rules win; flag conflicts now.
