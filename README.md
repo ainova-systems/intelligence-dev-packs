@@ -245,8 +245,18 @@ The profile (when present) declares the branch model, verification commands, PR 
 
 Semantic versioning, history in [CHANGELOG.md](CHANGELOG.md). Pin the `@ref` (Mode A) or the submodule (Mode B) to a tag for reproducible setups; track `main` for the latest practices.
 
+## Related
+
+- **[intelligence-sync](https://github.com/ainova-systems/intelligence-sync)** - the open-source engine that delivers these packs into every IDE your team uses (Claude Code, Cursor, GitHub Copilot, Codex, and more). intelligence-dev-packs is the shared content. intelligence-sync is how it reaches each tool.
+
 ## License
 
 MIT. Copyright 2026 Ainova Systems.
 
-Created by [Dmitrij Zykovic](https://www.linkedin.com/in/dmitrijz/), Fractional CTO at Ainova Systems.
+---
+
+Created by **[Dmitrij Zykovic](https://www.linkedin.com/in/dmitrijz/)** - Fractional CTO at [Ainova Systems](https://www.ainovasystems.com).
+
+Helping engineering teams adopt AI-First SDLC and build autonomous AI engineering pipelines.
+
+[LinkedIn](https://www.linkedin.com/in/dmitrijz/) · [Advisory & Consulting](https://www.ainovasystems.com)
