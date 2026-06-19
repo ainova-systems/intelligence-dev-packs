@@ -23,11 +23,11 @@ When a project adopts spec-driven development, the owner touches the work at thr
 |---|---|---|
 | 1. State the task | **Owner** | - |
 | 2. Spec written (requirements, plan, tasks) | AI | `spec-create` |
-| 3. **Gate 1 - review the spec** | **Owner** | - |
+| 3. **Gate 1 - review and approve the spec** | **Owner** | `spec-approve` |
 | 4. Implementation: branch, parallel subagents, tests, milestone commits | AI | `spec-execute` |
 | 5. PR opened, CI driven to green, review comments handled, outcome label | AI | `git-finalize-pr` |
 | 6. **Gate 2 - accept the PR** | **Owner** | - |
-| 7. Squash-merge, base sync, cleanup | AI | `git-merge-pr` |
+| 7. Squash-merge, close the spec, cleanup | AI | `git-merge-pr` -> `spec-close` |
 
 The spec lifecycle is machine-tracked and AI-driven end to end - the owner's only touchpoints are the three gates. A spec carries a status: `spec-create` writes `proposed`; the owner reviews and runs `spec-approve` (`approved`); `spec-execute` runs it (`in-progress`) to a PR; after the owner accepts, `git-merge-pr` merges and `spec-close` finalizes it (`completed`). `spec-cancel` retires a dropped or superseded spec with a recorded reason. Every transition keeps the spec status and the docs substrate (feature docs, rules, model, glossary) in sync automatically - nothing is updated by hand.
 
