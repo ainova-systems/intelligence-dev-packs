@@ -44,17 +44,17 @@ into a clone, and reads the rules / agents / skills from `<subpath>` inside it. 
 sources:
   rules:
     - "intelligence/rules"
-    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/core/rules"
-    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/spec/rules"
+    - "git+https://github.com/ainova-systems/intelligence-dev-packs.git@v0.1.0#packs/core/rules"
+    - "git+https://github.com/ainova-systems/intelligence-dev-packs.git@v0.1.0#packs/spec/rules"
   agents:
     - "intelligence/agents"
-    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/core/agents"
-    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/spec/agents"
+    - "git+https://github.com/ainova-systems/intelligence-dev-packs.git@v0.1.0#packs/core/agents"
+    - "git+https://github.com/ainova-systems/intelligence-dev-packs.git@v0.1.0#packs/spec/agents"
   skills:
     - "intelligence/skills"
     - "intelligence/sync/skills"
-    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/core/skills"
-    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/spec/skills"
+    - "git+https://github.com/ainova-systems/intelligence-dev-packs.git@v0.1.0#packs/core/skills"
+    - "git+https://github.com/ainova-systems/intelligence-dev-packs.git@v0.1.0#packs/spec/skills"
 ```
 
 Then `bash intelligence/sync/scripts/sync.sh`. Drop the three `spec` lines for a project that has not adopted spec-driven development.

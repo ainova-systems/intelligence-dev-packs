@@ -99,20 +99,20 @@ For an intelligence-sync that supports `git+` remote sources, no submodule or co
 sources:
   rules:
     - "intelligence/rules"
-    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/core/rules"
-    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/spec/rules"
+    - "git+https://github.com/ainova-systems/intelligence-dev-packs.git@v0.1.0#packs/core/rules"
+    - "git+https://github.com/ainova-systems/intelligence-dev-packs.git@v0.1.0#packs/spec/rules"
   agents:
     - "intelligence/agents"
-    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/core/agents"
-    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/spec/agents"
+    - "git+https://github.com/ainova-systems/intelligence-dev-packs.git@v0.1.0#packs/core/agents"
+    - "git+https://github.com/ainova-systems/intelligence-dev-packs.git@v0.1.0#packs/spec/agents"
   skills:
     - "intelligence/skills"
     - "intelligence/sync/skills"
-    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/core/skills"
-    - "git+https://github.com/ainova-systems/intelligence-dev-packs@v0.1.0#packs/spec/skills"
+    - "git+https://github.com/ainova-systems/intelligence-dev-packs.git@v0.1.0#packs/core/skills"
+    - "git+https://github.com/ainova-systems/intelligence-dev-packs.git@v0.1.0#packs/spec/skills"
 ```
 
-Then `bash intelligence/sync/scripts/sync.sh`. Pin the `@ref` to a tag or SHA (it must be slashless). URL rules and the full reference are in [docs/INTEGRATION.md](docs/INTEGRATION.md).
+Then `bash intelligence/sync/scripts/sync.sh`. The engine shallow-clones each remote spec fresh every run (the same `repo@ref` is cloned once even across the six entries above), reads the `#subpath` directory, and feeds it through the same pipeline as a local source. Pin the `@ref` to a tag or SHA - an unpinned ref tracks the default branch and changes under you; the ref must be slashless (tag, SHA, or slashless branch). A clone failure (offline, bad URL) warns and skips just that source; the rest of the sync still succeeds. URL rules and the full reference are in [docs/INTEGRATION.md](docs/INTEGRATION.md).
 
 ### Mode B - git submodule (vendored)
 
@@ -194,7 +194,7 @@ The greenfield default for documentation follows the ai-first-docs tree: feature
 
 ## Compatibility
 
-- **intelligence-sync**: remote `git+` sources (Mode A) need a build that supports them; submodule / copy (Modes B-D) work with 0.3.1 or later. The packs also work without the sync engine, consumed directly by Claude Code or any tool that reads `SKILL.md` folders.
+- **intelligence-sync**: remote `git+` sources (Mode A) need a build with that feature (it lands after 0.4.2 - check the engine's CHANGELOG for "Remote git sources"); submodule / copy (Modes B-D) work with 0.3.1 or later. The packs also work without the sync engine, consumed directly by Claude Code or any tool that reads `SKILL.md` folders.
 - **Tools**: anything intelligence-sync targets (Claude Code, Cursor, GitHub Copilot, Codex, Pi, opencode, AGENTS.md readers), plus direct use.
 - **Naming**: every artifact carries a domain prefix (`dev-`/`git-`/`spec-`), so pack content never collides with project artifacts or the reserved `intelligence-` meta-skills.
 
