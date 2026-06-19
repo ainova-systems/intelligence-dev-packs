@@ -89,6 +89,56 @@ Domain **`spec-`**. Depends on `core`.
 | `spec-decision` | skill | Numbered ADR behind a three-condition gate |
 | `spec-audit-docs` | skill | Docs claims audited against code: drift vs violation |
 
+## Quick start (paste prompt)
+
+Paste this into your AI coding agent, working in your project. It sets up the packs via
+intelligence-sync remote sources, adapts them to your repo, and reports - without committing.
+
+```
+Set up the intelligence-dev-packs shared engineering packs in THIS project, via
+intelligence-sync remote sources. Do it safely and report; do not commit or push.
+
+1. PREREQUISITE - intelligence-sync. Find the intelligence umbrella: the directory holding
+   `config.yaml` and a `sync/` engine (usually `intelligence/`, but detect it - it may be
+   named or capitalized differently). If none exists, this project has no intelligence-sync:
+   STOP and tell the owner to install it first from
+   https://github.com/ainova-systems/intelligence-sync (paste its README Quick Start prompt),
+   then re-run this. Do not proceed without it. If it exists, confirm the engine supports
+   remote `git+` sources by grepping `<umbrella>/sync/scripts/lib/common.sh` for
+   `resolve_source_dir`; if missing, update the engine first via `<umbrella>/sync/scripts/update.sh`.
+
+2. INSPECT. Read the umbrella `config.yaml`, the project's rules, and any existing
+   documentation conventions. Note the branch model, build/test/lint commands, PR platform,
+   and any existing rule that overlaps a pack rule.
+
+3. ADD THE PACKS (remote sources - no submodule, no copy). Append to the existing `sources`:
+   - core (always - universal git/PR/review/discipline):
+     - rules:  "git+https://github.com/ainova-systems/intelligence-dev-packs.git@main#packs/core/rules"
+     - agents: "git+https://github.com/ainova-systems/intelligence-dev-packs.git@main#packs/core/agents"
+     - skills: "git+https://github.com/ainova-systems/intelligence-dev-packs.git@main#packs/core/skills"
+   - spec (ONLY if this project wants spec-driven development AND has no existing docs/spec
+     workflow - the spec pack assumes the ai-first-docs tree, docs/specs/ + model.md +
+     glossary.md, and would conflict with an existing one): add the same three lines with
+     `#packs/spec/...`. If the project already has its own docs/spec approach, SKIP spec and say so.
+   Use `@main` for now, or pin to a tag/SHA for reproducibility.
+
+4. GENERATE THE PROFILE so skills adapt without re-scanning each run. Read the schema (raw:
+   https://raw.githubusercontent.com/ainova-systems/intelligence-dev-packs/main/packs/core/templates/dev-project-profile.md),
+   fill it from this repo (branch model, branch prefixes, typecheck/lint/test commands, PR
+   platform and merge method, release flow, and - if spec was added - the docs structure), and
+   save it as `<umbrella>/rules/dev-project-profile.md`. Leave any value you can't detect for the owner.
+
+5. FLAG CONFLICTS, don't resolve silently. For each pack rule, report whether the project
+   already has a rule that overlaps or contradicts it. The project's own rule wins on conflict -
+   recommend keep / drop / scope; the owner decides.
+
+6. SYNC AND REPORT. Run `bash <umbrella>/sync/scripts/sync.sh`. Report: sources added, whether
+   spec was included and why, the generated profile values, every rule conflict + recommendation,
+   and which pack skills are now available. Do NOT commit or push - the owner reviews first.
+```
+
+The manual equivalents (and submodule / global / copy alternatives) are below.
+
 ## Install
 
 ### Mode A - remote source (recommended)
