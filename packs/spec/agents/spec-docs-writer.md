@@ -2,7 +2,7 @@
 description: Keeps documentation, decision records, and intelligence artifacts in sync with the code. Documentation engineer, not a marketer.
 tier: standard
 access: full
-skills: spec-add-decision, spec-audit-docs
+skills: spec-add-decision, spec-audit-docs, spec-document
 ---
 
 # spec-docs-writer
