@@ -167,23 +167,14 @@ See [docs/INTEGRATION.md](docs/INTEGRATION.md) for the full reference, including
 
 ## Configure for your project
 
-Copy the profile template into your project's rules source and fill it in:
+Nothing is wired up by hand. The only manual step is the `sources:` entries you already added (Mode A/B) plus sync; every skill then adapts to the repo with **zero further config**:
 
-```bash
-cp intelligence/dev-packs/packs/core/templates/dev-project-profile.md intelligence/rules/dev-project-profile.md
-```
+1. **Auto-detect (default).** Skills read the repo - default branch from git, an `origin/develop` as the integration branch, typecheck/lint/test commands from the manifests, PR platform from the remote - and ask once only when something is genuinely ambiguous.
+2. **Optional profile, generated for you (not copied).** To pin those answers so nothing is re-detected or re-asked, have your AI agent write the profile once. It saves a filled `dev-project-profile.md` into your rules source, where it rides as an always-on rule the agent reads each task. Paste:
 
-Because it lands in a rules source with no `paths:` scoping, the sync engine treats it as an always-on rule - inlined into `AGENTS.md` and copied into each tool's rules - so the agent reads it on every task without re-scanning the repo. The template is not synced on its own; copying it into a rules source is what puts it in context. Skipping this step is fine - skills then fall back to auto-detection and ask once.
+   > Read `packs/core/templates/dev-project-profile.md` from the intelligence-dev-packs source as the schema, inspect this repository, and write a filled-in `dev-project-profile.md` into my intelligence rules source. Change nothing else.
 
-The profile declares the branch model (`main`, `master`, or `master` + `develop`), verification commands, PR platform and merge method, release flow, and the docs structure (`specs_dir`, `features_dir`, `rules_dir`, `decisions_dir`, `spec_grouping`).
-
-Every skill resolves project specifics in a fixed order:
-
-1. **Learn from the project** - the existing structure and the closest shipped sibling artifact are the template; nothing is hardcoded in skill text.
-2. **The profile** pins values when detection is ambiguous.
-3. **Ask once**, then suggest persisting the answer into the profile.
-
-The greenfield default for documentation follows the ai-first-docs tree: feature docs as the behavior baseline, change specs as `docs/specs/NNN-<slug>/` with `requirements.md` (EARS), `plan.md`, and `tasks.md`, business rules as contracts, numbered ADRs.
+The profile (when present) declares the branch model, verification commands, PR platform and merge method, release flow, and the docs structure (`specs_dir`, `features_dir`, `rules_dir`, `decisions_dir`, `spec_grouping`). The greenfield documentation default follows the ai-first-docs tree: feature docs as the behavior baseline, change specs as `docs/specs/NNN-<slug>/` (`requirements.md` EARS, `plan.md`, `tasks.md`), business rules as contracts, numbered ADRs.
 
 ## Design principles
 

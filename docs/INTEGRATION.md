@@ -131,15 +131,11 @@ cp -r intelligence-dev-packs/packs/core/skills/* my-project/intelligence/skills/
 
 The copy is yours: adapt the text, drop what does not apply. The cost is that updates become a manual diff. Keep the domain prefixes for a clean upgrade path back to Mode A/B later.
 
-## The project profile
+## The project profile (optional)
 
-Every skill resolves project specifics in a fixed order:
+Skills work with no profile: they auto-detect the branch model from git and the commands from the project manifests, and ask once when something is genuinely ambiguous. That alone makes one set of packs serve a `main`-only trunk repo, a `master`-only repo, and a `master` + `develop` gitflow repo without editing any artifact.
 
-1. **Learn from the project** - the existing structure and the closest shipped sibling artifact are the template.
-2. **Profile**: a rule file named `dev-project-profile.md` in the project's rules sources. Template: [`packs/core/templates/dev-project-profile.md`](../packs/core/templates/dev-project-profile.md).
-3. **Ask once**, then suggest persisting the answer into the profile.
-
-This is what makes one set of packs serve a `main`-only trunk repo, a `master`-only repo, and a `master` + `develop` gitflow repo without editing any artifact.
+To pin those answers (so nothing is re-detected or re-asked), have your AI agent generate the profile once - it inspects the repo and writes a filled `dev-project-profile.md` (schema: [`packs/core/templates/dev-project-profile.md`](../packs/core/templates/dev-project-profile.md)) into a rules source, where it then rides as an always-on rule. The user never copies or hand-edits it; auto-detection is the fallback for any project that has none.
 
 ## Naming and collision guarantees
 

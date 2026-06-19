@@ -2,13 +2,14 @@
 description: Project-specific configuration consumed by the intelligence-dev-packs rules and skills
 ---
 
-# Project Profile (dev pack)
+# Project Profile (schema)
 
-> Copy this file into your project's rules source (for example `intelligence/rules/dev-project-profile.md`),
-> fill in the values, and delete the guidance comments. Every `dev-*` skill resolves
-> project specifics in this order: this profile, then auto-detection from the repository,
-> then asking once. Keep entries as plain `key: value` lines so both humans and agents
-> parse them reliably.
+> This is the **schema**, not a file to copy by hand. The profile is optional: skills
+> auto-detect from the repository and ask once when ambiguous. To pin the answers, an AI
+> agent fills this from the repo and saves it as `dev-project-profile.md` in a rules source,
+> where it becomes an always-on rule. Skills resolve each value in order: this profile, then
+> auto-detection, then asking once. Keep entries as plain `key: value` lines so both humans
+> and agents parse them reliably.
 
 ## Branching
 
