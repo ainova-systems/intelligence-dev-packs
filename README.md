@@ -173,6 +173,8 @@ Copy the profile template into your project's rules source and fill it in:
 cp intelligence/dev-packs/packs/core/templates/dev-project-profile.md intelligence/rules/dev-project-profile.md
 ```
 
+Because it lands in a rules source with no `paths:` scoping, the sync engine treats it as an always-on rule - inlined into `AGENTS.md` and copied into each tool's rules - so the agent reads it on every task without re-scanning the repo. The template is not synced on its own; copying it into a rules source is what puts it in context. Skipping this step is fine - skills then fall back to auto-detection and ask once.
+
 The profile declares the branch model (`main`, `master`, or `master` + `develop`), verification commands, PR platform and merge method, release flow, and the docs structure (`specs_dir`, `features_dir`, `rules_dir`, `decisions_dir`, `spec_grouping`).
 
 Every skill resolves project specifics in a fixed order:

@@ -7,30 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
+## [0.1.0] - 2026-06-19
 
-- Split content into two adoption-based packs with domain prefixes: `core` (`dev-` discipline + `git-` vcs, install everywhere) and `spec` (`spec-`, opt-in spec-driven development, depends on core). Pack (adoption unit) and domain prefix (namespace) are decoupled, so a pack may hold several domains and re-grouping never forces a rename.
-- Renamed artifacts to domain prefixes: git/PR/release skills to `git-*` (`git-commit-push`, `git-finalize-pr`, `git-merge-pr`, `git-create-release`, `git-scan-secrets`, …); spec-driven skills to `spec-*` (`spec-create`, `spec-execute`, `spec-execute-next`, `spec-add-decision`, `spec-audit-docs`, …); discipline/session skills stay `dev-*` (`dev-handoff`, `dev-run-tests`, `dev-review-changes`). Rules and agents follow the same scheme.
-- Restructured the repo under `packs/<name>/`; consumers select packs by subpath. Source paths are now `packs/{core,spec}/{rules,agents,skills}`.
-- `validate-pack.sh` validates artifacts against a known domain-prefix set (multi-domain packs allowed); `claude-install-global.sh` installs every pack by default, or named packs.
-- Renamed the repository to `intelligence-dev-packs`.
+Initial release.
 
 ### Added
 
-- Completed the spec lifecycle, machine-tracked and AI-driven end to end (owner touches only the three gates). New skills: `spec-approve` (gate-1 decision -> `approved` queue), `spec-close` (post-merge -> `completed` + archive), `spec-cancel` (retire cancelled/superseded with a recorded reason), `spec-document` (write/update one docs artifact - feature, rule, glossary, model, architecture). A `status` field (`proposed -> approved -> in-progress -> completed`, plus `cancelled`/`superseded`) tracks each spec; the model and the auto-sync invariant are documented in the `spec-orchestration` rule.
-- Wired the transitions: `spec-create` writes `status: proposed` and gained update-mode (re-scope an existing spec); `spec-execute` sets `in-progress` and reconciles model/glossary in Phase D; `spec-execute-next` drains the `approved` queue (primary) plus in-progress-no-PR and closes merged specs on reset; `git-merge-pr` hands off to `spec-close` (optional, spec-driven projects). Docs and status stay in sync automatically on create, execute, close, cancel, and merge - never by hand.
-- `spec-init` skill: one-time bootstrap that scaffolds the in-repo docs substrate (Layer C knowledge base + Layer B rules-as-contracts, decision log, dependency map) and safely migrates existing documentation into it (quarantine to `_inbox/`, reclassify one-by-one, nothing deleted), drafting core docs from code for owner review. Learns and adopts an existing docs structure rather than imposing one. Grounded in the Ainova Systems AI-First readiness methodology and the ai-first-docs tree.
-- Documented the remote `git+<url>[@<ref>][#<subpath>]` source mode as the recommended install method (no submodule), including the URL scheme and slashless-ref rules.
+- **Packs and domains.** Content is organized into adoption-based packs under `packs/`, with domain-prefixed artifacts (`dev-` / `git-` / `spec-`). Pack (what you install together) and domain prefix (the artifact namespace) are decoupled, so a pack may hold several domains and re-grouping never forces a rename.
+- **core pack** (`packs/core/`) - universal engineering discipline and version control; install everywhere, no dependencies:
+  - Rules: `dev-skill-first`, `dev-context-engineering`, `dev-verification-gates`, `dev-rollback-safety`, `git-commit-conventions`, `git-workflow`.
+  - Agents: `dev-code-reviewer` (read-only), `dev-test-engineer`.
+  - Skills: `dev-run-tests`, `dev-review-changes`, `dev-handoff`, `git-commit-push`, `git-resolve-conflicts`, `git-review-pr-comments`, `git-finalize-pr`, `git-merge-pr`, `git-create-release`, `git-scan-secrets`.
+  - Project profile template `templates/dev-project-profile.md` (branch model, verification commands, PR platform and merge method, release flow, docs structure).
+- **spec pack** (`packs/spec/`) - opt-in spec-driven development; depends on core:
+  - Rules: `spec-discipline`, `spec-orchestration` (multi-agent doctrine + the spec status model).
+  - Agents: `spec-architect`, `spec-docs-writer`.
+  - Skills: the machine-tracked spec lifecycle, where the owner touches only three gates (task, spec review, PR accept): `spec-init` (bootstrap the in-repo docs substrate and migrate existing docs), `spec-create` (create or update a spec), `spec-approve` (gate-1 decision into the autonomous queue), `spec-execute` / `spec-continue` / `spec-execute-next` (run to an outcome-labeled PR), `spec-close` (post-merge finalize), `spec-cancel` (retire with a recorded reason), `spec-document` (write/update a docs artifact), `spec-add-decision` (numbered ADR), `spec-audit-docs` (docs-vs-code drift). A `status` field (`proposed -> approved -> in-progress -> completed`, plus `cancelled` / `superseded`) tracks each spec; status and docs stay in sync automatically at every transition.
+- **Project adaptation.** Every skill resolves project specifics in a fixed order - learn from the project, then the `dev-project-profile.md` profile, then ask once - so one set of packs serves `main`-only, `master`-only, and `master` + `develop` repos without editing any artifact. Greenfield docs follow the ai-first-docs tree; grounded in the Ainova Systems AI-First readiness methodology.
+- **Four install modes**: remote `git+` sources via intelligence-sync (recommended, zero-footprint), git submodule, global Claude Code skills (`scripts/claude-install-global.sh`), and plain copy. Documented in `docs/INTEGRATION.md`.
+- **Tooling**: `scripts/validate-pack.sh` (validates every pack against the known domain-prefix set) plus a CI workflow.
 
-## [0.1.0] - 2026-06-12
+### Compatibility
 
-### Added
-
-- Eight always-on rules: `dev-orchestration` (multi-agent execution doctrine), `dev-commit-conventions`, `dev-git-workflow`, `dev-skill-first`, `dev-context-engineering`, `dev-spec-discipline`, `dev-verification-gates`, `dev-rollback-safety`.
-- Four agents: `dev-architect`, `dev-code-reviewer`, `dev-test-engineer`, `dev-docs-writer`.
-- Six orchestrator skills implementing the three-gate owner flow (task, spec review, PR accept): `dev-create-spec` (with a checkpointed grill interview), `dev-execute-spec` (parallel subagents, docs reconciliation, outcome labels, bundled default PR template), `dev-continue-spec`, `dev-execute-next`, `dev-finalize-pr`, `dev-merge-pr`.
-- Ten building-block skills: `dev-commit-push`, `dev-review-pr-comments`, `dev-resolve-conflicts`, `dev-run-tests`, `dev-review-changes`, `dev-scan-secrets`, `dev-handoff`, `dev-add-decision`, `dev-audit-docs`, `dev-create-release`.
-- Project profile template (`templates/dev-project-profile.md`): branch model, verification commands, PR platform and merge method, release flow, docs structure (specs/features/rules/decisions, spec grouping).
-- Global install script for Claude Code user-level skills (`scripts/claude-install-global.sh`).
-- Pack validation script and CI workflow (`scripts/validate-pack.sh`).
-- Integration guide covering submodule + intelligence-sync, global, and plain-copy install modes (`docs/INTEGRATION.md`).
+- Remote `git+` sources need an intelligence-sync build with that feature (lands after 0.4.2); submodule and copy modes work with 0.3.1 or later. The packs also work without the sync engine, consumed directly by any tool that reads `SKILL.md` folders.
