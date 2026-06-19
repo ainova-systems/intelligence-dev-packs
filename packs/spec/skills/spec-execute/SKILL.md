@@ -23,6 +23,7 @@ The spec is the contract. Two sessions executing the same spec must produce conv
 
 1. `git status --porcelain` must be clean; dirty - stop and surface, never sweep foreign work in.
 2. `git fetch origin && git switch <base> && git pull --ff-only && git switch -c feature/<spec-slug>` where `<base>` is the integration branch when one exists, else the default branch. One spec = one branch.
+3. Set the spec's `status: in-progress`.
 
 ## Phase C - Execute (parallel subagents)
 
@@ -35,13 +36,15 @@ The spec is the contract. Two sessions executing the same spec must produce conv
 7. **Reactive CI wait**: push freely between tasks; block on CI only at phase boundaries or when the baseline is red.
 8. **Top-down reasoning on surprises** (red pipeline, failing test, odd diff): what is happening - what changed since last green - fix or delete per the feature doc - does an existing primitive already cover this. Trivial 1-2 line fixes are yours; larger ones go to a subagent.
 
-## Phase D - Docs reconciliation (before the PR is final)
+## Phase D - Docs reconciliation (in the PR, before it is final)
 
-1. Update the feature doc to the new behavior - it must describe TODAY after this change.
-2. Extract what the build paid for: durable business rules into the project's rules area; conventions into intelligence rules; decisions via `spec-add-decision`.
+Apply every needed doc update automatically (via `spec-document` conventions) so the substrate matches the shipped behavior - never leave it stale or for a human.
+
+1. Update the feature doc to the new behavior - it must describe TODAY after this change; fold the spec's one-off requirements into the feature doc's durable EARS criteria.
+2. Reconcile the model and glossary when aggregates or terms changed; extract durable business rules into the project's rules area; conventions into intelligence rules; decisions via `spec-add-decision`.
 3. Append new lessons to the spec's MUST READ FIRST so the next spec inherits them.
 4. `spec-audit-docs` over the touched docs.
-5. Close the spec per project convention (follow what shipped specs do: keep the numbered folder, or delete the completed plan file; default keep).
+5. Leave the spec `in-progress` - final close (`status: completed` + archive) is `spec-close` after the owner accepts and the PR merges, not here.
 
 ## Phase E - PR finalization
 

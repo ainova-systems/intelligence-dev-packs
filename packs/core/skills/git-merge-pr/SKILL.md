@@ -24,7 +24,8 @@ Take an accepted, merge-ready PR across the finish line. Deliberately non-diagno
 2. Confirm it landed: `gh pr view <pr> --json state,mergedAt,mergeCommit` - `state != "MERGED"` means STOP. Record the merge commit SHA.
 3. Sync the base: `git switch <base> && git pull --ff-only && git fetch --prune`.
 4. Delete the local branch only after confirming the merge commit is on the base: `git branch -d <branch>` (`-d`, never `-D`).
-5. Report: merge commit SHA, base state, cleanup done.
+5. **Post-merge follow-up (optional, spec-driven projects).** If a spec/plan drove this change, close it now so its status and docs reflect the merge - hand off to `spec-close`. Projects without the spec pack skip this step.
+6. Report: merge commit SHA, base state, cleanup done, spec closed (if any).
 
 ## Verify
 

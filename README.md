@@ -29,7 +29,9 @@ When a project adopts spec-driven development, the owner touches the work at thr
 | 6. **Gate 2 - accept the PR** | **Owner** | - |
 | 7. Squash-merge, base sync, cleanup | AI | `git-merge-pr` |
 
-Fully autonomous mode: `spec-execute-next` picks the highest-value ready spec from the backlog, drives it to an outcome-labeled PR, and resets the workspace - suitable for scheduled and looped runs. Every autonomous run ends with exactly one outcome label: `ai:ready-to-merge`, `ai:manual`, or `ai:failed`.
+The spec lifecycle is machine-tracked and AI-driven end to end - the owner's only touchpoints are the three gates. A spec carries a status: `spec-create` writes `proposed`; the owner reviews and runs `spec-approve` (`approved`); `spec-execute` runs it (`in-progress`) to a PR; after the owner accepts, `git-merge-pr` merges and `spec-close` finalizes it (`completed`). `spec-cancel` retires a dropped or superseded spec with a recorded reason. Every transition keeps the spec status and the docs substrate (feature docs, rules, model, glossary) in sync automatically - nothing is updated by hand.
+
+Fully autonomous mode: `spec-approve` fills a queue the owner reviewed once, and `spec-execute-next` drains it - it picks the highest-value `approved` spec (or finishes an in-progress one), drives it to an outcome-labeled PR, closes any merged spec, and resets the workspace. Suitable for scheduled and looped runs. Every autonomous run ends with exactly one outcome label: `ai:ready-to-merge`, `ai:manual`, or `ai:failed`.
 
 Before the first spec, `spec-init` is a one-time bootstrap: it scaffolds the in-repo docs substrate (domain model, glossary, rules-as-contracts, feature baselines, decisions, the `specs/` tree) and safely migrates existing documentation into it, drafting from code for owner review. It learns and adopts a project's existing docs structure rather than imposing one.
 
@@ -76,10 +78,14 @@ Domain **`spec-`**. Depends on `core`.
 | `spec-architect` | agent | Authors specs, ADRs, module boundaries |
 | `spec-docs-writer` | agent | Documentation and decision records in sync with code |
 | `spec-init` | skill | One-time bootstrap: scaffold the in-repo docs substrate and migrate existing docs into it, drafting core docs from code |
-| `spec-create` | skill | Task to spec: grills the owner on ambiguity, writes requirements + plan + tasks |
+| `spec-create` | skill | Task to spec (or update one): grills the owner on ambiguity, writes requirements + plan + tasks, `status: proposed` |
+| `spec-approve` | skill | Record the owner's gate-1 decision: `status: approved`, entering the autonomous queue |
 | `spec-execute` | skill | Approved spec to PR: parallel subagents, consistency gates, docs reconciliation |
 | `spec-continue` | skill | Resume a mid-flight spec: inherited-work drift audit, then execution |
-| `spec-execute-next` | skill | Pick the highest-value ready spec, drive it end-to-end, reset the workspace |
+| `spec-execute-next` | skill | Drain the approved queue: pick the highest-value spec, drive it end-to-end, close merged specs, reset |
+| `spec-close` | skill | Post-merge: `status: completed`, confirm docs reconciled, archive per convention |
+| `spec-cancel` | skill | Retire a spec (cancelled / superseded) with a recorded reason; reconcile its draft docs |
+| `spec-document` | skill | Write/update one docs artifact (feature, rule, glossary, model, architecture) from code |
 | `spec-add-decision` | skill | Numbered ADR behind a three-condition gate |
 | `spec-audit-docs` | skill | Docs claims audited against code: drift vs violation |
 

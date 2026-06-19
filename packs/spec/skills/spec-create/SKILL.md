@@ -9,6 +9,8 @@ agent: spec-architect
 
 Turn a task into a spec a cold-context session can execute without re-discovering conventions. Ambiguous scope triggers a grill - a relentless, checkpointed interview. The output is the owner's gate 1 review artifact; execution is owned by `spec-execute`.
 
+This skill both **creates** a new spec and **updates** an existing one (re-scope when requirements change): in update-mode, re-read the current spec, apply the delta, keep a one-line history note, and reset `status: proposed` for re-approval.
+
 ## Resolve the docs structure (learn, then profile, then default)
 
 1. Learn from the project: locate the existing spec/plan area (`docs/specs/`, `Documentation/Todo/`, or equivalent) and read the most recent shipped spec end-to-end - it is the structural template.
@@ -34,7 +36,8 @@ If the project has no docs substrate yet (no `model.md` / `glossary.md` / `featu
    - **Phases**: each phase lists the sibling path(s), the skill(s) to invoke, the rule file(s) to re-read, impact notes (dependents found by grep/types, breaking surface, expand-contract sequencing when a contract changes), and a testable acceptance criterion - never "build X".
 5. **Write `tasks.md`.** Checkbox list (`- [ ]`) the executor ticks; each task = one testable slice producing code plus its test.
 6. **Cross-link.** Plan phases point to feature-doc business rules; requirements point to the feature-doc section. Open business questions stay in the feature doc; the spec tracks only this change's todos. Decisions that crystallised during the grill and pass the ADR gate go to `spec-add-decision`.
-7. **Quality gate, then hand to the owner.** Re-read against the project's documentation rules: no class names or code in requirements, every phase cites a sibling, preambles present, criteria testable. Present the spec paths plus a 5-line summary. STOP - execution starts only after owner approval.
+7. **Apply necessary docs updates automatically.** If the spec needs a docs-substrate artifact that is missing or stale to be coherent (a feature-doc stub for a new feature, a glossary term, a model touch), create or update it now via `spec-document` (drafted, marked inferred) - never leave the substrate inconsistent for a human to fix.
+8. **Set status, quality gate, then hand to the owner.** Write `status: proposed` in the spec's front page (`requirements.md` frontmatter, or the project's spec-index convention). Re-read against the project's documentation rules: no class names or code in requirements, every phase cites a sibling, preambles present, criteria testable. Present the spec paths plus a 5-line summary. STOP - execution starts only after the owner approves via `spec-approve`.
 
 ## Verify
 
