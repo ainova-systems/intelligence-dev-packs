@@ -28,4 +28,3 @@ The result must preserve the intent of both sides, never just pick one. Invoke w
 ## CRITICAL
 
 - Never resolve by discarding one side wholesale; never force-push the result to a shared branch.
-- The same conflict recurring - propose more frequent base updates, not bigger merges.
