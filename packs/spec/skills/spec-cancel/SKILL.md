@@ -25,7 +25,7 @@ Retire a spec that will not ship - the owner dropped it, scope changed, or anoth
 
 ## Scope / hand-off
 
-- Replacing it with a new plan - `spec-create` (the superseder); link it. A reversible decision worth a durable record beyond the spec - `spec-add-decision`.
+- Replacing it with a new plan - `spec-create` (the superseder); link it. A reversible decision worth a durable record beyond the spec - `spec-decision`.
 
 ## CRITICAL
 

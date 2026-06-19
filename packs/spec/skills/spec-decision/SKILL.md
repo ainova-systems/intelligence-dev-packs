@@ -1,5 +1,5 @@
 ---
-name: spec-add-decision
+name: spec-decision
 description: "Record a numbered ADR with context, decision, consequences, status"
 argument-hint: "<decision summary>"
 agent: spec-docs-writer

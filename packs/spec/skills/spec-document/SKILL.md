@@ -33,7 +33,7 @@ Learn from the project (read two sibling docs in the target folder; mimic, don't
 
 ## Scope / hand-off
 
-- A code change (not just docs) - `spec-create`. Decisions - `spec-add-decision`. Drift detection - `spec-audit-docs`.
+- A code change (not just docs) - `spec-create`. Decisions - `spec-decision`. Drift detection - `spec-audit-docs`.
 
 ## CRITICAL
 

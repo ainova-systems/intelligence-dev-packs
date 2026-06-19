@@ -25,7 +25,7 @@ Docs that contradict code are worse than none - readers and agents act on them. 
 
 ## Scope / hand-off
 
-- Post-execution doc updates - `spec-execute` Phase D; decisions - `spec-add-decision`.
+- Post-execution doc updates - `spec-execute` Phase D; decisions - `spec-decision`.
 
 ## CRITICAL
 

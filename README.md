@@ -86,7 +86,7 @@ Domain **`spec-`**. Depends on `core`.
 | `spec-close` | skill | Post-merge: `status: completed`, confirm docs reconciled, archive per convention |
 | `spec-cancel` | skill | Retire a spec (cancelled / superseded) with a recorded reason; reconcile its draft docs |
 | `spec-document` | skill | Write/update one docs artifact (feature, rule, glossary, model, architecture) from code |
-| `spec-add-decision` | skill | Numbered ADR behind a three-condition gate |
+| `spec-decision` | skill | Numbered ADR behind a three-condition gate |
 | `spec-audit-docs` | skill | Docs claims audited against code: drift vs violation |
 
 ## Install

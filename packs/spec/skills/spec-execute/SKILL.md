@@ -41,7 +41,7 @@ The spec is the contract. Two sessions executing the same spec must produce conv
 Apply every needed doc update automatically (via `spec-document` conventions) so the substrate matches the shipped behavior - never leave it stale or for a human.
 
 1. Update the feature doc to the new behavior - it must describe TODAY after this change; fold the spec's one-off requirements into the feature doc's durable EARS criteria.
-2. Reconcile the model and glossary when aggregates or terms changed; extract durable business rules into the project's rules area; conventions into intelligence rules; decisions via `spec-add-decision`.
+2. Reconcile the model and glossary when aggregates or terms changed; extract durable business rules into the project's rules area; conventions into intelligence rules; decisions via `spec-decision`.
 3. Append new lessons to the spec's MUST READ FIRST so the next spec inherits them.
 4. `spec-audit-docs` over the touched docs.
 5. Leave the spec `in-progress` - final close (`status: completed` + archive) is `spec-close` after the owner accepts and the PR merges, not here.

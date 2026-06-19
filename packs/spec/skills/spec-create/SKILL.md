@@ -35,7 +35,7 @@ If the project has no docs substrate yet (no `model.md` / `glossary.md` / `featu
    - **Sibling-checking checklist** - boxes the implementer ticks before writing any file: sibling identified by path, sibling re-read end-to-end, relevant rules re-read, matching skill identified, cross-cutting registrations confirmed.
    - **Phases**: each phase lists the sibling path(s), the skill(s) to invoke, the rule file(s) to re-read, impact notes (dependents found by grep/types, breaking surface, expand-contract sequencing when a contract changes), and a testable acceptance criterion - never "build X".
 5. **Write `tasks.md`.** Checkbox list (`- [ ]`) the executor ticks; each task = one testable slice producing code plus its test.
-6. **Cross-link.** Plan phases point to feature-doc business rules; requirements point to the feature-doc section. Open business questions stay in the feature doc; the spec tracks only this change's todos. Decisions that crystallised during the grill and pass the ADR gate go to `spec-add-decision`.
+6. **Cross-link.** Plan phases point to feature-doc business rules; requirements point to the feature-doc section. Open business questions stay in the feature doc; the spec tracks only this change's todos. Decisions that crystallised during the grill and pass the ADR gate go to `spec-decision`.
 7. **Apply necessary docs updates automatically.** If the spec needs a docs-substrate artifact that is missing or stale to be coherent (a feature-doc stub for a new feature, a glossary term, a model touch), create or update it now via `spec-document` (drafted, marked inferred) - never leave the substrate inconsistent for a human to fix.
 8. **Set status, quality gate, then hand to the owner.** Write `status: proposed` in the spec's front page (`requirements.md` frontmatter, or the project's spec-index convention). Re-read against the project's documentation rules: no class names or code in requirements, every phase cites a sibling, preambles present, criteria testable. Present the spec paths plus a 5-line summary. STOP - execution starts only after the owner approves via `spec-approve`.
 
@@ -46,7 +46,7 @@ If the project has no docs substrate yet (no `model.md` / `glossary.md` / `featu
 ## Scope / hand-off
 
 - Code, branches, PRs - out of scope: `spec-execute` owns execution after approval.
-- Decisions made while planning - `spec-add-decision`.
+- Decisions made while planning - `spec-decision`.
 
 ## CRITICAL
 
