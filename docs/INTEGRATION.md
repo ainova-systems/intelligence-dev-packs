@@ -108,8 +108,8 @@ Update: `git submodule update --remote intelligence/dev-packs` (or check out a n
 
 ```bash
 git clone https://github.com/ainova-systems/intelligence-dev-packs
-bash intelligence-dev-packs/scripts/install-global.sh          # every pack
-bash intelligence-dev-packs/scripts/install-global.sh core     # core only
+bash intelligence-dev-packs/scripts/claude-install-global.sh          # every pack
+bash intelligence-dev-packs/scripts/claude-install-global.sh core     # core only
 ```
 
 The script copies each selected pack's `skills/*` folders into `~/.claude/skills/` (override with `CLAUDE_SKILLS_DIR`). Re-run after pulling a new version; it replaces installed skills in place.

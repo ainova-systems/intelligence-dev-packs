@@ -5,10 +5,10 @@
 # Project-level rules and agents are not installed globally; see docs/INTEGRATION.md.
 #
 # Usage:
-#   bash scripts/install-global.sh             # every pack (core + spec + ...)
-#   bash scripts/install-global.sh core        # named packs only
-#   bash scripts/install-global.sh all         # every pack (explicit)
-# Override target: CLAUDE_SKILLS_DIR=/path/to/skills bash scripts/install-global.sh
+#   bash scripts/claude-install-global.sh             # every pack (core + spec + ...)
+#   bash scripts/claude-install-global.sh core        # named packs only
+#   bash scripts/claude-install-global.sh all         # every pack (explicit)
+# Override target: CLAUDE_SKILLS_DIR=/path/to/skills bash scripts/claude-install-global.sh
 
 set -euo pipefail
 

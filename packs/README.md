@@ -16,7 +16,7 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 
 - **Remote source** (intelligence-sync `git+` support): the URL `#subpath` selects the pack, e.g. `...#packs/core/rules` (+ `...#packs/spec/rules` to add spec).
 - **Submodule / copy**: point `sources:` at `…/packs/<name>/{rules,agents,skills}`.
-- **Global install**: `bash scripts/install-global.sh` installs every pack; `… core` installs only core.
+- **Global install**: `bash scripts/claude-install-global.sh` installs every pack; `… core` installs only core.
 
 ## Adding a pack or a domain
 

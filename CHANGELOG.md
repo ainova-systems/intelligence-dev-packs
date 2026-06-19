@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Split content into two adoption-based packs with domain prefixes: `core` (`dev-` discipline + `git-` vcs, install everywhere) and `spec` (`spec-`, opt-in spec-driven development, depends on core). Pack (adoption unit) and domain prefix (namespace) are decoupled, so a pack may hold several domains and re-grouping never forces a rename.
 - Renamed artifacts to domain prefixes: git/PR/release skills to `git-*` (`git-commit-push`, `git-finalize-pr`, `git-merge-pr`, `git-create-release`, `git-scan-secrets`, …); spec-driven skills to `spec-*` (`spec-create`, `spec-execute`, `spec-execute-next`, `spec-add-decision`, `spec-audit-docs`, …); discipline/session skills stay `dev-*` (`dev-handoff`, `dev-run-tests`, `dev-review-changes`). Rules and agents follow the same scheme.
 - Restructured the repo under `packs/<name>/`; consumers select packs by subpath. Source paths are now `packs/{core,spec}/{rules,agents,skills}`.
-- `validate-pack.sh` validates artifacts against a known domain-prefix set (multi-domain packs allowed); `install-global.sh` installs every pack by default, or named packs.
+- `validate-pack.sh` validates artifacts against a known domain-prefix set (multi-domain packs allowed); `claude-install-global.sh` installs every pack by default, or named packs.
 - Renamed the repository to `intelligence-dev-packs`.
 
 ### Added
@@ -31,6 +31,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Six orchestrator skills implementing the three-gate owner flow (task, spec review, PR accept): `dev-create-spec` (with a checkpointed grill interview), `dev-execute-spec` (parallel subagents, docs reconciliation, outcome labels, bundled default PR template), `dev-continue-spec`, `dev-execute-next`, `dev-finalize-pr`, `dev-merge-pr`.
 - Ten building-block skills: `dev-commit-push`, `dev-review-pr-comments`, `dev-resolve-conflicts`, `dev-run-tests`, `dev-review-changes`, `dev-scan-secrets`, `dev-handoff`, `dev-add-decision`, `dev-audit-docs`, `dev-create-release`.
 - Project profile template (`templates/dev-project-profile.md`): branch model, verification commands, PR platform and merge method, release flow, docs structure (specs/features/rules/decisions, spec grouping).
-- Global install script for Claude Code user-level skills (`scripts/install-global.sh`).
+- Global install script for Claude Code user-level skills (`scripts/claude-install-global.sh`).
 - Pack validation script and CI workflow (`scripts/validate-pack.sh`).
 - Integration guide covering submodule + intelligence-sync, global, and plain-copy install modes (`docs/INTEGRATION.md`).

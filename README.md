@@ -148,8 +148,8 @@ Then `bash intelligence/sync/scripts/sync.sh`. Update with `git submodule update
 
 ```bash
 git clone https://github.com/ainova-systems/intelligence-dev-packs
-bash intelligence-dev-packs/scripts/install-global.sh          # every pack
-bash intelligence-dev-packs/scripts/install-global.sh core     # core only
+bash intelligence-dev-packs/scripts/claude-install-global.sh          # every pack
+bash intelligence-dev-packs/scripts/claude-install-global.sh core     # core only
 ```
 
 Installs the skills for your user, available in every project. Without a project profile, skills fall back to auto-detection and ask when a value is ambiguous.
