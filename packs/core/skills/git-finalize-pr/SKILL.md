@@ -11,7 +11,7 @@ Take a freshly pushed PR through fix/push iterations until CI is green AND every
 ## Pre-flight
 
 1. `git branch --show-current` - abort on the default/integration/protected branch.
-2. Resolve the PR: `gh pr list --head <branch> --state open --json number --jq '.[0].number'`. An explicit argument must match this branch's PR. None - abort.
+2. Resolve the PR: `gh pr list --head <branch> --state open --json number --jq '.[0].number'`. An explicit argument must match this branch's PR. None - open it with `git-open-pr` first, then retry.
 3. Latest commit: `git rev-parse HEAD`. Every check below filters runs by `headSha == HEAD`; stale runs for older commits are ignored.
 
 ## Loop 1 - CI to green

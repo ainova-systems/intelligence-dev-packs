@@ -23,6 +23,7 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 
 - commit_style: pack-default        <!-- pack-default = one line, capital first letter, past tense -->
 - reference_ids: none               <!-- work-item id pattern for subjects, e.g. FR-0xx, PROJ-123; none -->
+- artifact_language: repo-default   <!-- language for commit / PR / code-comment text, e.g. english; repo-default = match the repository -->
 
 ## Verification
 
@@ -37,6 +38,14 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 - cli: gh                           <!-- gh | glab | bitbucket api wrapper -->
 - pr_target: auto                   <!-- auto = integration branch when set, else default branch -->
 - merge_method: squash              <!-- squash | merge | rebase -->
+- auto_open_pr: true                <!-- open a PR on first push when none exists (git-open-pr); false = open manually -->
+- pr_template: auto                 <!-- auto = use .github/PULL_REQUEST_TEMPLATE.md if present | none -->
+- pr_risk_size: off                 <!-- off | on (git-open-pr prepends a deterministic Risk/Size line) -->
+- pr_size_thresholds: small <= 5 files & 50 lines; large >= 20 files or 400 lines; else medium
+- pr_risk_globs: none               <!-- e.g. high: **/Migrations/**, **/*Permission*; medium: src/shared/**; low: **/*.md ; none = skip Risk -->
+- delete_local_branch: true         <!-- delete the local branch after a confirmed merge -->
+- delete_remote_branch: false       <!-- pass --delete-branch on merge -->
+- post_merge: none                  <!-- command git-merge-pr runs after a confirmed merge, e.g. to regenerate committed generated outputs; none -->
 
 ## Releases
 

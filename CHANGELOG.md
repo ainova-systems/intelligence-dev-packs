@@ -7,9 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`git-open-pr` skill.** Opens a PR for the current branch against its target, closing the gap between `git-commit-push` (commit + push only) and `git-finalize-pr` (drives an existing PR) for projects without the spec pack's Phase E. Idempotent (never opens a second PR), targets profile `pr_target`, fills the repo's `.github/PULL_REQUEST_TEMPLATE.md` when present, honors `artifact_language`, and prepends a deterministic Risk/Size line when `pr_risk_size: on`.
+- **Autonomous outcome labels are now defined in `core`.** `git-workflow` documents `ai:ready-to-merge` / `ai:manual` / `ai:failed` as the single shared convention, so `git-finalize-pr` no longer relies on a spec-pack rule for their meaning.
+- **New profile knobs** in `dev-project-profile.md`: `artifact_language`, `auto_open_pr`, `pr_template`, `pr_risk_size`, `pr_size_thresholds`, `pr_risk_globs`, `delete_local_branch`, `delete_remote_branch`, `post_merge`.
+
 ### Changed
 
-- **`git-create-release` is now policy-driven across the full release matrix.** Instead of assuming one flow, the skill reads the project profile's `## Releases` keys and adapts: `release_flow` (trunk `tag-on-default` vs `gitflow-merge`), `changelog` (`continuous` vs `assembled`), `release_cut` (`direct` | `release-pr` | `automated`), `release_artifact` (`tag-only` | `github-release` | `github-release-draft`), `release_notes` (`changelog-section` | `generated` | `none`), and `tagger` (`maintainer` | `ci`). Best-practice defaults — continuous changelog, release-PR cut, full GitHub Release, maintainer tag — apply when a key is unset. It lands the release change-set through a `release/x.y.z` PR on protected branches (never a direct push), tags the merge commit and pushes the *tag* (which branch protection does not block), and creates the platform release object via `gh release create`. The `core` profile template documents every key.
+- **`git-merge-pr` honors per-project cleanup and a post-merge hook.** Local/remote branch deletion follow profile `delete_local_branch` / `delete_remote_branch`, and an optional profile `post_merge` command runs after a confirmed merge (e.g. to regenerate committed generated outputs so the base is never left stale).
+- **`git-review-pr-comments` verifies before trusting.** Reviewer claims (especially from bots) are checked against sibling code and rules before acceptance; a real fix also fixes the same class across the tree and corrects any wrong documented rule in the same change; every handled thread is replied to AND resolved so re-runs skip it.
+- **`git-create-release` is now policy-driven across the full release matrix.**
+
+### Fixed
+
+- **`git-merge-pr` local-branch deletion after a squash/rebase merge.** The skill previously prescribed `git branch -d` only, which always refuses after a squash or rebase merge ("not fully merged") because the feature branch is not an ancestor of the base. It now keys deletion on the confirmed PR `state == MERGED` and uses `-D` for squash/rebase (and `-d` for merge-commit merges), so cleanup actually completes. Instead of assuming one flow, the skill reads the project profile's `## Releases` keys and adapts: `release_flow` (trunk `tag-on-default` vs `gitflow-merge`), `changelog` (`continuous` vs `assembled`), `release_cut` (`direct` | `release-pr` | `automated`), `release_artifact` (`tag-only` | `github-release` | `github-release-draft`), `release_notes` (`changelog-section` | `generated` | `none`), and `tagger` (`maintainer` | `ci`). Best-practice defaults — continuous changelog, release-PR cut, full GitHub Release, maintainer tag — apply when a key is unset. It lands the release change-set through a `release/x.y.z` PR on protected branches (never a direct push), tags the merge commit and pushes the *tag* (which branch protection does not block), and creates the platform release object via `gh release create`. The `core` profile template documents every key.
 
 ## [0.1.0] - 2026-06-19
 

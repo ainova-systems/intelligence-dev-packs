@@ -60,6 +60,7 @@ A project that has not adopted spec-driven development still uses the `core` pac
 | `git-commit-conventions` | rule | Commit message format, push discipline, forbidden trailers |
 | `git-workflow` | rule | Branch model, protected branches, feature-branch flow |
 | `git-commit-push` | skill | Verified milestone commit and fast-forward push |
+| `git-open-pr` | skill | Open a PR for the branch, using the repo template and profile knobs |
 | `git-resolve-conflicts` | skill | Semantic conflict resolution, full gates after |
 | `git-review-pr-comments` | skill | Triage reviewer feedback: fix, discuss, or decline with reason |
 | `git-finalize-pr` | skill | CI to green plus every review comment handled - PR ready to merge |

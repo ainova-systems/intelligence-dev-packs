@@ -20,12 +20,13 @@ Take an accepted, merge-ready PR across the finish line. Deliberately non-diagno
 
 ## Steps
 
-1. Merge per profile `merge_method` (default squash): `gh pr merge <pr> --squash`. Remote-branch deletion per profile (default: keep).
+1. Merge per profile `merge_method` (default squash): `gh pr merge <pr> --squash` (or `--merge` / `--rebase`). Delete the remote branch per profile `delete_remote_branch` (default: keep - do not pass `--delete-branch`).
 2. Confirm it landed: `gh pr view <pr> --json state,mergedAt,mergeCommit` - `state != "MERGED"` means STOP. Record the merge commit SHA.
-3. Sync the base: `git switch <base> && git pull --ff-only && git fetch --prune`.
-4. Delete the local branch only after confirming the merge commit is on the base: `git branch -d <branch>` (`-d`, never `-D`).
-5. **Post-merge follow-up (optional, spec-driven projects).** If a spec/plan drove this change, close it now so its status and docs reflect the merge - hand off to `spec-close`. Projects without the spec pack skip this step.
-6. Report: merge commit SHA, base state, cleanup done, spec closed (if any).
+3. Sync the base: `git switch <base> && git pull --ff-only && git fetch --prune`. Confirm the merge commit is on the base before any local deletion.
+4. Delete the local branch per profile `delete_local_branch` (default: true), only after steps 2-3 confirmed the merge. The authoritative "merged" signal is the confirmed PR `state == MERGED`, not git ancestry: a `squash` or `rebase` merge rewrites the commits, so the feature branch is NOT an ancestor of the base and `git branch -d` refuses with "not fully merged". Use `-d` after a `merge`-method merge; use `-D` after `squash` / `rebase` - safe precisely because the merge was confirmed first.
+5. **Post-merge hook (optional).** If profile `post_merge` is set, run it now (e.g. regenerate committed generated outputs so the base is not left stale) - on failure STOP and report; never leave the base half-updated.
+6. **Spec close (optional, spec-driven projects).** If a spec/plan drove this change, close it now so its status and docs reflect the merge - hand off to `spec-close`. Projects without the spec pack skip this step.
+7. Report: merge commit SHA, base state, cleanup done, post-merge hook result (if any), spec closed (if any).
 
 ## Verify
 
