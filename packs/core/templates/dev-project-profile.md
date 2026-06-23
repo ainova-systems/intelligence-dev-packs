@@ -40,8 +40,13 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 
 ## Releases
 
-- release_flow: tag-on-default      <!-- tag-on-default | gitflow-merge -->
-- version_source: changelog         <!-- changelog | tags -->
+- release_flow: tag-on-default      <!-- tag-on-default (trunk: tag default branch) | gitflow-merge (merge develop→master, tag the merge) -->
+- changelog: continuous             <!-- continuous (every PR appends ## [Unreleased]) | assembled (written at release) -->
+- release_cut: release-pr           <!-- direct (unprotected target only) | release-pr (release branch → PR → merge) | automated (release-please bot) -->
+- release_artifact: github-release  <!-- tag-only | github-release | github-release-draft -->
+- release_notes: changelog-section  <!-- changelog-section | generated | none -->
+- tagger: maintainer                <!-- maintainer (local tag + push origin vX.Y.Z) | ci (Action tags on merge) -->
+- version_source: changelog         <!-- changelog | tags | package.json | <manifest> -->
 - tag_format: vX.Y.Z
 
 ## Documentation

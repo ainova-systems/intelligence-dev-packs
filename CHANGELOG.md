@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **`git-create-release` is now policy-driven across the full release matrix.** Instead of assuming one flow, the skill reads the project profile's `## Releases` keys and adapts: `release_flow` (trunk `tag-on-default` vs `gitflow-merge`), `changelog` (`continuous` vs `assembled`), `release_cut` (`direct` | `release-pr` | `automated`), `release_artifact` (`tag-only` | `github-release` | `github-release-draft`), `release_notes` (`changelog-section` | `generated` | `none`), and `tagger` (`maintainer` | `ci`). Best-practice defaults — continuous changelog, release-PR cut, full GitHub Release, maintainer tag — apply when a key is unset. It lands the release change-set through a `release/x.y.z` PR on protected branches (never a direct push), tags the merge commit and pushes the *tag* (which branch protection does not block), and creates the platform release object via `gh release create`. The `core` profile template documents every key.
+
 ## [0.1.0] - 2026-06-19
 
 Initial release.
