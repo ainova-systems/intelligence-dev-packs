@@ -16,7 +16,7 @@ PACK_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PACKS_DIR="$PACK_ROOT/packs"
 TARGET="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
 
-[ -d "$PACKS_DIR" ] || { echo "ERROR: packs/ not found at $PACK_ROOT — run from a full checkout." >&2; exit 1; }
+[ -d "$PACKS_DIR" ] || { echo "ERROR: packs/ not found at $PACK_ROOT - run from a full checkout." >&2; exit 1; }
 
 # Resolve which packs to install. No args or `all` => every pack.
 if [ "$#" -eq 0 ] || [ "$1" = "all" ]; then

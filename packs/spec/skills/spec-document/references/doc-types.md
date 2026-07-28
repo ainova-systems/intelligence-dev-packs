@@ -2,6 +2,11 @@
 
 The template per artifact type `spec-document` writes. All follow one rule: **business language, not implementation** - anything that breaks when a class is renamed or a field is added is the wrong content. Draft from code, mark `confirmed` / `inferred`, owner approves.
 
+Two gates before any artifact is written:
+
+- **No consumer, no doc.** Name the skill, gate, or recurring human read that will consume the artifact. A document with no consumer and no gate rots from the day it is written - a name map duplicating identifiers that already answer by their own key (a tracker answers by title, a schema by alias) is the classic offender.
+- **Derived beats authored.** When an artifact is derivable from the schema, the types, or the code, generate it and regenerate it in the change that moves the source - a derived doc cannot drift. Hand-author only what no generator can know: intent, rationale, business language.
+
 ## feature -> `features/<feature>.md`
 
 What the feature does TODAY (the behavior baseline), with durable EARS acceptance criteria. Sections (adapt to the project's existing feature-doc shape):
@@ -25,11 +30,11 @@ One atomic, numbered, testable business rule, paired 1:1 with a contract test. T
 
 ## glossary -> a term in `glossary.md`
 
-One precise meaning per term, relations to other terms, client / context-specific meanings separated. `- **Term** - one-sentence business definition; how it relates to other terms.` One concept, one name, no synonyms.
+One precise meaning per term, relations to other terms, client / context-specific meanings separated. `- **Term** - one-sentence business definition; how it relates to other terms.` One concept, one name, no synonyms. The consumer gate applies with force here: a glossary that is only a name map between systems (design name to task title to code identifier) is a third registry that drifts - skip it and let each system answer by its own key.
 
 ## model -> `model.md`
 
-The domain aggregate model and its invariants - the source of names and constraints. Aggregates, the entities inside them, and the invariants each aggregate guarantees. Updated from code; marks confirmed / inferred.
+The domain aggregate model and its invariants - the source of names and constraints. Aggregates, the entities inside them, and the invariants each aggregate guarantees. Updated from code; marks confirmed / inferred. Where the stack can export its schema, prefer generating this file from the export in the same change that moves the schema (the derived-beats-authored gate) - and state honest absences as facts ("no aggregate carries listable content yet") rather than filling the shape.
 
 ## architecture -> `architecture/<...>`
 

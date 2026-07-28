@@ -15,10 +15,9 @@ repo-root/
     ├── rules/R-NNN-*.md      # atomic business rules; one rule = one contract test (1:1)
     ├── features/<feature>.md # what a feature does TODAY (behavior baseline) + EARS criteria
     ├── specs/NNN-<feature>/  # change workflow (Spec-Driven Development)
-    │   ├── requirements.md   #   acceptance criteria (EARS: WHEN <event> THE SYSTEM SHALL <response>)
-    │   ├── plan.md           #   technical design (points to model, decisions, rules)
-    │   └── tasks.md          #   checkbox list the agent works through (- [ ] -> - [x])
-    ├── decisions/NNNN-*.md   # ADRs (MADR 4.0), immutable, numbered
+    │   ├── NNN-requirements.md  # acceptance criteria (EARS) + source + provenance; carries the folder number
+    │   └── NNN-plan.md          # coverage table, phases, checkboxed work steps, question + correction logs
+    ├── decisions/            # ADRs, immutable; date-named yyMMdd-*.md by default (numbered NNNN-*.md via profile)
     ├── architecture/
     │   ├── architecture.md   #   condensed arc42 (one section per heading)
     │   ├── dependency-map.md #   -> compiled into a boundary check (Layer A)
@@ -29,9 +28,9 @@ repo-root/
     └── _inbox/               # QUARANTINE: unclassified/legacy content (non-authoritative)
 ```
 
-## The chain: requirements -> feature -> spec -> plan -> tasks -> code
+## The chain: requirements -> feature -> spec -> plan -> code
 
-Each link is found by convention, never by search. Feature docs (`features/`) describe current behavior with durable acceptance criteria. For a specific change, a spec (`specs/NNN-<feature>/`) narrows them to this task (`requirements.md`, EARS); the plan (`plan.md`) points to the aggregates in `model.md`, the decisions in `decisions/`, and the rules in `rules/` it must not break; tasks (`tasks.md`) is a checkbox list the agent ticks. Each task produces code plus its test; CI (Layer A) is the gate - a feature is "done" when `tasks.md` is fully ticked and tests are green before merge.
+Each link is found by convention, never by search. Feature docs (`features/`) describe current behavior with durable acceptance criteria. For a specific change, a spec (`specs/NNN-<feature>/`) narrows them to this task (`NNN-requirements.md`, EARS); the plan (`NNN-plan.md`) opens with the requirements-coverage table, points to the aggregates in `model.md`, the decisions in `decisions/`, and the rules in `rules/` it must not break, and carries the checkboxed work steps the agent ticks. Each step produces code plus its test; CI (Layer A) is the gate - a feature is "done" when the plan's work steps are fully ticked and tests are green before merge.
 
 There is no separate `requirements/` folder: durable product requirements live as acceptance criteria in feature docs; one-off requirements live in specs. A full spec is **not** required for every change - only when a change crosses a module/context boundary or is highly iterative (write your threshold in `specs/README.md`).
 

@@ -6,7 +6,7 @@ argument-hint: "[focus hint, e.g. 'frontend only']"
 
 # Execute Next Best Task
 
-Orchestrator-of-orchestrators: select ONE ready item, delegate the whole execution to `spec-execute` / `spec-continue` (their rules apply verbatim - this skill adds only selection and cleanup), then reset the workspace. Designed for autonomous and scheduled runs.
+Orchestrator-of-orchestrators: select ONE ready item, delegate the whole execution to `spec-execute` / `spec-continue` (their rules apply verbatim - this skill adds only selection and cleanup), then reset the workspace. Designed for autonomous and scheduled runs - this is `execution_mode: autonomous` machinery; its queue is filled by `spec-approve`, and a supervised project does not schedule it.
 
 ## Steps
 

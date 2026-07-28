@@ -11,7 +11,7 @@ Cheapest-first verification with scope detection. Invoke per task slice, at phas
 
 ## Steps
 
-1. Resolve commands: profile `typecheck` / `lint` / `test`; else detect (`package.json` scripts, `*.sln` - `dotnet test`, `pyproject.toml` - pytest, `go.mod` - `go test ./...`, `Makefile` targets). Confirm detected commands in one line on the first run.
+1. Resolve commands: profile `verify` set - run exactly that single gate-runner command and report what it ran and skipped; the remaining steps are its internals and this skill adds only the failure analysis. Else profile `typecheck` / `lint` / `test`; else detect (`package.json` scripts, `*.sln` - `dotnet test`, `pyproject.toml` - pytest, `go.mod` - `go test ./...`, `Makefile` targets). Confirm detected commands in one line on the first run.
 2. Detect scope: `git status --porcelain` + `git diff --name-only` - map changed files to their test areas. Docs/markdown-only change - report "no tests to run" and stop. An explicit argument overrides.
 3. Typecheck first - it fails fastest. On error: report the file and the first error, STOP.
 4. Lint second. On error: report the finding, STOP.

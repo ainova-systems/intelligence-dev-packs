@@ -2,3 +2,5 @@
 Thumbs.db
 .tmp/
 node_modules/
+
+/CLAUDE.md

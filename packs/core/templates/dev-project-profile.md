@@ -7,9 +7,9 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 > This is the **schema**, not a file to copy by hand. The profile is optional: skills
 > auto-detect from the repository and ask once when ambiguous. To pin the answers, an AI
 > agent fills this from the repo and saves it as `dev-project-profile.md` in a rules source,
-> where it becomes an always-on rule. Skills resolve each value in order: this profile, then
-> auto-detection, then asking once. Keep entries as plain `key: value` lines so both humans
-> and agents parse them reliably.
+> where it becomes an always-on rule. Skills resolve each value in the one fixed order:
+> **this profile, then auto-detection, then asking once and recording the answer here.**
+> Keep entries as plain `key: value` lines so both humans and agents parse them reliably.
 
 ## Branching
 
@@ -30,7 +30,12 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 - typecheck: npm run typecheck
 - lint: npm run lint
 - test: npm test
+- verify: none                      <!-- single gate-runner command (reads the diff, picks gates); when set, the local flow and CI run exactly this and the keys above are its internals -->
 - coverage_gate: none               <!-- e.g. 90% ; none -->
+
+## Workspace
+
+- handoff_dir: auto                  <!-- where dev-handoff saves its out-of-tree copy. auto = an existing gitignored scratch dir in the repo (e.g. .scratch/, tmp/), else the OS temp dir | <repo-relative path> | os-temp -->
 
 ## Pull requests
 
@@ -60,8 +65,16 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 
 ## Documentation
 
-- specs_dir: docs/specs             <!-- change specs: NNN-<slug>/ with requirements/plan/tasks -->
+- specs_dir: docs/specs             <!-- change specs: NNN-<slug>/ with NNN-requirements.md + NNN-plan.md -->
 - spec_grouping: flat               <!-- flat | quarterly (docs/specs/<yyyy>-Q<n>/NNN-<slug>/) -->
+- execution_mode: supervised        <!-- supervised (execution ends unstaged; developer runs the git flow) | autonomous (approve queue, milestone commits, outcome-labeled PR) -->
 - features_dir: docs/features      <!-- behavior-baseline feature docs -->
 - rules_dir: docs/rules             <!-- business rules as contracts -->
-- decisions_dir: docs/decisions     <!-- numbered ADRs -->
+- decisions_dir: docs/decisions     <!-- ADRs -->
+- adr_naming: date                  <!-- date (yyMMdd-<slug>.md, collision-free across branches) | numbered (NNNN-<slug>.md, MADR) ; an existing ADR folder's convention always wins -->
+
+## Tracker
+
+- tracker: auto                     <!-- auto = the forge's own tracker detected from the git remote (github | gitlab | azure-boards) | jira | asana | mcp | none -->
+- tracker_cli: auto                 <!-- auto = matches the forge (gh | glab | az) | <command> ; used read-only by spec-pull -->
+- tracker_item_ref: auto            <!-- how items are referenced: #123 | PROJ-123 | url | auto -->

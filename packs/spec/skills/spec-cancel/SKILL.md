@@ -7,7 +7,7 @@ agent: spec-architect
 
 # Cancel a Spec
 
-Retire a spec that will not ship - the owner dropped it, scope changed, or another spec replaces it - without losing why. A cancelled spec is a recorded decision, not a deleted file.
+Retire a spec that will not ship - the owner dropped it, scope changed, or another spec replaces it - without losing why. A cancelled spec is a recorded decision, not a deleted file. In supervised mode `cancelled` is the one status the pipeline ever writes (`spec-discipline`): an abandoned spec looks exactly like one nobody started, and this skill is what tells them apart - never a human editing the frontmatter. A re-pull does not revive a cancelled spec; the source item gets a fresh one, and the folder stays as the record.
 
 ## Steps
 
