@@ -253,7 +253,7 @@ Hard invariants (never force-push, never blanket-stage, never bypass gates) can 
 
 ## Versioning
 
-Semantic versioning, history in [CHANGELOG.md](CHANGELOG.md). Pin the `@ref` (Mode A) or the submodule (Mode B) to a tag for reproducible setups; track `main` for the latest practices.
+Semantic versioning, history in [CHANGELOG.md](CHANGELOG.md). Pin the `@ref` (Mode A) or the submodule (Mode B) to a tag for reproducible setups; track `main` for the latest practices. Planned improvements live in [ROADMAP.md](ROADMAP.md).
 
 ## Related
 
