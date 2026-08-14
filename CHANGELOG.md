@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **`git-commit-conventions` bans AI attribution on every published artifact, not only commit trailers.** The trailer ban covered commit messages alone, so a harness-injected "🤖 Generated with …" footer in a PR body passed every rule — observed in production use, where a host project shipped one and had to write a local rule to close the gap. The rule now states the target positively (every artifact — PRs, review replies, issues, release notes, code comments, docs — reads as the maintainer's own work), adds injected footers and assistant signatures to the Forbidden line, and notes that it overrides any assistant default instructing the opposite.
+- **`git-commit-conventions` covers AI attribution on every published artifact, not only commit trailers.** A harness-injected footer in a PR body passed the trailer-only ban, in production use. The rule now states the target positively and overrides the assistant default that injects one.
 
 ## [0.2.0] - 2026-07-28
 
