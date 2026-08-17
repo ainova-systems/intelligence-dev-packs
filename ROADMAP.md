@@ -26,6 +26,23 @@ Ships with a reference file: a ranked ladder of ways to build the loop (failing 
 
 Sequenced last of the three: it extends the plan contract and `spec-execute` that 0.2.0 just introduced, and the interface deserves one release of real use before it grows.
 
+### Distribution - ship the packs as a plugin, not only as sync sources
+
+**Problem.** Installing the packs means an agent editing a `config.yaml`; the Quick start prompt exists precisely because there is no install command. That is proportionate for a team already running intelligence-sync, and heavy for someone who wants the git/PR skills in one repository and nothing else - the entry cost is "adopt an engine first". Meanwhile the skills already sit in the exact layout the plugin formats expect, so the gap is a manifest, not a rewrite.
+
+**Shape.** Undecided - the mechanism is an open question, and the entry exists to hold the requirement, not a chosen answer. What any candidate has to satisfy: one source tree (no forked content), the sync path still works for teams that have it, and a version the installer can pin.
+
+Candidates weighed so far, with what each does and does not cover:
+
+- **A plugin format.** [Agent Plugins 1.0.0](https://agent-plugins.org/) is vendor-neutral (`plugin.json`, `skills/<name>/SKILL.md`, MCP in `mcp.json`) but defines *exactly* skills and MCP servers - agents, hooks, and rules are outside v1, and it says nothing about distribution. Claude Code's own plugin layout reaches further (`agents/`, `hooks/hooks.json`, `settings.json`) with marketplaces as the delivery path, at the cost of being one client.
+- **A command-line installer** (`npx`-style or a script). Works in any tool and needs no format buy-in, but adds a package and a publish step to a repository that currently has zero build.
+- **Globally installed skills** - `scripts/claude-install-global.sh` already does this. Cheapest option, already shipped, but Claude-only and skills-only.
+- **Status quo**: the paste prompt plus intelligence-sync. Zero new machinery; the cost is that adoption starts with "adopt an engine first".
+
+The constraint that decides most of it: **rules travel under none of the plugin formats**, and always-on rules are the pack's core asset. So any answer either keeps sync as the rules channel and treats the new path as supplementary, or it has to solve rule delivery itself. A second thing worth pricing in: the enforcement layer is currently a hand-merge into the owner's settings, and a mechanism that can ship `hooks` and settings turns `docs/enforcement.md` from instructions into an install.
+
+Sequenced independently of the three above - it changes how the packs are delivered, not what they say, so it neither blocks nor is blocked by them.
+
 ## Under consideration
 
 - **Eval harness for pack content.** `validate-pack.sh` checks structure only. The bar worth reaching: each skill records what it exists to fix and a task that proves it; on a model release the tasks re-run, and a skill whose tasks pass without it is a retirement candidate. Converts "is this artifact stale" from a judgment call into a scheduled check.

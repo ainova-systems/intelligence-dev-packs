@@ -29,7 +29,7 @@ Every artifact must pass one test: **would this apply unchanged to any repositor
 - **Write to the model intersection.** No "use proactively" or delegation encouragement (the delegation axis inverts between model families); no instruction to show or reproduce reasoning; state each artifact's scope explicitly rather than relying on generalization.
 - **Delete no-op lines.** A sentence instructing what the model does by default is pure cost; whether a line is a no-op is settled by running the skill without it, not by debate. Hunt sentence by sentence and delete whole sentences rather than trimming words.
 - **Prompt the positive.** A prohibition drags the forbidden behavior into context; state the target behavior instead, and keep prohibitions for the few true invariants in `CRITICAL`.
-- **A prose prohibition is a request, not a guarantee.** Every hard NEVER in a rule or skill should have a deterministic backstop where one is possible - see `docs/ENFORCEMENT.md` for the mapping.
+- **A prose prohibition is a request, not a guarantee.** Every hard NEVER in a rule or skill should have a deterministic backstop where one is possible - see `docs/enforcement.md` for the mapping.
 
 ## Adding a domain or a pack
 
@@ -44,6 +44,15 @@ Split by adoption boundary, not by concern: a new pack is justified only when so
 2. Make the change; run `bash scripts/validate-pack.sh`.
 3. Update `CHANGELOG.md` under `[Unreleased]` in the same change.
 4. Open a PR. Commit messages: one line, capital first letter, past tense, no `Co-Authored-By` or other generated trailers.
+
+## Releases
+
+Cut by the maintainer, from `main`, tagged `vX.Y.Z`. Every PR fills `[Unreleased]`, so a release mostly promotes it - but the section is first reconciled against `git log <last-tag>..HEAD`, so nothing that shipped is missing from it.
+
+1. Promote `## [Unreleased]` to `## [X.Y.Z] - YYYY-MM-DD`, keeping the one-line headline under the heading. SemVer; pre-1.0, breaking changes bump the minor.
+2. Commit the promotion to `main`.
+3. Tag it annotated (`vX.Y.Z`, message `X.Y.Z - <headline>`) and push the tag.
+4. `gh release create vX.Y.Z --verify-tag --notes-file <the new section>`.
 
 ## Code of conduct
 
