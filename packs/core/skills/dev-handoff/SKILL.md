@@ -1,6 +1,6 @@
 ---
 name: dev-handoff
-description: "Writes a self-contained prompt a fresh session pastes to continue this work. Invoke when context runs short or the session ends."
+description: "Writes a self-contained prompt a fresh session pastes to continue this work, for when context runs short or a session ends."
 argument-hint: "[what the next session will focus on]"
 ---
 

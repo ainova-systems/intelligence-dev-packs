@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Every skill description now follows one shape.** They ranged from 62 to 329 characters and mixed imperative labels with full paragraphs; they are now 109-169, third person, one sentence: what the skill does, plus when to reach for it, plus a boundary only where a sibling is genuinely confusable. The four pull-request skills each name the neighbour they are not (`git-commit-push` stops at the push, `git-open-pr` hands to `git-finalize-pr`, `git-finalize-pr` names both sides, `git-merge-pr` states the owner gate). A description is the entire basis on which a tool picks a skill, and a long one gets re-summarised on the way in - a compact sentence arrives as written.
+- **Every skill description now follows one shape.** They ranged from 62 to 329 characters and mixed imperative labels with full paragraphs; they are now 109-169 characters in one shape: a third-person lead clause naming what the skill does and when to reach for it, followed by a short boundary clause wherever a sibling is genuinely confusable. The four pull-request skills each name the neighbor they are not (`git-commit-push` stops at the push, `git-open-pr` hands to `git-finalize-pr`, `git-finalize-pr` names both sides, `git-merge-pr` states the owner gate). A description is the entire basis on which a tool picks a skill, and a long one gets re-summarized on the way in - a compact one arrives as written. Spelling across the packs is American throughout.
 
 ## [0.3.0] - 2026-08-17
 

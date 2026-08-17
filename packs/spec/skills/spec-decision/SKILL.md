@@ -1,6 +1,6 @@
 ---
 name: spec-decision
-description: "Records an architecture decision behind a three-condition gate. A standing law belongs in its rule, behaviour in the feature doc - not here."
+description: "Records an architecture decision behind a three-condition gate. A standing law belongs in its rule, behavior in the feature doc - not here."
 argument-hint: "<decision summary>"
 agent: spec-docs-writer
 ---
