@@ -7,10 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-08-17
+
+Adoption became a single prompt: the README stopped reading as a manual, the install instructions caught up with the engine that actually ships, and the release process is written down instead of being reconstructed each time.
+
 ### Added
 
 - **Release process in `CONTRIBUTING.md`** - four steps for cutting a version from `main`, including the rule that `## [Unreleased]` is reconciled against the commits since the last tag before it is promoted.
-- **`ROADMAP.md`** - planned improvements with the problem each exists to fix: a `dev-diagnose` skill behind a reproduction gate, a rejected-decisions registry, per-step HITL/AFK marking, and an eval harness for pack content.
+- **`ROADMAP.md`** - planned improvements with the problem each exists to fix: a `dev-diagnose` skill behind a reproduction gate, a rejected-decisions registry, per-step HITL/AFK marking, distribution beyond the sync engine (mechanism deliberately left open), and an eval harness for pack content.
 
 ### Changed
 
