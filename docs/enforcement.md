@@ -14,7 +14,7 @@ This layer is also the part of an install that survives a model change: settings
 | No `Co-Authored-By:` / tool trailers (`git-commit-conventions`) | `PreToolUse` hook | Match `Bash`, grep the command string for `Co-Authored-By`; exit non-zero to block |
 | Never commit to a protected branch (`git-commit-push` guard) | `PreToolUse` hook | Match `Bash` on `git commit`; compare `git branch --show-current` against the profile's protected branches |
 | Secrets never committed (`git-scan-secrets` inside the commit flow) | `PreToolUse` hook | Run the scan over staged files before `git commit`; block on a live match |
-| Merge/release timing is the owner's (`git-merge-pr`, `git-create-release`) | `disable-model-invocation: true` | Already set in the skills' frontmatter - the model cannot self-invoke them |
+| Merge/release timing is the owner's (`git-merge-pr`, `git-create-release`) | `disable-model-invocation: true` | Already set in the skills' frontmatter - **Claude Code only**, see Limits |
 | Everything else (review verdicts, spec doctrine, delegation rules) | Prose | Judgment calls; no deterministic rule can decide them |
 
 ## Installing
@@ -46,4 +46,5 @@ This layer is also the part of an install that survives a model change: settings
 
 - A `PreToolUse` hook blocks the tool call it matches; it cannot police file content written by other tools - pair it with the verification gates for that.
 - A Stop hook is overridden after repeated consecutive blocks, and hook filters fail open. For an absolute ban, use `permissions.deny` - permission rules are enforced by the client regardless of what the model decides.
+- **The owner gate holds on one tool.** `disable-model-invocation` is Claude Code's field: the sync engine passes it through untouched and every other target ignores what it does not understand. On Cursor, Copilot, Codex, Pi and opencode, `git-merge-pr` and `git-create-release` are model-reachable, and the gate is prose there rather than machinery. A project running those tools either relies on that tool's own permission layer where one exists, or does not install the two skills for it - and either way the owner should know which of the two situations they are in.
 - Other tools (Cursor, Copilot, Codex) have their own or no enforcement layers; this page's mechanisms are Claude Code's. The prose invariants still travel to every tool via intelligence-sync.

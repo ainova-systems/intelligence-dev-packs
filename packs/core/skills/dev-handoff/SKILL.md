@@ -21,7 +21,7 @@ Produce a portable prompt a fresh session (any tool, any machine) pastes to cont
 
 ## Verify
 
-- A cold reader could run the verification commands and continue without asking anything this session already answered.
+- Every state claim in the prompt (branch, commits, gate results, task position) cites a command run this session; the saved copy's path is printed and `git check-ignore -q` passes on it when it sits in the repo.
 
 ## Scope / hand-off
 
