@@ -12,7 +12,7 @@ Planned improvements, in intended order. Each entry states the problem it exists
 
 1. **A reference defining the *red* loop** - what it means for a loop to go red, and a ranked ladder of ways to build one (failing test, curl against a running service, CLI plus snapshot, headless browser, replaying a captured trace, a throwaway harness, property-based test, bisection), plus tagged debug instrumentation (`[DEBUG-<id>]`) so cleanup is one grep.
 2. **`dev-diagnose`** - bug diagnosis behind a hard gate that outranks everything else: before reading code, a reproduction command must exist and have been run at least once, and the phase's completion criterion is the pasted command plus its actual output. After the fix, the same command going green is the proof. This is the pack's artifact-derived-status discipline applied to debugging: "I understand the bug" does not count; the red loop does.
-3. **`dev-add-tests`** - the red-green loop for new behaviour, pointing at the same reference rather than redefining *red*.
+3. **`dev-add-tests`** - the red-green loop for new behavior, pointing at the same reference rather than redefining *red*.
 
 The reference comes first precisely so the pack's strongest new word is defined once. Open at design time: how prescriptive the loop should be - the pack requires one strong default rather than a menu, and this is opinionated enough that the default is an owner call.
 
@@ -42,7 +42,7 @@ The reference comes first precisely so the pack's strongest new word is defined 
 
 ### Rejected decisions and known defects - one registry
 
-**Problem.** The pack records what to build (specs) and why an architecture was chosen (ADRs), but nowhere records what was deliberately **not** done, or what is known broken and deliberately not being fixed. The same idea re-enters intake every quarter and the arguments against it are reconstructed from scratch; the same known defect gets re-reported as new. Agents planning adjacent work cannot see that a neighbouring option was already weighed and refused.
+**Problem.** The pack records what to build (specs) and why an architecture was chosen (ADRs), but nowhere records what was deliberately **not** done, or what is known broken and deliberately not being fixed. The same idea re-enters intake every quarter and the arguments against it are reconstructed from scratch; the same known defect gets re-reported as new. Agents planning adjacent work cannot see that a neighboring option was already weighed and refused.
 
 **Shape.** One registry covering both, since both answer the same question at intake - "has this already been decided?". One file per **concept**, not per ticket: the load-bearing reasons and an accumulating "asked again on" list. Intake (`spec-pull` / `spec-create`) checks it before planning - a match is a ready answer instead of a fresh deliberation. Two constraints to settle at design time: only deliberate non-decisions enter (an implemented feature recorded here would poison the check with false rejections), and the intake skills must be its named consumers so it does not become a third drifting registry. Whether it lives as a folder or as ADRs with a `rejected` status is the open design question.
 
@@ -64,7 +64,7 @@ Sequenced last: it extends the plan contract and `spec-execute` that 0.2.0 intro
 
 ### Eval harness for pack content
 
-**Problem.** `validate-pack.sh` checks structure only. Whether an artifact still earns its place is a judgment call made by whoever happens to read it, and the pack grows monotonically because nothing ever proves a skill is now redundant - which is a live risk when a model generation ships and behaviour that once needed instructing becomes default.
+**Problem.** `validate-pack.sh` checks structure only. Whether an artifact still earns its place is a judgment call made by whoever happens to read it, and the pack grows monotonically because nothing ever proves a skill is now redundant - which is a live risk when a model generation ships and behavior that once needed instructing becomes default.
 
 **Shape.** Each skill records what it exists to fix and a task that proves it; on a model release the tasks re-run, and a skill whose tasks pass without it is a retirement candidate. Converts "is this artifact stale" from a judgment call into a scheduled check. Promoted from "under consideration" because it is the only mechanism that can shrink the pack; still unscheduled because the task corpus is the expensive half.
 
