@@ -29,7 +29,7 @@ A channel that reads the body but not the comments degrades loudly: pull what is
 4. **Record provenance and drift keys** in the frontmatter: `tracker_item_id`, `tracker_item_url`, `item_body_digest`, `item_comments_digest` (digests of the pulled text, so a later re-pull can tell what moved). Do not record a modification timestamp as a key - too many tracker events move it without changing content.
 5. **Gaps become questions, never dead-ends.** Every ambiguity goes to `## Open questions` in the `spec-discipline` question shape, with suggested answers; an undecided item goes under an explicit "Open for planning" marker. This skill never refuses a pullable item.
 6. **On re-pull**, diff the new digests against the recorded ones, apply the delta to the requirements, and note in one line what moved. A cancelled spec is never revived by a re-pull - the item gets a fresh spec, and the cancelled folder stays as the record.
-7. Report: spec path, requirement count, decision-log summary, open questions. Planning is next - `spec-create` update-mode is not needed; hand to the plan step of the flow.
+7. Report: spec path, requirement count, decision-log summary, open questions. Then hand to `spec-plan`, which writes the plan beside these requirements - `spec-create` is not the follow-up, it is the other intake.
 
 ## Verify
 
@@ -38,7 +38,7 @@ A channel that reads the body but not the comments degrades loudly: pull what is
 ## Scope / hand-off
 
 - No tracker item and none can be made - `spec-create` (it keeps the brief verbatim; the cost is no drift keys and no re-pull).
-- Writing the plan - the flow continues with the plan authoring and `spec-validate` / `spec-answer`; execution - `spec-execute`.
+- Writing the plan - `spec-plan`; fact-checking it - `spec-validate`; resolving questions - `spec-answer`; execution - `spec-execute`.
 
 ## CRITICAL
 

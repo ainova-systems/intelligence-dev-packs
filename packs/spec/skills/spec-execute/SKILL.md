@@ -67,7 +67,7 @@ Apply every needed doc update automatically (via `spec-document` conventions) so
 
 ## Scope / hand-off
 
-- No spec yet - `spec-pull` / `spec-create` first. Plan not yet fact-checked - `spec-validate`. Open questions - `spec-answer`.
+- No spec yet - `spec-pull` / `spec-create` first. Requirements but no plan - `spec-plan`. Plan not yet fact-checked - `spec-validate`. Open questions - `spec-answer`.
 - Resuming a half-done spec - `spec-continue`.
 - Merging - `git-merge-pr`, only after owner accept.
 

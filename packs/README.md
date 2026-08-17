@@ -53,7 +53,8 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 | `spec-docs-writer` | agent | Documentation and decision records in sync with code |
 | `spec-init` | skill | One-time bootstrap: scaffold the in-repo docs substrate and migrate existing docs into it, drafting core docs from code |
 | `spec-pull` | skill | Pull one tracker item into a spec, read-only, with drift keys; re-pull updates the same spec in place |
-| `spec-create` | skill | Taskless intake: grills the owner, keeps the brief verbatim, writes numbered requirements + plan with coverage table and work steps |
+| `spec-create` | skill | Manual intake when no tracker item covers the change: grills the owner, keeps the brief verbatim, writes numbered requirements |
+| `spec-plan` | skill | Writes the plan from existing requirements: coverage table, sibling citations, phases, checkboxed work steps |
 | `spec-validate` | skill | Adversarial pre-execution fact-check of the plan against the repo; gaps become open questions |
 | `spec-answer` | skill | Resolve a blocked spec's open questions with the developer; answers move with a `Changed:` line |
 | `spec-approve` | skill | Autonomous mode: record the owner's gate-1 decision (`status: approved`), entering the queue |

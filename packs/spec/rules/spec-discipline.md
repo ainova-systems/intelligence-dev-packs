@@ -7,7 +7,7 @@ description: When a task needs a written plan before code, and how a spec lives 
 A spec makes AI output reviewable: review becomes output-versus-standard instead of reconstructing intent from a diff. Apply it where it pays:
 
 - **Implement directly**: small, clear, single-module, no contract changes.
-- **Spec first**: multi-module, contract or API change, new feature, migration risk. Intake is `spec-pull` when a tracker item exists or could be made (it carries provenance and drift keys), `spec-create` for a change no tracker item covers.
+- **Spec first**: multi-module, contract or API change, new feature, migration risk. Intake is `spec-pull` when a tracker item exists or could be made (it carries provenance and drift keys), `spec-create` for a change no tracker item covers; either way `spec-plan` writes the plan before execution.
 - A boundary-crossing change always gets a written contract - every unwritten boundary is an implied contract someone will break.
 - No spec ceremony bigger than the change, and a plan is never proof of correctness - the gates decide.
 

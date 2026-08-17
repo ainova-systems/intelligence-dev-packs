@@ -27,7 +27,7 @@ The pre-execution critic, read as a fresh reader with nothing to defend. A plan 
 
 ## Scope / hand-off
 
-- Resolving the questions - `spec-answer`. Re-planning after structural answers - the plan authoring step. Execution - `spec-execute`.
+- Resolving the questions - `spec-answer`. Re-planning after structural answers - `spec-plan`. Execution - `spec-execute`.
 
 ## CRITICAL
 

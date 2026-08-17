@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Breaking (spec pack)
+
+- **`spec-create` writes requirements only; the plan is `spec-plan`'s.** It used to write both files, which made it the only route to a plan and left tracker intake with nowhere to go. Projects that call `spec-create` and expect a plan now get requirements plus a hand-off; the plan arrives one skill later.
+
+### Added
+
+- **`spec-plan` skill - the plan-authoring stage now has a skill.** Intake wrote `NNN-requirements.md` and handed off to "the plan authoring step", a stage nothing owned: the only writer of `NNN-plan.md` was `spec-create`, which `spec-pull` explicitly ruled out, while `spec-execute` refuses to run without a plan. Tracker intake therefore could not reach execution. `spec-plan` writes the plan from existing requirements - coverage table, MUST READ FIRST, sibling checklist, phases, checkboxed work steps - so both intakes share one chain: `spec-pull` | `spec-create` -> `spec-plan` -> `spec-validate` -> `spec-execute`. Re-planning after a structural answer routes here too, and a plan already present is re-planned in place with ticked steps preserved.
+
 ### Fixed
 
 - **The secret scan is now wired into the commit flow it claimed to be part of.** `git-scan-secrets` advertised "invoked by `dev-review-changes` and the orchestrators pre-push" while nothing invoked it - `dev-review-changes` cited its patterns and no orchestrator named it at all, so the guarantee was prose. `git-commit-push` step 3 now runs it in `diff` scope - a live credential in what is about to be committed stops the commit, one elsewhere in the pending diff is reported without blocking - and the review skill's Critical check runs the scan instead of borrowing its regexes.
