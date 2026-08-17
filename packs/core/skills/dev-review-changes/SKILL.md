@@ -20,7 +20,7 @@ Read-only review before commit or PR - findings only, never edits.
    - **Spec axis**: the diff against the spec's requirements - each requirement delivered, partially delivered, or missing; scope creep the spec never asked for; each finding quoting the requirement it maps to. Report the worst finding per axis, not one winner across both.
    Without a spec, run the standards axis alone.
 5. Check, grouped by severity:
-   - **Critical** (block): correctness bugs; boundary/layering violations; secrets staged (run `git-scan-secrets` over the diff); weakened gates (skipped tests, suppressions, lowered thresholds); new logic without tests; cross-cutting drift - grep every removed/renamed symbol across the tree.
+   - **Critical** (block): correctness bugs; boundary/layering violations; credentials anywhere in the reviewed diff (run `git-scan-secrets`, `diff` scope); weakened gates (skipped tests, suppressions, lowered thresholds); new logic without tests; cross-cutting drift - grep every removed/renamed symbol across the tree.
    - **Warning**: convention violations, oversized files or diffs, duplicated helpers, missing validation at external boundaries.
    - **Suggestion**: naming, comments restating code, extractable helpers.
 6. Verify each finding by re-reading the code - drop anything you cannot evidence.
