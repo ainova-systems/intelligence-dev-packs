@@ -21,7 +21,7 @@ Docs that contradict code are worse than none - readers and agents act on them. 
 
 ## Verify
 
-- Every reported claim has evidence on both sides (doc line + repo state).
+- Every claim extracted in step 2 is classified - verified, drift, violation, or ambiguous - and each mismatch carries evidence on both sides (doc line + repo state).
 
 ## Scope / hand-off
 
