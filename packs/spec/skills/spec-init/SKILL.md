@@ -1,6 +1,6 @@
 ---
 name: spec-init
-description: "Scaffold the in-repo docs substrate for spec-driven development and migrate existing docs into it, drafting core docs from code for owner review"
+description: "Scaffolds the in-repo docs substrate for spec-driven work and migrates existing documentation into it. Runs once, before the first spec."
 argument-hint: "[docs root, e.g. docs | Documentation]"
 agent: spec-architect
 ---

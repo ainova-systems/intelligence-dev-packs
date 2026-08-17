@@ -1,6 +1,6 @@
 ---
 name: dev-review-changes
-description: "Read-only review of pending changes against project rules, with a severity verdict"
+description: "Reviews pending changes against the project's rules and reports findings with a severity verdict. Read-only - never edits, stages, or commits."
 argument-hint: "[base ref]"
 agent: dev-code-reviewer
 allowed-tools: Read, Grep, Glob, Bash

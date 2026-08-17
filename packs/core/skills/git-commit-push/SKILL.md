@@ -1,6 +1,6 @@
 ---
 name: git-commit-push
-description: "Verify, review, and push pending work as one milestone commit"
+description: "Commits pending work as one verified milestone and pushes it. Stops at the push - opening the pull request is git-open-pr."
 argument-hint: "[commit message override]"
 ---
 

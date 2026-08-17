@@ -1,6 +1,6 @@
 ---
 name: git-open-pr
-description: "Open a pull request for the current branch against its target, using the repo template"
+description: "Opens a pull request for the current branch against its target, filling the repo's template. Driving it to green afterwards is git-finalize-pr."
 argument-hint: "[title override]"
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: spec-pull
-description: "Pulls one tracker item (issue, ticket, work item) into a spec: reads the item's body and comments read-only, synthesises requirements with a decision log and drift keys, and updates the same spec in place on every re-run. Stops with a named reason when no tracker is configured or detectable - spec-create is the taskless path."
+description: "Pulls one tracker item into a spec, read-only against the tracker, and updates that same spec in place on every re-run. With no tracker item, spec-create is the path."
 argument-hint: "<item reference: #123, PROJ-123, or URL>"
 agent: spec-architect
 ---
@@ -25,7 +25,7 @@ A channel that reads the body but not the comments degrades loudly: pull what is
 
 1. **Read the item completely**: title, body, every comment. A requirement arrives in a comment as often as in the description.
 2. **Resolve the spec folder.** An existing spec for this item (matched on the item id in frontmatter) is updated in place; otherwise create the next `NNN-<slug>/` per `spec-discipline`.
-3. **Synthesise, don't paste.** Write `NNN-requirements.md` with EARS acceptance criteria narrowed to this change. A **decision log** names the source of every requirement that did not come from the body, and states out loud how many comments carried none.
+3. **Synthesize, don't paste.** Write `NNN-requirements.md` with EARS acceptance criteria narrowed to this change. A **decision log** names the source of every requirement that did not come from the body, and states out loud how many comments carried none.
 4. **Record provenance and drift keys** in the frontmatter: `tracker_item_id`, `tracker_item_url`, `item_body_digest`, `item_comments_digest` (digests of the pulled text, so a later re-pull can tell what moved). Do not record a modification timestamp as a key - too many tracker events move it without changing content.
 5. **Gaps become questions, never dead-ends.** Every ambiguity goes to `## Open questions` in the `spec-discipline` question shape, with suggested answers; an undecided item goes under an explicit "Open for planning" marker. This skill never refuses a pullable item.
 6. **On re-pull**, diff the new digests against the recorded ones, apply the delta to the requirements, and note in one line what moved. A cancelled spec is never revived by a re-pull - the item gets a fresh spec, and the cancelled folder stays as the record.

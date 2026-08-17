@@ -1,6 +1,6 @@
 ---
 name: spec-audit-docs
-description: "Audit documentation claims against the code; report drift vs violation"
+description: "Audits documentation claims against the code and classifies each mismatch as drift or violation. Read-only by default."
 argument-hint: "[doc path or directory]"
 agent: spec-docs-writer
 allowed-tools: Read, Grep, Glob, Bash

@@ -1,6 +1,6 @@
 ---
 name: dev-run-tests
-description: "Run typecheck, lint, and tests with the right scope; analyze failures"
+description: "Runs typecheck, lint and tests scoped to what changed, then analyses the failures. The gate every commit passes first."
 argument-hint: "[scope: changed|full|<path>]"
 agent: dev-test-engineer
 ---

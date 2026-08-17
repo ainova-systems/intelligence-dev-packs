@@ -1,6 +1,6 @@
 ---
 name: git-merge-pr
-description: "After owner accept: guard-checked squash-merge of the current branch's PR, base sync and branch cleanup. Owner-invoked only - merging is timing the model does not decide."
+description: "Merges an accepted pull request behind guard checks, then syncs the base branch and cleans up. Owner-invoked only - merge timing is not the model's call."
 argument-hint: "[pr number]"
 disable-model-invocation: true
 ---
