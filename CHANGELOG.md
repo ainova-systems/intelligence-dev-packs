@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`ROADMAP.md`** - planned improvements with the problem each exists to fix: a `dev-diagnose` skill behind a reproduction gate, a rejected-decisions registry, per-step HITL/AFK marking, and an eval harness for pack content.
 
+### Changed
+
+- **`git-commit-conventions` covers AI attribution on every published artifact, not only commit trailers.** A harness-injected footer in a PR body passed the trailer-only ban, in production use. The rule now states the target positively and overrides the assistant default that injects one.
+
 ## [0.2.0] - 2026-07-28
 
 The spec pack absorbed doctrine proven in production use; the core pack gained a deterministic enforcement layer and authoring guidance for the current model generation.
