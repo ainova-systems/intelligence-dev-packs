@@ -1,6 +1,6 @@
 ---
 name: spec-create
-description: "Plans a change as a reviewable spec from a stated task or captured brief: grills the owner, then writes numbered requirements and a plan with coverage table, questions, and checkboxed work steps. Intake from a tracker item belongs to spec-pull, not here."
+description: "Turns a stated task or brief into a reviewable spec - numbered requirements plus a plan with work steps. Intake from a tracker item is spec-pull."
 argument-hint: "<task description, brief, or feature name>"
 agent: spec-architect
 ---

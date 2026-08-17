@@ -1,6 +1,6 @@
 ---
 name: spec-pull
-description: "Pulls one tracker item (issue, ticket, work item) into a spec: reads the item's body and comments read-only, synthesises requirements with a decision log and drift keys, and updates the same spec in place on every re-run. Stops with a named reason when no tracker is configured or detectable - spec-create is the taskless path."
+description: "Pulls one tracker item into a spec, read-only against the tracker, and updates that same spec in place on every re-run. With no tracker item, spec-create is the path."
 argument-hint: "<item reference: #123, PROJ-123, or URL>"
 agent: spec-architect
 ---

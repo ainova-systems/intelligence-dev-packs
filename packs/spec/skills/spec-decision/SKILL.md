@@ -1,6 +1,6 @@
 ---
 name: spec-decision
-description: "Records an architecture decision record behind a three-condition gate, date-named by default so parallel branches never collide on a number"
+description: "Records an architecture decision behind a three-condition gate. A standing law belongs in its rule, behaviour in the feature doc - not here."
 argument-hint: "<decision summary>"
 agent: spec-docs-writer
 ---

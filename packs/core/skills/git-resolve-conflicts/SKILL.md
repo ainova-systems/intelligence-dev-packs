@@ -1,6 +1,6 @@
 ---
 name: git-resolve-conflicts
-description: "Resolve merge or rebase conflicts semantically, then re-verify the full gates"
+description: "Resolves merge or rebase conflicts by what each side intended, never by picking a hunk, then re-runs the full gates."
 ---
 
 # Resolve Conflicts

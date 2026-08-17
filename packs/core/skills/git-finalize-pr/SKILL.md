@@ -1,6 +1,6 @@
 ---
 name: git-finalize-pr
-description: "Drive the current branch's PR to merge-ready: CI green and every review comment handled, ending with an outcome label"
+description: "Drives an open pull request to merge-ready - CI green, every review thread answered, one outcome label. Opening it is git-open-pr; merging is git-merge-pr."
 argument-hint: "[pr number]"
 ---
 

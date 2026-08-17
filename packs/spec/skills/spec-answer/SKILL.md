@@ -1,6 +1,6 @@
 ---
 name: spec-answer
-description: "Resolves a blocked spec's open questions with the developer: assists each to the best sourced answer, moves it into Answered questions with a Changed line on explicit approval, and adjusts unticked work steps when the answer changes structure. Questions owned by someone outside the session stay open."
+description: "Resolves a blocked spec's open questions with the developer and records what each answer changed. Questions owned by someone outside the session stay open."
 argument-hint: "<spec folder or slug>"
 agent: spec-architect
 ---

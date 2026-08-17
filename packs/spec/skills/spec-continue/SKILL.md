@@ -1,6 +1,6 @@
 ---
 name: spec-continue
-description: "Resumes an in-progress spec: audits inherited work for drift against the spec's target shape, then continues execution from the first unticked work step"
+description: "Resumes an in-progress spec: audits inherited work for drift, then continues from the first unticked work step."
 argument-hint: "<spec folder or plan file path>"
 ---
 

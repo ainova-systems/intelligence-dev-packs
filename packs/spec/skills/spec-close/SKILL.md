@@ -1,6 +1,6 @@
 ---
 name: spec-close
-description: "After merge, confirms a spec actually shipped (PR merged, work steps ticked, docs reconciled) and archives it per the project convention. Writes status only in autonomous mode - supervised specs read completed from their artifacts."
+description: "Confirms a merged spec actually shipped - PR merged, steps ticked, docs reconciled - then archives it per the project's convention."
 argument-hint: "<spec folder or slug>"
 agent: spec-architect
 ---

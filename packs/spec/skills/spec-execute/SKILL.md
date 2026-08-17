@@ -1,6 +1,6 @@
 ---
 name: spec-execute
-description: "Executes a planned spec via parallel subagents - one testable slice per subagent, gates re-run until dry. Supervised mode ends with unstaged changes for the developer's review; autonomous mode commits at milestones and ends at an outcome-labeled PR."
+description: "Executes a planned spec through parallel subagents, one testable slice each, gates re-run until dry. Refuses while any question on the spec stays open."
 argument-hint: "<spec folder or plan file path>"
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: spec-approve
-description: "Records the owner's approval of a reviewed spec so it enters the autonomous execution queue. Autonomous mode only - in supervised mode a plan with no open question is already approved, and this skill says so and stops."
+description: "Records the owner's approval so a reviewed spec enters the autonomous queue. Autonomous mode only - under supervision a plan with no open question is already approved."
 argument-hint: "<spec folder or slug>"
 agent: spec-architect
 disable-model-invocation: true

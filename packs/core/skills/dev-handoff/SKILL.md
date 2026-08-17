@@ -1,6 +1,6 @@
 ---
 name: dev-handoff
-description: "Compact the session into a self-contained continuation prompt for a fresh agent session"
+description: "Writes a self-contained prompt a fresh session pastes to continue this work. Invoke when context runs short or the session ends."
 argument-hint: "[what the next session will focus on]"
 ---
 

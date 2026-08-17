@@ -1,6 +1,6 @@
 ---
 name: spec-cancel
-description: "Cancel or supersede a spec, recording the reason so the decision is preserved"
+description: "Retires a spec as cancelled or superseded with the reason recorded, and reconciles the docs it had drafted."
 argument-hint: "<spec folder or slug> [superseded-by <NNN>]"
 agent: spec-architect
 ---
