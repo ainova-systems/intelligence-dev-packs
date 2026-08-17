@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **`ROADMAP.md` is scoped to 0.4.0 and states what each entry has to answer before it can be built.** The heading still read "0.3.0 candidates" after 0.3.0 shipped without any of them. New entries: the red-loop package (one shared definition, then `dev-diagnose`, then `dev-add-tests`), `dev-decision` (a `core` rule requires decision records and only the `spec` pack can write one), `dev-add-ci-gate`, brief-to-batch decomposition, and the generated change-flow map. The rejected-decisions registry now also covers known defects - both answer "has this already been decided?" at intake. Constraints-as-machinery and the eval harness moved to a committed-but-unscheduled section, and the Distribution entry gained the condition that a manifest and the skill folders must be validated against each other in the same change that introduces a manifest.
+
 ## [0.3.0] - 2026-08-17
 
 Adoption became a single prompt: the README stopped reading as a manual, the install instructions caught up with the engine that actually ships, and the release process is written down instead of being reconstructed each time.
