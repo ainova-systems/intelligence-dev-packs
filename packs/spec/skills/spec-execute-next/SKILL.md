@@ -1,6 +1,6 @@
 ---
 name: spec-execute-next
-description: "Autonomously pick the highest-value ready spec, drive it to an outcome-labeled PR, reset the workspace"
+description: "Picks the highest-value approved spec, drives it to an outcome-labeled pull request, and resets the workspace. Autonomous mode only."
 argument-hint: "[focus hint, e.g. 'frontend only']"
 ---
 

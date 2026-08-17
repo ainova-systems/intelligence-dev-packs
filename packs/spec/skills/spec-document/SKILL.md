@@ -1,6 +1,6 @@
 ---
 name: spec-document
-description: "Write or update one docs-substrate artifact - feature, rule, glossary, model, or architecture - from code, for owner review"
+description: "Writes or updates one documentation artifact - feature, rule, glossary, model, or architecture - from what the code actually does."
 argument-hint: "<type: feature|rule|glossary|model|architecture> <name/topic>"
 agent: spec-docs-writer
 ---

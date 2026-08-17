@@ -1,6 +1,6 @@
 # Default docs tree (greenfield)
 
-The structure `spec-init` scaffolds when a project has no existing docs structure to adopt. It follows the [ai-first-docs](https://github.com/ainova-systems/ai-first-docs) model; every folder maps to a recognised documentation standard, so nothing here is arbitrary.
+The structure `spec-init` scaffolds when a project has no existing docs structure to adopt. It follows the [ai-first-docs](https://github.com/ainova-systems/ai-first-docs) model; every folder maps to a recognized documentation standard, so nothing here is arbitrary.
 
 ```
 repo-root/

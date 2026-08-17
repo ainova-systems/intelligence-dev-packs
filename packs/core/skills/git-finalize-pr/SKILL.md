@@ -1,6 +1,6 @@
 ---
 name: git-finalize-pr
-description: "Drive the current branch's PR to merge-ready: CI green and every review comment handled, ending with an outcome label"
+description: "Drives an open pull request to merge-ready - CI green, every review thread answered, one outcome label. Opening it is git-open-pr; merging is git-merge-pr."
 argument-hint: "[pr number]"
 ---
 
@@ -33,11 +33,7 @@ Take a freshly pushed PR through fix/push iterations until CI is green AND every
 
 ## Outcome
 
-Exactly one label, then report (PR URL, label, what needs the owner):
-
-- `ai:ready-to-merge` - green, comments drained, `mergeable: MERGEABLE`;
-- `ai:manual` - needs an owner decision (state precisely which);
-- `ai:failed` - cannot reach green (state the blocking failure and what was tried).
+Exactly one label from the outcome set `git-workflow` defines - `ai:ready-to-merge` | `ai:manual` | `ai:failed` - then report: PR URL, the label, and what needs the owner.
 
 ## Verify
 

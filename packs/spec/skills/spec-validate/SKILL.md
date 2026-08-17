@@ -1,6 +1,6 @@
 ---
 name: spec-validate
-description: "Adversarially fact-checks a planned spec against the repository before execution: re-opens every cited sibling, re-derives the coverage both ways, and turns each gap into an open question that may re-block. Read-only on code; writes only to the spec's question sections."
+description: "Fact-checks a planned spec against the repository before execution and turns each gap into an open question that may re-block. Read-only on code."
 argument-hint: "<spec folder or slug>"
 agent: spec-architect
 ---

@@ -1,6 +1,6 @@
 ---
 name: git-scan-secrets
-description: "Scan diff, tree, or branch history for committed credentials"
+description: "Scans a diff, the working tree, or branch history for credentials before they reach a remote, and classifies every hit."
 argument-hint: "[scope: diff|tree|history]"
 allowed-tools: Read, Grep, Glob, Bash
 ---

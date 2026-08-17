@@ -1,6 +1,6 @@
 ---
 name: git-create-release
-description: "Cut a release: version, changelog, tag, and release object - policy-driven across trunk/gitflow and tag-only/full. Owner-invoked only - releasing is timing the model does not decide."
+description: "Cuts a release - version, changelog section, tag, release object - following the project's release policy. Owner-invoked only - release timing is not the model's call."
 argument-hint: "[version, e.g. 1.4.0]"
 disable-model-invocation: true
 ---

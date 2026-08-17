@@ -1,6 +1,6 @@
 ---
 name: git-review-pr-comments
-description: "Triage PR review comments: fix, discuss, or decline with reason - every thread answered"
+description: "Triages review comments on a pull request - fix, discuss, or decline with a reason - and leaves no thread unanswered."
 argument-hint: "[pr number]"
 ---
 

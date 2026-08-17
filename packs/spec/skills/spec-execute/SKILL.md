@@ -1,6 +1,6 @@
 ---
 name: spec-execute
-description: "Executes a planned spec via parallel subagents - one testable slice per subagent, gates re-run until dry. Supervised mode ends with unstaged changes for the developer's review; autonomous mode commits at milestones and ends at an outcome-labeled PR."
+description: "Executes a planned spec through parallel subagents, one testable slice each, gates re-run until dry. Refuses while any question on the spec stays open."
 argument-hint: "<spec folder or plan file path>"
 ---
 
@@ -58,7 +58,7 @@ Apply every needed doc update automatically (via `spec-document` conventions) so
 
 1. Push; open the PR (`gh pr create --base <target> ...`) using the project's own PR template when one exists, else the pack default `assets/pr-template.md`.
 2. Run `git-finalize-pr` - CI to green plus every review comment handled.
-3. End with exactly one outcome label: `ai:ready-to-merge` | `ai:manual` (an owner decision is needed - state which) | `ai:failed` (state what blocked and what was tried). Never merge.
+3. End with exactly one outcome label from `git-workflow`'s set (`ai:ready-to-merge` | `ai:manual` | `ai:failed`). Never merge.
 4. Report: PR URL, outcome label, anything that needs the owner. Final close (`spec-close`) runs after the owner accepts and the PR merges, not here.
 
 ## Verify
