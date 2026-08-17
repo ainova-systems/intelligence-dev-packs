@@ -33,7 +33,7 @@ If the project has no docs substrate yet (no `model.md` / `features/` / `specs/`
    - Clear, small scope - skip the grill and say so.
 3. **Write `NNN-requirements.md`.** Acceptance criteria in EARS form (`WHEN <event> THE SYSTEM SHALL <response>`), narrowed to this change. Durable behavior stays in the feature doc; this file holds only the delta. **Keep the source verbatim under `## Source as captured`**: a board task can be re-read, a chat cannot, and a summary there is a spec whose requirements can never be traced back.
 4. **Cross-link.** Requirements point to the feature-doc section they narrow. Open business questions stay in the feature doc; the spec tracks only this change. Decisions that crystallised during the grill and pass the ADR gate go to `spec-decision`.
-5. **Hand to `spec-plan`.** Quality pass first: no class names or code in requirements, criteria testable, every grill answer persisted in the file rather than left in the conversation. Then state the requirements path plus a short summary, leading with any open questions, and continue into `spec-plan` - the requirements alone are not executable, and `spec-execute` refuses without a plan. In `autonomous` mode write `status: proposed`; execution starts only after the owner runs `spec-approve`.
+5. **Hand to `spec-plan`.** Quality pass first: no class names or code in requirements, criteria testable, every grill answer persisted in the file rather than left in the conversation. Then state the requirements path plus a short summary, leading with any open questions, and continue into `spec-plan` - the requirements alone are not executable, and `spec-execute` refuses without a plan.
 
 ## Verify
 
