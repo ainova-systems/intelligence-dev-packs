@@ -25,50 +25,56 @@ Every consumption method points at `packs/<name>/{rules,agents,skills}`. Always 
 
 | Mode | Best for | Project footprint |
 |---|---|---|
-| A. Remote source | intelligence-sync with `git+` support; zero-footprint, config-only | A few config entries |
+| A. Declared pack | The default - intelligence-sync 0.10.0+; one declaration, mirrored into your tree | A `packs:` block plus the mirrored directory |
 | B. Git submodule | Offline / air-gapped CI; vendored-in-tree | One submodule + config entries |
 | C. Global skills (Claude Code) | Individuals who want the skills everywhere | None |
 | D. Plain copy | Projects that want to own and adapt the content | Copied files, fully yours |
 
-## Mode A - remote source
+## Mode A - declared pack (recommended)
 
-The newest intelligence-sync resolves a source entry of the form:
-
-```
-git+<url>[@<ref>][#<subpath>]
-```
-
-into a clone, and reads the rules / agents / skills from `<subpath>` inside it. Point each source type at the matching directory of each pack:
+Declare the repository **once** under `packs:`, then reference its subpaths by name from as many `sources:` sections as need them. The url and the pin live in one place, so rules and skills can never drift onto different refs:
 
 ```yaml
+packs:
+  intelligence-dev-packs:
+    url: https://github.com/ainova-systems/intelligence-dev-packs.git
+    ref: main                                              # pin to a tag or SHA for reproducibility
+    mirror: intelligence/external/intelligence-dev-packs   # committed copy - the default
+
 sources:
   rules:
     - "intelligence/rules"
-    - "git+https://github.com/ainova-systems/intelligence-dev-packs.git@v0.1.0#packs/core/rules"
-    - "git+https://github.com/ainova-systems/intelligence-dev-packs.git@v0.1.0#packs/spec/rules"
+    - "@intelligence-dev-packs/packs/core/rules"
+    - "@intelligence-dev-packs/packs/spec/rules"
+    - "intelligence/sync/rules"
   agents:
     - "intelligence/agents"
-    - "git+https://github.com/ainova-systems/intelligence-dev-packs.git@v0.1.0#packs/core/agents"
-    - "git+https://github.com/ainova-systems/intelligence-dev-packs.git@v0.1.0#packs/spec/agents"
+    - "@intelligence-dev-packs/packs/core/agents"
+    - "@intelligence-dev-packs/packs/spec/agents"
+    - "intelligence/sync/agents"
   skills:
     - "intelligence/skills"
     - "intelligence/sync/skills"
-    - "git+https://github.com/ainova-systems/intelligence-dev-packs.git@v0.1.0#packs/core/skills"
-    - "git+https://github.com/ainova-systems/intelligence-dev-packs.git@v0.1.0#packs/spec/skills"
+    - "@intelligence-dev-packs/packs/core/skills"
+    - "@intelligence-dev-packs/packs/spec/skills"
 ```
 
 Then `bash intelligence/sync/scripts/sync.sh`. Drop the three `spec` lines for a project that has not adopted spec-driven development.
 
-### URL rules (important)
+### Reference rules
 
-- **Scheme is required**: `https://`, `http://`, `ssh://`, `git://`, or `file://`. RCE-capable transports (`ext::`, `fd::`) are rejected - the engine warns and skips.
-- **`#<subpath>`** is everything after the first `#` - the directory inside the clone holding that source type (`packs/core/rules`).
-- **`@<ref>`** is the segment after the last `@` in the post-scheme portion, accepted only if it contains **no `/`**. Pin with a **tag, SHA, or slashless branch**. A branch name containing `/` (e.g. `feature/x`) cannot be expressed via `@` - use a tag or SHA. Userinfo URLs work: in `ssh://git@host/owner/repo@v0.1.0#packs/core/rules` the ref is `v0.1.0`, not the `git@` userinfo.
-- **Pinning is recommended.** An unpinned URL tracks the default branch and changes under you.
+- **Format** `@<pack>[/<subpath>]`. `<pack>` is a key under `packs:` - a handle, never a path component, so it must contain no `/`. The subpath is the directory inside the pack repo (`packs/core/rules`); omit it to use the repo root.
+- **An undeclared pack fails the run** (exit 1, naming it). Unlike a missing local path, which only warns - the config claims to know that name, so a typo must not silently drop a whole rule set.
+- **`mirror:` materializes the pack** at that path for you to commit, which is what turns a pin bump into a readable diff. Only referenced subpaths are copied, so the pack's README, CI, and tests never enter your tree. Omit the line and the pack is transient - cloned per run, gone at the end.
+- **Pinning is recommended.** An unpinned `ref:` tracks the default branch and changes under you. `ref:` takes any branch name, including one containing `/`.
 
 ### Update
 
-Bump the `@ref` to a newer tag and re-sync. Read the pack `CHANGELOG.md` between versions for renamed or removed artifacts.
+Bump `ref:` to a newer tag and re-sync; with a mirror, review the resulting diff. Read the pack `CHANGELOG.md` between versions for renamed or removed artifacts.
+
+### Older engines (inline, anonymous pack)
+
+Before 0.10.0 a source entry carried the whole spec inline - `git+<url>[@<ref>][#<subpath>]`, repeated per section. It still resolves, but the pack has no name and no mirror: always transient, and the url plus ref are duplicated in every entry.
 
 ## Mode B - git submodule
 
@@ -76,7 +82,7 @@ For offline / air-gapped CI or vendored-in-tree setups. Works with intelligence-
 
 ```bash
 git submodule add https://github.com/ainova-systems/intelligence-dev-packs intelligence/dev-packs
-cd intelligence/dev-packs && git checkout v0.1.0 && cd -   # pin
+cd intelligence/dev-packs && git checkout v0.2.0 && cd -   # pin
 git add intelligence/dev-packs
 ```
 
@@ -147,8 +153,8 @@ To pin those answers (so nothing is re-detected or re-asked), have your AI agent
 
 | Consumer | Modes | Notes |
 |---|---|---|
-| intelligence-sync with `git+` | A, B, D | Remote sources; all adapters |
-| intelligence-sync 0.3.1+ | B, D | Submodule / copy source paths |
+| intelligence-sync 0.10.0+ | A, B, D | Declared `packs:` with optional `mirror:`; all adapters |
+| intelligence-sync 0.3.1+ | B, D | Submodule / copy source paths; inline `git+` for a transient remote |
 | Claude Code directly | C, D | Mode C for skills; Mode D into `.claude/` for rules and agents |
 | Any AGENTS.md reader | A, B, D | Via the intelligence-sync `agents` target |
 | Other SKILL.md-compatible tools | A, B, C, D | Skills follow the open SKILL.md folder convention |

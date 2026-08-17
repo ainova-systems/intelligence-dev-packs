@@ -2,7 +2,7 @@
 # Install pack skills as Claude Code user-level (global) skills.
 # Copies every skills/<prefix>-* folder of the selected pack(s) into the user
 # skills directory, replacing previously installed versions of the same skills.
-# Project-level rules and agents are not installed globally; see docs/INTEGRATION.md.
+# Project-level rules and agents are not installed globally; see docs/integration.md.
 #
 # Usage:
 #   bash scripts/claude-install-global.sh             # every pack (core + spec + ...)
