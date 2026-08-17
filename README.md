@@ -101,14 +101,14 @@ A project without the spec pack still uses `core` standalone - the git/PR/review
 
 With it, the flow runs in one of two execution modes (profile `execution_mode`):
 
-**Supervised (default)** - the developer stays in the loop. Intake pulls a tracker item into a spec (`spec-pull`, read-only against the tracker) or captures a taskless brief (`spec-create`). The plan opens with a requirements-coverage table - every requirement maps to the step that delivers it or to the open question that blocks it - and an open question blocks execution, never planning (`spec-answer` resolves them; `spec-validate` fact-checks the plan against the repo first). Status is read from the artifacts, never written: a plan with no open question is the approval. `spec-execute` runs the plan via parallel subagents and ends with changes **uncommitted** on the feature branch, for the developer to review and ship with the git skills.
+**Supervised (default)** - the developer stays in the loop. Intake pulls a tracker item into requirements (`spec-pull`, read-only against the tracker) or captures a taskless brief (`spec-create`), and `spec-plan` writes the plan beside them - the same second half whichever intake ran. The plan opens with a requirements-coverage table - every requirement maps to the step that delivers it or to the open question that blocks it - and an open question blocks execution, never planning (`spec-answer` resolves them; `spec-validate` fact-checks the plan against the repo first). Status is read from the artifacts, never written: a plan with no open question is the approval. `spec-execute` runs the plan via parallel subagents and ends with changes **uncommitted** on the feature branch, for the developer to review and ship with the git skills.
 
 **Autonomous** - the owner touches the work at three gates; everything between runs unattended.
 
 | Step | Who | Skill |
 |---|---|---|
 | 1. State the task | **Owner** | - |
-| 2. Spec written (requirements + plan) | AI | `spec-pull` / `spec-create` |
+| 2. Spec written (requirements + plan) | AI | `spec-pull` / `spec-create`, then `spec-plan` |
 | 3. **Gate 1 - review and approve the spec** | **Owner** | `spec-approve` |
 | 4. Implementation: branch, parallel subagents, tests, milestone commits | AI | `spec-execute` |
 | 5. PR opened, CI driven to green, review comments handled, outcome label | AI | `git-finalize-pr` |
