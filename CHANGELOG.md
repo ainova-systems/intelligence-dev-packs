@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **The secret scan is now wired into the commit flow it claimed to be part of.** `git-scan-secrets` advertised "invoked by `dev-review-changes` and the orchestrators pre-push" while nothing invoked it - `dev-review-changes` cited its patterns and no orchestrator named it at all, so the guarantee was prose. `git-commit-push` step 3 now runs it in `diff` scope - a live credential in what is about to be committed stops the commit, one elsewhere in the pending diff is reported without blocking - and the review skill's Critical check runs the scan instead of borrowing its regexes.
+- **Two completion bounds graded something the agent cannot observe.** `dev-handoff` verified that "a cold reader could continue" - a counterfactual about a person; it now requires every state claim to cite a command run this session, plus a printed, git-ignored save path. `spec-audit-docs` verified only the claims it chose to report, so a run extracting one claim passed; the bound is now that every claim extracted in step 2 carries a classification (step 4 gained `verified` so the two agree), with two-sided evidence required for the non-verified ones.
+
+### Changed
+
+- **Autonomous outcome labels are defined once.** `git-workflow` holds the meanings; `git-finalize-pr` and `spec-execute` restated them in full and now cite the set. Three copies of a definition drift; one does not.
+- **`docs/enforcement.md` states the owner gate's portability limit.** `disable-model-invocation` is Claude Code's field - the engine passes it through and every other target ignores what it does not understand - so on Cursor, Copilot, Codex, Pi and opencode the merge and release gates are prose, not machinery. The page maps its other limits honestly and was silent on this one.
+- **`dev-skill-first` stops promising a catalog no install path delivers.** It instructed the agent to "check the skill catalog"; no install mode places one in the host project (a mirrored pack copies only the referenced subpaths). The rule now points at the skills actually installed, which is what the agent can see.
+
 ## [0.3.0] - 2026-08-17
 
 Adoption became a single prompt: the README stopped reading as a manual, the install instructions caught up with the engine that actually ships, and the release process is written down instead of being reconstructed each time.

@@ -33,11 +33,7 @@ Take a freshly pushed PR through fix/push iterations until CI is green AND every
 
 ## Outcome
 
-Exactly one label, then report (PR URL, label, what needs the owner):
-
-- `ai:ready-to-merge` - green, comments drained, `mergeable: MERGEABLE`;
-- `ai:manual` - needs an owner decision (state precisely which);
-- `ai:failed` - cannot reach green (state the blocking failure and what was tried).
+Exactly one label from the outcome set `git-workflow` defines - `ai:ready-to-merge` | `ai:manual` | `ai:failed` - then report: PR URL, the label, and what needs the owner.
 
 ## Verify
 
