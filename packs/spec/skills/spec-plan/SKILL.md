@@ -31,7 +31,9 @@ An open question does not stop this skill: **a question blocks execution, never 
    A plan is a shape, not a quota: a section with nothing to say says nothing, and a sentence equally true in every other plan belongs to a rule, not to a plan.
 3. **Sequence a tree-wide change honestly.** When the blast radius spans hundreds of call sites (a rename, a signature change), do not force one testable slice: sequence expand -> migrate in batches -> contract, each batch its own step blocked by the expand step, so the gates stay green between batches.
 4. **Cross-link.** Phases point to the feature doc's business rules; requirements point to the feature-doc section. A docs-substrate artifact the plan needs and that is missing or stale is created now via `spec-document`, marked inferred - never left inconsistent for a human to fix. A decision that crystallised while planning and passes the three-condition gate goes to `spec-decision`.
-5. **Report** the plan path, the coverage table's verdict (every requirement mapped, or which are blocked), and the open questions leading. State what happens next: `spec-validate` to fact-check the plan against the repository, `spec-answer` for the questions, `spec-execute` when none stand.
+5. **Report** the plan path, the coverage table's verdict (every requirement mapped, or which are blocked), and the open questions leading. State what happens next: `spec-validate` to fact-check the plan against the repository, `spec-answer` for any question it raises or inherits, `spec-execute` when none stand.
+
+   In `autonomous` mode, write `status: proposed` here - the plan is what `spec-approve` gates on (it checks the coverage table and the sibling citations), so a requirements-only spec has nothing to approve. Supervised mode writes nothing: a plan with no open question is already the approval (`spec-discipline`).
 
 ## Verify
 
