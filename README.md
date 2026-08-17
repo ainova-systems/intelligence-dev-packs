@@ -44,7 +44,7 @@ Set up the intelligence-dev-packs shared engineering packs in THIS repository.
    contradicts a pack rule - mine wins, recommend keep / drop / scope. Do not commit or push.
 ```
 
-It works whether or not the project already has intelligence-sync, and leaves everything staged for your review.
+It works whether or not the project already has intelligence-sync, and leaves every change uncommitted for your review.
 
 ## What you get
 
