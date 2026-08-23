@@ -54,9 +54,24 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 
 ## Releases
 
+> **How a release runs** (`git-create-release`): review what the window since the last tag left
+> for a human → owner gate → version → release change-set (changelog, version, release docs) →
+> land it per the **mode** → tag → publish → close the accepted post-release steps. The keys below
+> drive each phase; `release_cut` is the mode.
+>
+> **The mode decides where the release is reviewed.** `release-pr` puts the release change-set on
+> a `release/x.y.z` branch and reviews it in a PR - the branch is where everything the release
+> changes about itself is updated and read before it ships, and its PR body carries the pending-step
+> checklist. `direct` commits to an unprotected target with no review surface. `automated` hands
+> both to a release bot.
+
 - release_flow: tag-on-default      <!-- tag-on-default (trunk: tag default branch) | gitflow-merge (merge develop→master, tag the merge) -->
+- release_cut: release-pr           <!-- THE MODE: direct (unprotected target only) | release-pr (release branch → PR → merge) | automated (release-please bot) -->
+- release_review: pr-section: Deployment notes   <!-- where merged PRs declare steps no pipeline performs; pr-section: <heading> | none -->
+- manual_apply_globs: none          <!-- paths a human applies outside the pipeline, e.g. externally-hosted automation definitions, hand-deployed stacks, secret inventories; none -->
+- drift_check: none                 <!-- read-only command reporting repository-vs-live divergence (infra plan/diff); none -->
 - changelog: continuous             <!-- continuous (every PR appends ## [Unreleased]) | assembled (written at release) -->
-- release_cut: release-pr           <!-- direct (unprotected target only) | release-pr (release branch → PR → merge) | automated (release-please bot) -->
+- release_docs: none                <!-- docs the release change-set updates besides the changelog, e.g. version matrix, upgrade notes; none -->
 - release_artifact: github-release  <!-- tag-only | github-release | github-release-draft -->
 - release_notes: changelog-section  <!-- changelog-section | generated | none -->
 - tagger: maintainer                <!-- maintainer (local tag + push origin vX.Y.Z) | ci (Action tags on merge) -->

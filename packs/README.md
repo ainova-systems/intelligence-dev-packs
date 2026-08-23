@@ -40,7 +40,7 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 | `git-review-pr-comments` | skill | Triage reviewer feedback: fix, discuss, or decline with reason |
 | `git-finalize-pr` | skill | CI to green plus every review comment handled - PR ready to merge |
 | `git-merge-pr` | skill | After owner accept: guard-checked squash-merge, base sync, cleanup (owner-invoked only) |
-| `git-create-release` | skill | Version, changelog, tag per the project's release flow (owner-invoked only) |
+| `git-create-release` | skill | Pending-step review, owner gate, version, changelog, tag per the project's release flow (owner-invoked only) |
 | `git-scan-secrets` | skill | Credential scan over diff, tree, or history |
 
 ### spec - `spec-` domain (depends on core)
