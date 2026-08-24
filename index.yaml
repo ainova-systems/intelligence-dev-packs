@@ -1,0 +1,23 @@
+# Registry index for this repository.
+#
+# This repo holds several Intelligence Packages, so the package names are not
+# repository names and cannot be resolved by convention. This file is what the
+# intelligence CLI reads to map them to their sources:
+#
+#   intelligence registry add @ainova-systems https://github.com/ainova-systems/intelligence-dev-packs.git
+#   intelligence search
+#   intelligence add @ainova-systems/core
+#
+# Binding is optional — the same entries ship inside the CLI — but binding here
+# reads the newest ones without waiting for a CLI release. Versions live in this
+# repository's git tags (x.y.z, optional `v`), not in this file: a project's
+# range resolves against them and pins the result in its intelligence.lock.
+packages:
+  "@ainova-systems/core":
+    url: "https://github.com/ainova-systems/intelligence-dev-packs.git"
+    path: "packs/core"
+    description: "Universal engineering discipline and git/PR/release mechanics: verification gates, rollback safety, context engineering, code review, releases."
+  "@ainova-systems/spec":
+    url: "https://github.com/ainova-systems/intelligence-dev-packs.git"
+    path: "packs/spec"
+    description: "Opt-in spec-driven lifecycle: intake, plan, adversarial validation, parallel execution, docs upkeep, decision records. Depends on core."
