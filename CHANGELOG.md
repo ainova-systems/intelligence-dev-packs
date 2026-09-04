@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-09-04
+
+Installation moved to the Intelligence CLI: the packs install by name from a registry this repository publishes, the spec chain gained the planning stage both intakes were missing, and the release cut now stops on the manual steps a release window left behind.
+
 ### Breaking (spec pack)
 
 - **`spec-create` writes requirements only; the plan is `spec-plan`'s.** It used to write both files, which made it the only route to a plan and left tracker intake with nowhere to go. Projects that call `spec-create` and expect a plan now get requirements plus a hand-off; the plan arrives one skill later.
