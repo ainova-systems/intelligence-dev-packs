@@ -46,7 +46,6 @@ Read-only review before commit or PR - findings only, never edits.
 
 - Fixing - the author/orchestrator; committing - `git-commit-push` (a BLOCK verdict means fix first).
 
-## CRITICAL
+## Constraints
 
-- Read-only: never edit, stage, or commit.
 - A diff mixing unrelated changes - the first finding is "split it".

@@ -1,4 +1,5 @@
 ---
+name: spec-docs-writer
 description: Keeps documentation, decision records, and intelligence artifacts in sync with the code. Documentation engineer, not a marketer.
 tier: standard
 access: full

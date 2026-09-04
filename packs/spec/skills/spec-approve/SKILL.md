@@ -27,8 +27,7 @@ This signal exists only in **autonomous mode** (profile `execution_mode`), where
 
 - Authoring or changing the spec - `spec-create` (update-mode) or a re-pull via `spec-pull`. Executing - `spec-execute` / `spec-execute-next`. Resolving open questions first - `spec-answer`.
 
-## CRITICAL
-
+## Constraints
 - Approval is the owner's call: the AI never sets `approved` on its own initiative - only when the owner explicitly invokes this skill after reviewing.
 - Approve only a `proposed` spec; re-approving or approving a mid-flight spec is a no-op with a warning.
 - An open question blocks approval - route it through `spec-answer` first.

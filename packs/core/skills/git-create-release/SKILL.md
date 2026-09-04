@@ -64,7 +64,7 @@ State the resolved policy in one line before acting.
 - Keeping `## [Unreleased]` filled per feature PR - that is the `continuous` changelog habit (done at commit time / `git-commit-push`), not this skill.
 - Declaring a manual step in the first place - the merging PR's `release_review` section; this skill only collects what is already written there and reads the diff for what is not.
 
-## CRITICAL
+## Constraints
 
 - Never tag with an unreviewed window or an unanswered pending step - a release that ships code while its manual steps stay undone leaves the live system running old behavior with nothing recording that it does.
 - Never release around a red pipeline; never retag or force-move a published tag.

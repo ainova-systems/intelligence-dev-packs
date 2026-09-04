@@ -28,8 +28,7 @@ The ADR is not the default record: a standing law belongs in the rule that owns 
 
 - Updating prose in feature/architecture docs - `spec-audit-docs` / the docs flow.
 
-## CRITICAL
-
+## Constraints
 - Still an open debate - record as `proposed` and name the decider; an ADR is not a way to win an argument.
 - Vague consequences ("cleaner architecture") - replace with the concrete obligation or saving, or omit.
 - When in doubt about the gate, do not write the ADR.

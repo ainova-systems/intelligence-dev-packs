@@ -27,7 +27,6 @@ Retire a spec that will not ship - the owner dropped it, scope changed, or anoth
 
 - Replacing it with a new plan - `spec-create` (the superseder); link it. A reversible decision worth a durable record beyond the spec - `spec-decision`.
 
-## CRITICAL
-
+## Constraints
 - A reason is mandatory; never cancel silently.
 - Never delete the spec file or pushed work to "cancel" - record the status; the decision must survive.

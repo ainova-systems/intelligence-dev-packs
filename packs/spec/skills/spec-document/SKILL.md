@@ -35,7 +35,6 @@ Learn from the project (read two sibling docs in the target folder; mimic, don't
 
 - A code change (not just docs) - `spec-create`. Decisions - `spec-decision`. Drift detection - `spec-audit-docs`.
 
-## CRITICAL
-
+## Constraints
 - Never fork a parallel doc - update the canonical one.
 - Never fabricate a rule or behavior the code does not show; mark `inferred` and flag config / DB / runtime intent for functional tests.

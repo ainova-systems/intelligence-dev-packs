@@ -6,7 +6,7 @@ argument-hint: "<spec folder or plan file path>"
 
 # Continue a Spec
 
-Resume a spec started in another session. **Read `spec-execute` first - all its phases and CRITICAL rules apply verbatim**; this skill adds only the resume protocol. The resume failure mode is always the same: inherited code drifts from the spec, and new work gets stacked on the drift.
+Resume a spec started in another session. **Read `spec-execute` first - all its phases and constraints apply verbatim**; this skill adds only the resume protocol. The resume failure mode is always the same: inherited code drifts from the spec, and new work gets stacked on the drift.
 
 ## Resume protocol
 
@@ -26,8 +26,7 @@ Resume a spec started in another session. **Read `spec-execute` first - all its 
 
 - Fresh execution - `spec-execute`; spec authoring - `spec-pull` / `spec-create`; open questions - `spec-answer`.
 
-## CRITICAL
-
+## Constraints
 - Never assume the spec reflects reality - re-sync with the repo first.
 - Never delete or rewrite pushed work: fix-commit forward.
 - Branch behind its base - ask merge or rebase; never silently diverge.

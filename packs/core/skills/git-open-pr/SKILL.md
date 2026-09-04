@@ -35,8 +35,3 @@ State one value each, e.g. `Risk: low | Size: small`.
 ## Scope / hand-off
 
 - Committing/pushing first - `git-commit-push`; driving the opened PR to green and draining comments - `git-finalize-pr`; merging - `git-merge-pr`.
-
-## CRITICAL
-
-- Idempotent: never open a second PR when one is already open for the branch.
-- Never open a PR from a protected branch, or from a branch with unpushed commits.

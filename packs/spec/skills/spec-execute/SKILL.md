@@ -71,8 +71,7 @@ Apply every needed doc update automatically (via `spec-document` conventions) so
 - Resuming a half-done spec - `spec-continue`.
 - Merging - `git-merge-pr`, only after owner accept.
 
-## CRITICAL
-
+## Constraints
 - Refuse to start while any open question stands; name each.
 - Never push to the integration/default branch; never merge; never amend or force-push pushed commits.
 - No new patterns without a sibling citation or explicit owner approval.

@@ -42,8 +42,7 @@ Ordered by how strongly each constrains an agent: an agent follows an executable
 - Layer-A executable constraints (lint, boundary, contract tests) - out of scope; separate setup.
 - Keeping docs in sync with code afterwards - `spec-audit-docs`.
 
-## CRITICAL
-
+## Constraints
 - Never delete or overwrite existing documentation - quarantine to `_inbox/`, reclassify one-by-one, owner-reviewed.
 - Never impose the default tree over a working project structure - learn and adopt first.
 - Honest caveat to state in the output: this pins down only what is already structured in code. Business rules living in config, database rows, or runtime-registered extensions are invisible to static drafting - flag them for functional tests or gradual move-into-code; never fabricate a rule the code does not show.

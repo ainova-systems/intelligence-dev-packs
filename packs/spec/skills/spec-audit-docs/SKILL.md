@@ -27,7 +27,6 @@ Docs that contradict code are worse than none - readers and agents act on them. 
 
 - Post-execution doc updates - `spec-execute` Phase D; decisions - `spec-decision`.
 
-## CRITICAL
-
+## Constraints
 - Intentions and roadmap lines are not checkable claims - skip them.
 - Generated docs - report drift against the generator's input; regenerate, never hand-edit the output.

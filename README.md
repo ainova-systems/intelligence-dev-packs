@@ -6,92 +6,70 @@ Built and maintained by [Ainova Systems](https://www.ainovasystems.com). Extract
 
 ## Quick start
 
-Paste this into your AI coding agent, working in the project you want to set up:
+The packs ship as [Intelligence Packages](https://github.com/ainova-systems/intelligence), installed with the Intelligence CLI. Needs Node.js 18+, git, bash and awk.
 
-```
-Set up the intelligence-dev-packs shared engineering packs in THIS repository.
+```bash
+npm install -g @ainova-systems/intelligence
 
-1. ENGINE. Find the intelligence umbrella - the folder holding `config.yaml` and a `sync/`
-   engine (usually `intelligence/`, but detect it: it may be renamed or capitalized
-   differently). If there is none, install intelligence-sync first by following
-   https://raw.githubusercontent.com/ainova-systems/intelligence-sync/main/intelligence/sync/INIT.md
-   then continue here.
-
-2. ASK ME which packs to add, and wait for the answer:
-   - core (default) - engineering discipline, session hygiene, git / PR / review / release.
-   - core + spec - adds the spec-driven lifecycle (intake, plan, execute, docs). Only for a
-     project that wants it and has no spec workflow of its own.
-
-3. DECLARE THE PACK once in the umbrella `config.yaml`, mirrored into the repo:
-
-   packs:
-     intelligence-dev-packs:
-       url: https://github.com/ainova-systems/intelligence-dev-packs.git
-       ref: main
-       mirror: "<umbrella>/external/intelligence-dev-packs"
-
-   Then reference it from `sources:` - for each pack I chose, add
-   "@intelligence-dev-packs/packs/<pack>/rules", "…/agents" and "…/skills" to the matching
-   section, keeping my own project sources first.
-
-4. PROFILE. Read `packs/core/templates/dev-project-profile.md` from the mirror as the schema,
-   fill it from this repository (branch model, verification commands, PR platform and merge
-   method, release flow, tracker, and - if spec was added - the docs structure), and save it as
-   `<umbrella>/rules/dev-project-profile.md`. Leave anything you cannot detect for me.
-
-5. SYNC AND REPORT. Run `bash <umbrella>/sync/scripts/sync.sh`. Report: which packs were added,
-   the profile values you filled and the ones you left, and every project rule that overlaps or
-   contradicts a pack rule - mine wins, recommend keep / drop / scope. Do not commit or push.
+cd your-project
+intelligence init --targets claude              # claude, cursor, copilot, codex, pi, opencode
+intelligence registry add https://github.com/ainova-systems/intelligence-dev-packs.git
+intelligence package add @ainova-systems/core   # add @ainova-systems/spec for spec-driven projects
 ```
 
-It works whether or not the project already has intelligence-sync, and leaves every change uncommitted for your review.
+`init` writes `intelligence.yaml` and `intelligence.lock` - both committed - and renders each enabled tool's native files. `registry add` is what makes this repository's package names resolvable: names resolve only through registries the project has explicitly trusted, so nothing installs from a guessed URL. `package add` records the name and pins the resolved tag and commit in the lock.
+
+Then have your AI coding agent generate the project profile once, so nothing is re-detected or re-asked:
+
+```
+Generate the intelligence-dev-packs project profile for THIS repository.
+
+Read `.intelligence/packages/@ainova-systems/core/templates/dev-project-profile.md` as the
+schema, fill it from this repository (branch model, verification commands, PR platform and
+merge method, release flow, tracker, and - if the spec package is installed - the docs
+structure), and save it as `intelligence/rules/dev-project-profile.md`. Leave anything you
+cannot detect for me.
+
+Then run `intelligence sync` and report: the profile values you filled and the ones you left,
+and every project rule that overlaps or contradicts a package rule - mine wins, recommend
+keep / drop / scope. Do not commit or push.
+```
 
 ## What you get
 
 | Pack | Install when | Contents |
 |---|---|---|
-| **core** (`dev-`, `git-`) | Always - it is universal | 6 always-on rules (skill-first, context engineering, verification gates, rollback safety, commit conventions, git workflow), 2 agents (code reviewer, test engineer), 11 skills: tests, diff review, handoff, commit+push, open PR, drive PR to green, review comments, resolve conflicts, merge, release, secret scan |
-| **spec** (`spec-`) | Opt-in, depends on core | The spec-driven lifecycle: 2 rules (spec discipline, multi-agent orchestration), 2 agents (architect, docs writer), 14 skills from tracker intake through plan, adversarial validation, execution, and docs upkeep |
+| **core** (`dev-`, `git-`)<br>`@ainova-systems/core` | Always - it is universal | 6 always-on rules (skill-first, context engineering, verification gates, rollback safety, commit conventions, git workflow), 2 agents (code reviewer, test engineer), 11 skills: tests, diff review, handoff, commit+push, open PR, drive PR to green, review comments, resolve conflicts, merge, release, secret scan |
+| **spec** (`spec-`)<br>`@ainova-systems/spec` | Opt-in, depends on core | The spec-driven lifecycle: 2 rules (spec discipline, multi-agent orchestration), 2 agents (architect, docs writer), 15 skills from tracker intake through plan, adversarial validation, execution, and docs upkeep |
 
 Artifact-by-artifact catalog: [`packs/README.md`](packs/README.md).
 
 ## How it lands in your repository
 
-One declaration, referenced by name - this is a real `config.yaml` from a project using the packs:
+Two blocks in `intelligence.yaml` - the trusted registry, and the packages themselves:
 
 ```yaml
-packs:
-  intelligence-dev-packs:
-    url: https://github.com/ainova-systems/intelligence-dev-packs.git
-    ref: main                                              # pin to a tag or SHA for reproducibility
-    mirror: intelligence/external/intelligence-dev-packs   # committed copy - the default
+registries:
+  - "https://github.com/ainova-systems/intelligence-dev-packs.git"
 
-sources:
-  rules:
-    - "intelligence/rules"
-    - "@intelligence-dev-packs/packs/core/rules"
-    - "intelligence/sync/rules"
-  agents:
-    - "intelligence/agents"
-    - "@intelligence-dev-packs/packs/core/agents"
-    - "intelligence/sync/agents"
-  skills:
-    - "intelligence/skills"
-    - "intelligence/sync/skills"
-    - "@intelligence-dev-packs/packs/core/skills"
+packages:
+  "@ainova-systems/core":
+    version: "^0.4.0"
+  "@ainova-systems/spec":       # spec-driven projects only
+    version: "^0.4.0"
 ```
 
-Then `bash intelligence/sync/scripts/sync.sh`.
-
-- **Mirrored into your repo by default.** `mirror:` materializes the pack at that path and you commit it, so bumping `ref:` reads as an ordinary diff instead of a shifted generated output. Only the referenced subpaths are copied - the pack's README, CI, and tests never enter your tree. Drop the line and the pack stays transient (cloned per run, nothing committed).
-- **Adding spec** is three more entries: `@intelligence-dev-packs/packs/spec/{rules,agents,skills}`.
-- **Other modes** - git submodule, global Claude Code skills (`scripts/claude-install-global.sh`), plain copy - are in [docs/integration.md](docs/integration.md), along with uninstall.
+- **The manifest records intent, the lock records the resolution.** A package entry carries only the requested `version:` range (or a deliberate `ref:` pin); the resolved repository URL, subpath, tag and commit SHA live in the committed `intelligence.lock`. After a fresh clone, `intelligence sync` restores exactly that commit without consulting a registry.
+- **Versions are this repository's git tags.** A range like `^0.4.0` matches stable `x.y.z` tags; prerelease tags are invisible to ranges. Read [CHANGELOG.md](CHANGELOG.md) between versions for renamed or removed artifacts.
+- **Package content is not vendored into your tree.** It lands in the gitignored store at `.intelligence/packages/@ainova-systems/<name>/`, and the CLI renders it into each tool's own files.
+- **Your artifacts win.** Package sources precede project sources, so a same-named artifact in `intelligence/rules|agents|skills` deliberately overrides package content.
+- **Other modes** - global Claude Code skills (`scripts/claude-install-global.sh`), plain copy, and installing straight from the repository without a registry - are in [docs/integration.md](docs/integration.md), along with uninstall and the migration from intelligence-sync.
 
 ## Configure for your project
 
 Nothing is wired by hand. Skills read the repository - default branch from git, an `origin/develop` as the integration branch, typecheck/lint/test commands from the manifests, PR platform from the remote - and ask once only when something is genuinely ambiguous.
 
-To pin those answers so nothing is re-detected or re-asked, have your agent generate a profile once (step 4 of the Quick start does this). It declares the branch model, verification commands (including an optional single gate-runner via `verify`), PR platform and merge method, release flow, the tracker, and the docs structure. It is generated and filled from your repo - never copied or hand-edited - and rides as an always-on rule.
+To pin those answers so nothing is re-detected or re-asked, have your agent generate a profile once (the Quick start's second prompt does this). It declares the branch model, verification commands (including an optional single gate-runner via `verify`), PR platform and merge method, release flow, the tracker, and the docs structure. It is generated and filled from your repo - never copied or hand-edited - and rides as an always-on rule.
 
 Hard invariants (never force-push, never blanket-stage, never bypass gates) can be backed by machinery rather than prose: `packs/core/templates/claude-settings.json` ships the `permissions.deny` set, and [docs/enforcement.md](docs/enforcement.md) maps each invariant to its mechanism.
 
@@ -128,9 +106,10 @@ With it, the flow runs in one of two execution modes (profile `execution_mode`):
 
 ## Compatibility
 
-- **intelligence-sync**: declared `packs:` (the Quick start) need 0.10.0 or later; older engines can still reference a pack inline as `git+<url>@<ref>#<subpath>` per source entry. Submodule and copy modes work with 0.3.1 or later. The packs also work without the sync engine, consumed directly by Claude Code or any tool that reads `SKILL.md` folders.
-- **Tools**: anything intelligence-sync targets (Claude Code, Cursor, GitHub Copilot, Codex, Pi, opencode, AGENTS.md readers), plus direct use.
-- **Naming**: every artifact carries a domain prefix (`dev-`/`git-`/`spec-`), so pack content never collides with project artifacts or the reserved `intelligence-` meta-skills.
+- **Intelligence CLI**: the packages install with the current CLI (`npm install -g @ainova-systems/intelligence`). `registry add` requires a registry repository to publish an `index.yaml` at its root; this repository does, mapping `@ainova-systems/core` and `@ainova-systems/spec` to their subpaths.
+- **Migrating from intelligence-sync**: that engine is archived at v0.10.4 and replaced by the CLI. Convert an existing project with `intelligence init --preview`, review, then `intelligence init --apply` - it preserves project-owned sources and replaces the vendored engine.
+- **Tools**: Claude Code, Cursor, GitHub Copilot, Codex, Pi, OpenCode, and AGENTS.md readers. The packs also work with no engine at all, consumed directly by any tool that reads `SKILL.md` folders.
+- **Naming**: every artifact carries a domain prefix (`dev-`/`git-`/`spec-`), so package content never collides with project artifacts or the reserved `intelligence-` meta-skills.
 
 ## Versioning
 
@@ -138,7 +117,7 @@ Semantic versioning, history in [CHANGELOG.md](CHANGELOG.md). Pin `ref:` to a ta
 
 ## Related
 
-- **[intelligence-sync](https://github.com/ainova-systems/intelligence-sync)** - the open-source engine that delivers these packs into every IDE your team uses (Claude Code, Cursor, GitHub Copilot, Codex, and more). intelligence-dev-packs is the shared content; intelligence-sync is how it reaches each tool.
+- **[Intelligence](https://github.com/ainova-systems/intelligence)** - the open-source CLI that versions, distributes and renders these packages into every IDE your team uses (Claude Code, Cursor, GitHub Copilot, Codex, Pi, OpenCode). intelligence-dev-packs is the shared content; Intelligence is how it reaches each tool.
 
 ## License
 

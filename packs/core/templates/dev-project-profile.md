@@ -17,6 +17,7 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 - integration_branch: none          <!-- develop | none (trunk-based) -->
 - branch_prefixes: feature/, bugfix/, hotfix/
 - update_strategy: merge            <!-- merge | rebase -->
+- conflict_skill: git-resolve-conflicts   <!-- the skill the git flows hand conflicts to; a project with its own layered conflict skill names it here -->
 - protected_branches: main          <!-- comma-separated; default + integration are always protected -->
 
 ## Commits

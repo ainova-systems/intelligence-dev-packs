@@ -6,7 +6,7 @@ argument-hint: "[pr number]"
 
 # Finalize the PR
 
-Take a freshly pushed PR through fix/push iterations until CI is green AND every review comment is answered - merge-ready for the owner's accept. Runs autonomously across CI rounds (typically 15-30 min each); wait reactively, never busy-poll.
+Take a freshly pushed PR through fix/push iterations until CI is green AND every review comment is answered - merge-ready for the owner's accept. Runs autonomously across CI rounds; wait reactively, never busy-poll.
 
 ## Pre-flight
 
@@ -42,10 +42,9 @@ Exactly one label from the outcome set `git-workflow` defines - `ai:ready-to-mer
 ## Scope / hand-off
 
 - Merging - `git-merge-pr` after the owner accepts.
-- `mergeable: CONFLICTING` - `git-resolve-conflicts`, then back into Loop 1.
+- `mergeable: CONFLICTING` - the profile `conflict_skill` (default `git-resolve-conflicts`), then back into Loop 1.
 
-## CRITICAL
+## Constraints
 
-- Fix the cause, never the gate: no skipped tests, no loosened checks, no retry-until-green on flaky failures - flag flakes explicitly.
 - A failure that already exists on the target branch is reported as pre-existing, never "fixed" on this PR.
 - Never merge from this skill, even when everything is green.

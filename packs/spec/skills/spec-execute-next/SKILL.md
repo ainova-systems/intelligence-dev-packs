@@ -19,7 +19,7 @@ Orchestrator-of-orchestrators: select ONE ready item, delegate the whole executi
    - Conflict gate, skip the candidate if: it already has an open PR (`ai:manual` / `ai:failed` PRs need the owner, not a re-run); its file scope overlaps any open PR's files; it needs a decision the spec leaves open (that is `ai:manual` before even starting).
    - Interactive session - confirm the choice plus runner-up in one question. Autonomous run - proceed. No eligible candidate - report per-candidate skip reasons and stop (skip step 5's sync, still end clean).
 4. **Execute until outcome.** Mid-flight spec - `spec-continue`; otherwise `spec-execute`. Run until the PR carries exactly one `ai:*` label. Never merge.
-5. **Reset (runs regardless of outcome).** `git switch <base> && git pull && git fetch --prune`. Close any spec whose PR merged since the last run (`spec-close`) so the queue and docs reflect reality. Re-sync intelligence outputs when the project uses intelligence-sync (`bash <umbrella>/sync/scripts/sync.sh`). Report: task picked + why; PR URL + outcome label; what needs the owner; runner-up for the next run.
+5. **Reset (runs regardless of outcome).** `git switch <base> && git pull && git fetch --prune`. Close any spec whose PR merged since the last run (`spec-close`) so the queue and docs reflect reality. Re-render the project's generated intelligence outputs when it has an engine that produces them, using the command that engine documents; skip when it has none. Report: task picked + why; PR URL + outcome label; what needs the owner; runner-up for the next run.
 
 ## Verify
 
@@ -29,8 +29,7 @@ Orchestrator-of-orchestrators: select ONE ready item, delegate the whole executi
 
 - All execution rules - `spec-execute`; the merge - `git-merge-pr` after owner accept. The approved queue this skill drains is filled by `spec-approve` (the owner's gate-1 decision).
 
-## CRITICAL
-
+## Constraints
 - ONE task per invocation; the next starts only after reset and fresh context.
 - The conflict gate is non-negotiable - when in doubt about overlap, pick the next candidate.
 - Never block other agents' open PRs.

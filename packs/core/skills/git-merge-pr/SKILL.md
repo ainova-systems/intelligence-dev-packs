@@ -17,7 +17,7 @@ Take an accepted, merge-ready PR across the finish line. Deliberately non-diagno
 4. Open PR for THIS branch: `gh pr list --head <branch> --state open --json number,headRefName --jq '.[0]'`. An explicit pr-number argument must have `headRefName == <current branch>` - otherwise refuse: never merge a PR that is not the current branch's.
 5. CI green on HEAD (latest-SHA filter, same probe as `git-finalize-pr`) - red or pending: hand off to `git-finalize-pr`.
 6. Zero unresolved review threads (GraphQL `reviewThreads.isResolved`) - unresolved: hand off to `git-review-pr-comments`.
-7. `gh pr view <pr> --json mergeable,mergeStateStatus,reviewDecision` - `CONFLICTING`: `git-resolve-conflicts`; `BLOCKED` / `BEHIND`: report and stop.
+7. `gh pr view <pr> --json mergeable,mergeStateStatus,reviewDecision` - `CONFLICTING`: the profile `conflict_skill` (default `git-resolve-conflicts`); `BLOCKED` / `BEHIND`: report and stop.
 
 ## Steps
 
@@ -35,9 +35,9 @@ Take an accepted, merge-ready PR across the finish line. Deliberately non-diagno
 
 ## Scope / hand-off
 
-- CI and comments - `git-finalize-pr`; conflicts - `git-resolve-conflicts`; cutting a release - `git-create-release`.
+- CI and comments - `git-finalize-pr`; conflicts - the profile `conflict_skill` (default `git-resolve-conflicts`); cutting a release - `git-create-release`.
 
-## CRITICAL
+## Constraints
 
 - Never force, retry blindly, or work around an unexpected `gh` result.
 - The only destructive action (local branch delete) runs only after the merge is confirmed landed.

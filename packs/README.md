@@ -43,6 +43,8 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 | `git-create-release` | skill | Pending-step review, owner gate, version, changelog, tag per the project's release flow (owner-invoked only) |
 | `git-scan-secrets` | skill | Credential scan over diff, tree, or history |
 
+The pack also ships `packs/core/templates/claude-settings.json`, meant to be copied into the project's committed `.claude/settings.json` so the invariants the rules state in prose (no force-push, no blanket-stage, no `--no-verify`) are denied by the harness too.
+
 ### spec - `spec-` domain (depends on core)
 
 | Artifact | Kind | Role |
@@ -69,8 +71,8 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 
 ## Selecting a pack
 
-- **Declared pack** (intelligence-sync 0.10.0+): declare the repo once under `packs:` and reference the subpath by name, e.g. `"@intelligence-dev-packs/packs/core/rules"` (+ `.../packs/spec/rules` to add spec). See the root [README](../README.md#how-it-lands-in-your-repository).
-- **Submodule / copy**: point `sources:` at `…/packs/<name>/{rules,agents,skills}`.
+- **Registry package** (default): `intelligence registry add https://github.com/ainova-systems/intelligence-dev-packs.git`, then `intelligence package add @ainova-systems/core` (add `@ainova-systems/spec` for spec-driven projects). See the root [README](../README.md#how-it-lands-in-your-repository).
+- **Explicit source** (no registry): `intelligence package add github:ainova-systems/intelligence-dev-packs#packs/core --name @ainova-systems/core` - the `--name` is required here, since both packs share one repository.
 - **Global install**: `bash scripts/claude-install-global.sh` installs every pack; `… core` installs only core.
 
 ## Adding a pack or a domain
