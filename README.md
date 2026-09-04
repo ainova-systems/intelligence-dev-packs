@@ -51,7 +51,7 @@ It works whether or not the project already has intelligence-sync, and leaves ev
 | Pack | Install when | Contents |
 |---|---|---|
 | **core** (`dev-`, `git-`) | Always - it is universal | 6 always-on rules (skill-first, context engineering, verification gates, rollback safety, commit conventions, git workflow), 2 agents (code reviewer, test engineer), 11 skills: tests, diff review, handoff, commit+push, open PR, drive PR to green, review comments, resolve conflicts, merge, release, secret scan |
-| **spec** (`spec-`) | Opt-in, depends on core | The spec-driven lifecycle: 2 rules (spec discipline, multi-agent orchestration), 2 agents (architect, docs writer), 14 skills from tracker intake through plan, adversarial validation, execution, and docs upkeep |
+| **spec** (`spec-`) | Opt-in, depends on core | The spec-driven lifecycle: 2 rules (spec discipline, multi-agent orchestration), 2 agents (architect, docs writer), 15 skills from tracker intake through plan, adversarial validation, execution, and docs upkeep |
 
 Artifact-by-artifact catalog: [`packs/README.md`](packs/README.md).
 

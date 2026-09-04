@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`git-scan-secrets` names the callers it actually has.** Its hand-off line still read "invoked by `dev-review-changes` and the orchestrators pre-push"; no orchestrator invokes it, and the line survived the change that wired the scan in. The two real callers are named instead: `dev-review-changes`' Critical check and `git-commit-push` step 3, both in `diff` scope.
+- **The root README counted 14 spec skills.** `spec-plan` made it 15.
 - **The pack agents now register.** `dev-code-reviewer`, `dev-test-engineer`, `spec-architect` and `spec-docs-writer` carried no `name:` in their frontmatter, so Claude Code never listed them as subagents and the skills bound to them (`dev-review-changes`, `dev-run-tests`, the spec skills) ran without their agent. Each agent now names itself.
 - **Core no longer points at spec skills it cannot assume.** `dev-handoff` suggested `spec-continue`, `git-commit-push` referred to "Phase B" of the spec orchestrator and `dev-code-reviewer` cited spec discipline and ADRs unconditionally, while the pack README says core has no dependency on spec. Those references are now conditional on the spec pack (or the profile `decisions_dir`) being present.
 - **Autonomous mode's `status: proposed` is written once, by `spec-plan`.** `spec-create` wrote it at intake and `spec-pull` wrote nothing, so a tracker-sourced spec never entered the approval queue. The status now lands where the thing being approved exists: `spec-approve` gates on the plan's coverage table and sibling citations, so a requirements-only spec has nothing to approve. One writer, both intakes covered.
