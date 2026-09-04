@@ -40,8 +40,7 @@ A channel that reads the body but not the comments degrades loudly: pull what is
 - No tracker item and none can be made - `spec-create` (it keeps the brief verbatim; the cost is no drift keys and no re-pull).
 - Writing the plan - `spec-plan`; fact-checking it - `spec-validate`; resolving questions - `spec-answer`; execution - `spec-execute`.
 
-## CRITICAL
-
+## Constraints
 - Read-only against the tracker: no comments, no status changes, no label writes - creating or updating tracker items is outside this skill.
 - No channel, no pull: stop with the named reason rather than reconstructing an item from memory or a paste. A pasted item is `spec-create`'s job, with its cost said out loud.
 - One item, one spec, for the life of the item; re-pull updates in place.

@@ -29,8 +29,7 @@ Orchestrator-of-orchestrators: select ONE ready item, delegate the whole executi
 
 - All execution rules - `spec-execute`; the merge - `git-merge-pr` after owner accept. The approved queue this skill drains is filled by `spec-approve` (the owner's gate-1 decision).
 
-## CRITICAL
-
+## Constraints
 - ONE task per invocation; the next starts only after reset and fresh context.
 - The conflict gate is non-negotiable - when in doubt about overlap, pick the next candidate.
 - Never block other agents' open PRs.

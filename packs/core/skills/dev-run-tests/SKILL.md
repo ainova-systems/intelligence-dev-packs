@@ -27,8 +27,7 @@ Cheapest-first verification with scope detection. Invoke per task slice, at phas
 
 - Fixing production code - the executing skill/subagent; CI-level failures - `git-finalize-pr`.
 
-## CRITICAL
+## Constraints
 
-- Never modify tests, configs, or thresholds to make a failing gate pass.
 - A flaky test (passes on rerun) is reported as flaky with evidence; never silently retried into green.
 - Missing env/dependency - report the precondition; never stub the environment to force a pass.

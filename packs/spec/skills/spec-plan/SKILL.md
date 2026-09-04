@@ -45,8 +45,7 @@ An open question does not stop this skill: **a question blocks execution, never 
 - Fact-checking the written plan against the tree - `spec-validate`. Resolving open questions - `spec-answer`.
 - Code, branches, PRs - out of scope: `spec-execute` owns execution.
 
-## CRITICAL
-
+## Constraints
 - Never invent structure: the closest shipped sibling spec is the template.
 - Never start implementation here, even the "obvious" parts - a plan that begins editing code has stopped being reviewable.
 - Never resolve an open question by choosing for the human: it stays in the plan, and `spec-answer` closes it.

@@ -10,7 +10,7 @@ Land the pending work as one verified, cleanly described commit. Invoke at miles
 
 ## Steps
 
-1. `git branch --show-current` - on a protected branch (default/integration), STOP; work happens on feature branches (the orchestrators create them in Phase B).
+1. `git branch --show-current` - on a protected branch (default/integration), STOP; work happens on feature branches.
 2. Run the gates: typecheck + lint always, tests scoped to the change (`dev-run-tests`). Failure - fix or report, never bypass.
 3. Review the diff: `git status --porcelain` + `git diff`. Drop debug leftovers and accidental files. Stage selectively with `git add <paths>` - never blanket `git add -A` (it sweeps secrets and parallel-session work). Then run `git-scan-secrets` (`diff` scope): a live credential in what you are about to commit stops the commit until the value moves to the environment or secret store; one found elsewhere in the pending diff is reported, not swallowed, and does not block this commit.
 4. One logical change per commit; unrelated edits split into separate commits. In spec-driven projects, tick the plan's `## Work steps` boxes in the same commit as the code that earns them.
@@ -25,7 +25,6 @@ Land the pending work as one verified, cleanly described commit. Invoke at miles
 
 - Opening the PR - `git-open-pr`; CI babysitting and the outcome label - `git-finalize-pr` (or `spec-execute` Phase E in spec projects).
 
-## CRITICAL
+## Constraints
 
-- No `Co-Authored-By:` or tool trailers; no `feat:`-style prefixes unless the profile `commit_style` requires them.
 - Never weaken a gate to commit (`dev-verification-gates`); never `--no-verify`.

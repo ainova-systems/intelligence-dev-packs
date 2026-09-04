@@ -29,7 +29,6 @@ The pre-execution critic, read as a fresh reader with nothing to defend. A plan 
 
 - Resolving the questions - `spec-answer`. Re-planning after structural answers - `spec-plan`. Execution - `spec-execute`.
 
-## CRITICAL
-
+## Constraints
 - Read-only on code and docs; the only writes are the spec's question sections.
 - A finding never edits the plan directly - a critic who also rewrites is an author with a second hat.

@@ -25,7 +25,7 @@ Find credentials before they reach a remote; anything already pushed is an incid
 
 - Invoked by `dev-review-changes` and the orchestrators pre-push; rotation itself belongs to the owner's secret store.
 
-## CRITICAL
+## Constraints
 
 - Rotation precedes any history rewrite - always.
 - Never print a discovered live secret in full.

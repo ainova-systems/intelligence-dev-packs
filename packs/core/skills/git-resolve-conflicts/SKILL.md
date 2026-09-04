@@ -25,6 +25,6 @@ The result must preserve the intent of both sides, never just pick one. Invoke w
 
 - Merge vs rebase policy - profile `update_strategy`; the PR loop - `git-finalize-pr`.
 
-## CRITICAL
+## Constraints
 
 - Never resolve by discarding one side wholesale; never force-push the result to a shared branch.

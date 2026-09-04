@@ -27,7 +27,7 @@ Drain reviewer feedback: every thread ends with a fix commit or a reasoned reply
 
 - CI babysitting and the outcome label - `git-finalize-pr`; merging - `git-merge-pr`.
 
-## CRITICAL
+## Constraints
 
 - Never resolve a thread without a reply; never reply without resolving (it re-appears next run).
 - Verify a reviewer's claim against the code before accepting it - a confident but wrong bot comment is still wrong.

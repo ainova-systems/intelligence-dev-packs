@@ -25,7 +25,6 @@ Post-merge bookkeeping: confirm a shipped spec is really done and retire it, so 
 
 - Merging the PR - `git-merge-pr` (owner accept first). Resuming an unfinished spec - `spec-continue`.
 
-## CRITICAL
-
+## Constraints
 - Never close without a merged PR and fully-ticked work steps - that is the definition of done.
 - The feature doc, not the spec, is the durable record; closing confirms the behavior moved there.

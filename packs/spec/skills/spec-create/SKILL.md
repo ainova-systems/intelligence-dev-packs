@@ -45,8 +45,7 @@ If the project has no docs substrate yet (no `model.md` / `features/` / `specs/`
 - Code, branches, PRs - out of scope: `spec-execute` owns execution.
 - Decisions made while grilling - `spec-decision`.
 
-## CRITICAL
-
+## Constraints
 - A spec is required only past the threshold (multi-module, contract change, migration risk, new feature). For a small clear task, say so and offer direct execution.
 - Never invent structure: the closest shipped sibling spec is the template. No sibling and no profile - use the default and say so.
 - Never start implementation in this skill, even the "obvious" parts.

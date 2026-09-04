@@ -26,7 +26,6 @@ Close the questions that block execution, one at a time, with the human who can 
 
 - New facts contradicting the plan - `spec-validate`. Execution once unblocked - `spec-execute`.
 
-## CRITICAL
-
+## Constraints
 - An answer is recorded only on the human's explicit approval - silence is not a yes.
 - Never write answers back to the tracker; the spec is the record, the developer is the channel.
