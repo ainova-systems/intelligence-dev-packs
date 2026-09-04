@@ -2,113 +2,95 @@
 
 How to attach intelligence-dev-packs to a project, configure it, keep it updated, and remove it.
 
-## Packs and domains
+## Packs, packages, and domains
 
-Content is organized into **packs** (adoption units) under `packs/`, and each artifact carries a **domain prefix** (namespace). The two are decoupled - a pack may hold more than one domain.
+Content is organized into **packs** (adoption units) under `packs/`, and each artifact carries a **domain prefix** (namespace). The two are decoupled - a pack may hold more than one domain. Each pack is published as an **Intelligence Package** under its own name:
 
 ```
 packs/
-├── core/            # universal - install everywhere
+├── core/            # @ainova-systems/core - universal, install everywhere
 │   ├── rules/       #   dev-* (discipline) + git-* (vcs)
 │   ├── agents/      #   dev-code-reviewer, dev-test-engineer
 │   ├── skills/      #   dev-* + git-*
-│   └── templates/   #   dev-project-profile.md
-└── spec/            # opt-in - spec-driven development (depends on core)
+│   └── templates/   #   dev-project-profile.md, claude-settings.json
+└── spec/            # @ainova-systems/spec - opt-in, depends on core
     ├── rules/       #   spec-*
     ├── agents/      #   spec-architect, spec-docs-writer
     └── skills/      #   spec-*
 ```
 
-Every consumption method points at `packs/<name>/{rules,agents,skills}`. Always take `core`; add `spec` only for spec-driven projects.
+A package's top-level `rules/`, `agents/` and `skills/` directories are what the engine wires into the matching manifest sources; `templates/` rides along in the store for an agent to read. Always take `core`; add `spec` only for spec-driven projects.
 
 ## Choosing a mode
 
 | Mode | Best for | Project footprint |
 |---|---|---|
-| A. Declared pack | The default - intelligence-sync 0.10.0+; one declaration, mirrored into your tree | A `packs:` block plus the mirrored directory |
-| B. Git submodule | Offline / air-gapped CI; vendored-in-tree | One submodule + config entries |
+| A. Registry package | The default - names resolve through a trusted registry, versions from git tags | `registries:` + `packages:` in `intelligence.yaml`, plus the lock |
+| B. Explicit source | One-off installs, forks, or pinning a branch without trusting a registry | `packages:` in `intelligence.yaml`, plus the lock |
 | C. Global skills (Claude Code) | Individuals who want the skills everywhere | None |
 | D. Plain copy | Projects that want to own and adapt the content | Copied files, fully yours |
 
-## Mode A - declared pack (recommended)
+Modes A and B need the [Intelligence CLI](https://github.com/ainova-systems/intelligence) (`npm install -g @ainova-systems/intelligence`; Node.js 18+, git, bash, awk).
 
-Declare the repository **once** under `packs:`, then reference its subpaths by name from as many `sources:` sections as need them. The url and the pin live in one place, so rules and skills can never drift onto different refs:
+## Mode A - registry package (recommended)
 
-```yaml
-packs:
-  intelligence-dev-packs:
-    url: https://github.com/ainova-systems/intelligence-dev-packs.git
-    ref: main                                              # pin to a tag or SHA for reproducibility
-    mirror: intelligence/external/intelligence-dev-packs   # committed copy - the default
+Trust the registry once, then install either package by name:
 
-sources:
-  rules:
-    - "intelligence/rules"
-    - "@intelligence-dev-packs/packs/core/rules"
-    - "@intelligence-dev-packs/packs/spec/rules"
-    - "intelligence/sync/rules"
-  agents:
-    - "intelligence/agents"
-    - "@intelligence-dev-packs/packs/core/agents"
-    - "@intelligence-dev-packs/packs/spec/agents"
-    - "intelligence/sync/agents"
-  skills:
-    - "intelligence/skills"
-    - "intelligence/sync/skills"
-    - "@intelligence-dev-packs/packs/core/skills"
-    - "@intelligence-dev-packs/packs/spec/skills"
+```bash
+intelligence init --targets claude              # claude, cursor, copilot, codex, pi, opencode
+intelligence registry add https://github.com/ainova-systems/intelligence-dev-packs.git
+intelligence package add @ainova-systems/core
+intelligence package add @ainova-systems/spec   # spec-driven projects only
 ```
 
-Then `bash intelligence/sync/scripts/sync.sh`. Drop the three `spec` lines for a project that has not adopted spec-driven development.
+The result in `intelligence.yaml`:
 
-### Reference rules
+```yaml
+registries:
+  - "https://github.com/ainova-systems/intelligence-dev-packs.git"
 
-- **Format** `@<pack>[/<subpath>]`. `<pack>` is a key under `packs:` - a handle, never a path component, so it must contain no `/`. The subpath is the directory inside the pack repo (`packs/core/rules`); omit it to use the repo root.
-- **An undeclared pack fails the run** (exit 1, naming it). Unlike a missing local path, which only warns - the config claims to know that name, so a typo must not silently drop a whole rule set.
-- **`mirror:` materializes the pack** at that path for you to commit, which is what turns a pin bump into a readable diff. Only referenced subpaths are copied, so the pack's README, CI, and tests never enter your tree. Omit the line and the pack is transient - cloned per run, gone at the end.
-- **Pinning is recommended.** An unpinned `ref:` tracks the default branch and changes under you. `ref:` takes any branch name, including one containing `/`.
+packages:
+  "@ainova-systems/core":
+    version: "^0.4.0"
+  "@ainova-systems/spec":
+    version: "^0.4.0"
+```
+
+### How resolution works
+
+- **A registry is the only resolver for a name.** There is no built-in catalog and no name-to-repository guessing, so a name nobody explicitly trusted can never turn into an install from a guessed URL. `registry add` verifies the repository publishes an `index.yaml` at its root - this repository's maps both package names to their `packs/<name>` subpath.
+- **Registries are an ordered trust list**; the first one declaring a name wins.
+- **Versions are stable git tags** (`x.y.z`, optionally `v`-prefixed). A range (`^0.4.0`, `~0.4.0`, an exact version, or `latest`) selects the highest matching stable tag; prerelease tags are invisible to ranges, and GitHub Releases are not consulted.
+- **Intent and resolution live in different files.** The manifest holds only the requested range or `ref:`; `intelligence.lock` holds the resolved URL, subpath, tag and commit SHA. Restoration after a fresh clone reads the lock alone - it never re-resolves or silently picks a newer tag.
+- **Package content is not vendored.** It lands in the gitignored store at `.intelligence/packages/@ainova-systems/<name>/`, and each enabled adapter renders it into that tool's own files.
+- **Package sources precede project sources**, so a same-named artifact in your own `intelligence/rules|agents|skills` overrides package content deliberately.
 
 ### Update
 
-Bump `ref:` to a newer tag and re-sync; with a mirror, review the resulting diff. Read the pack `CHANGELOG.md` between versions for renamed or removed artifacts.
+```bash
+intelligence update --preview          # what would change: CLI, project, packages
+intelligence update @ainova-systems/core --apply
+```
 
-### Older engines (inline, anonymous pack)
+Read this repository's [CHANGELOG.md](../CHANGELOG.md) between versions for renamed or removed artifacts.
 
-Before 0.10.0 a source entry carried the whole spec inline - `git+<url>[@<ref>][#<subpath>]`, repeated per section. It still resolves, but the pack has no name and no mirror: always transient, and the url plus ref are duplicated in every entry.
+## Mode B - explicit source, no registry
 
-## Mode B - git submodule
+Any package can be installed straight from a git source, with no registry involved:
 
-For offline / air-gapped CI or vendored-in-tree setups. Works with intelligence-sync 0.3.1 or later.
+```text
+intelligence package add github:org/repo[#path]
+intelligence package add git+<url>[@ref][#path]
+```
+
+For **this** repository there is a catch worth knowing: `github:org/repo` derives the package name from the repository, and a project may hold only one version of a name - so installing both packs this way would collide on `@ainova-systems/intelligence-dev-packs`. Name each one explicitly:
 
 ```bash
-git submodule add https://github.com/ainova-systems/intelligence-dev-packs intelligence/dev-packs
-cd intelligence/dev-packs && git checkout v0.2.0 && cd -   # pin
-git add intelligence/dev-packs
+intelligence package add github:ainova-systems/intelligence-dev-packs#packs/core --name @ainova-systems/core
+intelligence package add github:ainova-systems/intelligence-dev-packs#packs/spec --name @ainova-systems/spec
 ```
 
-```yaml
-sources:
-  rules:
-    - "intelligence/rules"
-    - "intelligence/dev-packs/packs/core/rules"
-    - "intelligence/dev-packs/packs/spec/rules"
-  agents:
-    - "intelligence/agents"
-    - "intelligence/dev-packs/packs/core/agents"
-    - "intelligence/dev-packs/packs/spec/agents"
-  skills:
-    - "intelligence/skills"
-    - "intelligence/sync/skills"
-    - "intelligence/dev-packs/packs/core/skills"
-    - "intelligence/dev-packs/packs/spec/skills"
-
-submodules:
-  - "intelligence/dev-packs"
-```
-
-The `submodules:` entry keeps the sync engine's unsynced-directory warning quiet for the pack path. Then `bash intelligence/sync/scripts/sync.sh`.
-
-Update: `git submodule update --remote intelligence/dev-packs` (or check out a newer tag), then re-sync. Clone note for teammates / CI: `git clone --recurse-submodules`, or `git submodule update --init` after a plain clone.
+Use `git+<url>@<ref>` to pin a branch or commit instead of a version range. That is the mode's real purpose: a registry package must be versioned, while an explicit source may deliberately track a ref.
 
 ## Mode C - global skills (Claude Code)
 
@@ -137,24 +119,49 @@ cp -r intelligence-dev-packs/packs/core/skills/* my-project/intelligence/skills/
 
 The copy is yours: adapt the text, drop what does not apply. The cost is that updates become a manual diff. Keep the domain prefixes for a clean upgrade path back to Mode A/B later.
 
+## Migrating from intelligence-sync
+
+The vendored intelligence-sync engine is archived at v0.10.4 and replaced by the CLI. A project still on it - a `config.yaml` plus a `sync/` directory, with the packs declared under `packs:` and referenced as `@intelligence-dev-packs/packs/<pack>/rules` - converts in place:
+
+```bash
+npm install -g @ainova-systems/intelligence
+cd your-project
+intelligence init --preview      # inspect the conversion, write nothing
+intelligence init --apply
+```
+
+Conversion preserves project-owned sources and replaces the vendored engine content: `config.yaml` becomes `intelligence.yaml` plus a committed `intelligence.lock`. Afterwards, re-add the packs as packages (Mode A) so they are versioned and locked rather than mirrored, and delete the old mirror directory.
+
+Review and commit the resulting diff. In CI, an alignment that has not been applied locally is refused rather than hidden inside generated output.
+
 ## The project profile (optional)
 
 Skills work with no profile: they auto-detect the branch model from git and the commands from the project manifests, and ask once when something is genuinely ambiguous. That alone makes one set of packs serve a `main`-only trunk repo, a `master`-only repo, and a `master` + `develop` gitflow repo without editing any artifact.
 
-To pin those answers (so nothing is re-detected or re-asked), have your AI agent generate the profile once - it inspects the repo and writes a filled `dev-project-profile.md` (schema: [`packs/core/templates/dev-project-profile.md`](../packs/core/templates/dev-project-profile.md)) into a rules source, where it then rides as an always-on rule. The user never copies or hand-edits it; auto-detection is the fallback for any project that has none.
+To pin those answers (so nothing is re-detected or re-asked), have your AI agent generate the profile once. It reads `.intelligence/packages/@ainova-systems/core/templates/dev-project-profile.md` as the schema (in this repository: [`packs/core/templates/dev-project-profile.md`](../packs/core/templates/dev-project-profile.md)), inspects the repo, and writes a filled `dev-project-profile.md` into a rules source, where it then rides as an always-on rule. The user never copies or hand-edits it; auto-detection is the fallback for any project that has none.
 
 ## Naming and collision guarantees
 
-- Every artifact carries a domain prefix (`dev-`/`git-`/`spec-`). Project artifacts keep their own names; the reserved `intelligence-` prefix stays owned by the sync engine's meta-skills.
+- Every artifact carries a domain prefix (`dev-`/`git-`/`spec-`). Project artifacts keep their own names; the reserved `intelligence-` prefix stays owned by the engine's meta-skills.
 - The packs never reference project internals; project rules may freely reference pack artifacts by name.
 - To override a pack rule, add a project rule that states the exception and takes precedence by being more specific. Do not edit the packs in place.
+
+## Uninstall
+
+```bash
+intelligence package remove @ainova-systems/spec
+intelligence package remove @ainova-systems/core
+intelligence registry remove https://github.com/ainova-systems/intelligence-dev-packs.git
+```
+
+Modes C and D are removed by deleting the copied folders.
 
 ## Compatibility matrix
 
 | Consumer | Modes | Notes |
 |---|---|---|
-| intelligence-sync 0.10.0+ | A, B, D | Declared `packs:` with optional `mirror:`; all adapters |
-| intelligence-sync 0.3.1+ | B, D | Submodule / copy source paths; inline `git+` for a transient remote |
+| Intelligence CLI | A, B, C, D | Registry or explicit source; renders every enabled adapter |
 | Claude Code directly | C, D | Mode C for skills; Mode D into `.claude/` for rules and agents |
-| Any AGENTS.md reader | A, B, D | Via the intelligence-sync `agents` target |
+| Any AGENTS.md reader | A, B, D | Via the engine's `agents` target |
 | Other SKILL.md-compatible tools | A, B, C, D | Skills follow the open SKILL.md folder convention |
+| intelligence-sync (archived, v0.10.4) | - | Convert with `intelligence init --preview` / `--apply` |

@@ -20,7 +20,7 @@ Every artifact must pass one test: **would this apply unchanged to any repositor
 - Rules: a markdown file in `rules/` with `description:` frontmatter. Pack rules ship without `paths:` scoping (a host project cannot predict its own paths from here), so every rule is always-on - keep them compact, they are inlined into every agent's context on every task. A host project may add `paths:` when it vendors a rule that only matters on one surface.
 - Agents: a markdown file in `agents/` with `description:`, `tier:` (`heavy` | `standard` | `light`), `access:` (`full` | `readonly`), optional `skills:` frontmatter. Persona, knowledge sources, and boundaries only; procedures belong in skills. Pick `tier` by failure mode: `heavy` where the output is judgment no gate checks, `standard` where a hard gate catches the error.
 - Skills: a folder in `skills/` whose name matches the `name:` frontmatter of its `SKILL.md`. Self-contained steps, a `Verify` section, a `Scope / hand-off` section, and a `Constraints` section for true invariants. Resolve project specifics via the profile resolution order (profile, then detection, then ask once and record). Skills with side effects whose timing the owner controls (merge, release) carry `disable-model-invocation: true`.
-- Frontmatter follows the [intelligence-sync conventions](https://github.com/ainova-systems/intelligence-sync) so the pack syncs cleanly to every supported tool.
+- Frontmatter follows the [Intelligence engine conventions](https://github.com/ainova-systems/intelligence) so the pack renders cleanly to every supported tool.
 
 ## Writing for current models
 

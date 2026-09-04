@@ -71,8 +71,8 @@ The pack also ships `packs/core/templates/claude-settings.json`, meant to be cop
 
 ## Selecting a pack
 
-- **Declared pack** (intelligence-sync 0.10.0+): declare the repo once under `packs:` and reference the subpath by name, e.g. `"@intelligence-dev-packs/packs/core/rules"` (+ `.../packs/spec/rules` to add spec). See the root [README](../README.md#how-it-lands-in-your-repository).
-- **Submodule / copy**: point `sources:` at `…/packs/<name>/{rules,agents,skills}`.
+- **Registry package** (default): `intelligence registry add https://github.com/ainova-systems/intelligence-dev-packs.git`, then `intelligence package add @ainova-systems/core` (add `@ainova-systems/spec` for spec-driven projects). See the root [README](../README.md#how-it-lands-in-your-repository).
+- **Explicit source** (no registry): `intelligence package add github:ainova-systems/intelligence-dev-packs#packs/core --name @ainova-systems/core` - the `--name` is required here, since both packs share one repository.
 - **Global install**: `bash scripts/claude-install-global.sh` installs every pack; `… core` installs only core.
 
 ## Adding a pack or a domain
