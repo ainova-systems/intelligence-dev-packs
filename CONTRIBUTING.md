@@ -34,7 +34,7 @@ Every artifact must pass one test: **would this apply unchanged to any repositor
 ## Adding a domain or a pack
 
 - **New domain** in an existing pack: add its prefix to `KNOWN_PREFIXES` in `scripts/validate-pack.sh`, then name artifacts `<prefix>-...`.
-- **New pack** (a separate adoption unit, e.g. a stack pack `react`): create `packs/<name>/` with `rules/`, `agents/`, `skills/` (and `templates/` if it ships a profile); add a row to `packs/README.md` and the root README. `bash scripts/validate-pack.sh` must pass (it validates every pack).
+- **New pack** (a separate adoption unit, e.g. a stack pack `react`): create `packs/<name>/` with `rules/`, `agents/`, `skills/` (and `templates/` if it ships a profile); add a row to `packs/README.md` and the root README; declare it in `index.yaml` so it is installable by name. `bash scripts/validate-pack.sh` must pass - it validates every pack, and fails a pack the registry index does not declare.
 
 Split by adoption boundary, not by concern: a new pack is justified only when someone would genuinely install it without the rest.
 

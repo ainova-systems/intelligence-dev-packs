@@ -5,6 +5,8 @@
 # - rules and agents have description frontmatter; agents have tier + access.
 # - each skill folder has SKILL.md whose `name` matches the folder.
 # - a templates/ folder, if present, is non-empty.
+# - index.yaml (the registry index) and the packs on disk agree, in both
+#   directions: every pack is installable by name, every declared path exists.
 # Zero dependencies: bash + awk + grep.
 
 set -euo pipefail
@@ -78,6 +80,44 @@ for pack_dir in "$PACKS_DIR"/*/; do
         [ "$tcount" -gt 0 ] || fail "[$pack] templates/ exists but contains no .md files"
     fi
 done
+
+# The registry index maps package names to subpaths of this repository. The two
+# can disagree silently: a pack present on disk but absent from the index ships
+# to nobody, and an index entry pointing nowhere fails only at install time.
+INDEX_FILE="$PACK_ROOT/index.yaml"
+if [ -f "$INDEX_FILE" ]; then
+    index_pairs="$(awk '
+        /^packages:/ { in_pkgs = 1; next }
+        in_pkgs && /^[^ 	]/ { in_pkgs = 0 }
+        in_pkgs && /^  [^ 	]/ {
+            if (name != "") print name "	" path
+            name = $1; gsub(/"/, "", name); sub(/:$/, "", name); path = ""
+            next
+        }
+        in_pkgs && $1 == "path:" { path = $2; gsub(/"/, "", path) }
+        END { if (name != "") print name "	" path }
+    ' "$INDEX_FILE")"
+
+    declared_paths=""
+    while IFS="$(printf '	')" read -r pkg path; do
+        [ -n "$pkg" ] || continue
+        if [ -z "$path" ]; then
+            fail "[index.yaml] package '$pkg' declares no path"
+            continue
+        fi
+        [ -d "$PACK_ROOT/$path" ] || fail "[index.yaml] package '$pkg' points at '$path', which does not exist"
+        declared_paths="$declared_paths $path"
+    done <<< "$index_pairs"
+
+    for pack_dir in "$PACKS_DIR"/*/; do
+        [ -d "$pack_dir" ] || continue
+        pack="$(basename "$pack_dir")"
+        case " $declared_paths " in
+            *" packs/$pack "*) ;;
+            *) fail "[index.yaml] pack '$pack' is not declared - it cannot be installed by name" ;;
+        esac
+    done
+fi
 
 [ "$pack_count" -gt 0 ] || fail "no packs found under packs/"
 

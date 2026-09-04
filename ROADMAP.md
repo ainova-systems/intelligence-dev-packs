@@ -2,7 +2,7 @@
 
 Planned improvements, in intended order. Each entry states the problem it exists to fix, so a future session (or contributor) can pick one up without re-deriving the reasoning. The list evolves; shipped entries move to the CHANGELOG.
 
-## 0.4.0 candidates
+## 0.5.0 candidates
 
 ### The red loop - one reference, then `dev-diagnose`, then `dev-add-tests`
 
@@ -36,7 +36,7 @@ The reference comes first precisely so the pack's strongest new word is defined 
 
 ### The change-flow map
 
-**Problem.** After install, nothing in the host project states the order in which its skills are meant to be used. The flow tables live in this repository's README, which no install path delivers - a mirrored pack copies only the referenced subpaths.
+**Problem.** After install, nothing in the host project states the order in which its skills are meant to be used. The flow tables live in this repository's README, which no install path delivers - the package store holds each pack's own subtree, not the repository root.
 
 **Shape.** A skill that generates one numbered walk - work item → spec → implementation → review → acceptance → merge - each step naming the skill that performs it, written against what is *actually installed* in that project rather than against a static list. Two constraints, both load-bearing: it is generated and regenerated, never hand-maintained (a map maintained by hand is the second place the chains are written, and the two drift), and it names its consumer, or it fails the pack's own no-consumer-no-doc gate.
 
@@ -68,21 +68,14 @@ Sequenced last: it extends the plan contract and `spec-execute` that 0.2.0 intro
 
 **Shape.** Each skill records what it exists to fix and a task that proves it; on a model release the tasks re-run, and a skill whose tasks pass without it is a retirement candidate. Converts "is this artifact stale" from a judgment call into a scheduled check. Promoted from "under consideration" because it is the only mechanism that can shrink the pack; still unscheduled because the task corpus is the expensive half.
 
-## Distribution - ship the packs beyond the sync engine
+## Distribution - resolved, with one supplementary channel still open
 
-**Problem.** Installing the packs means an agent editing a `config.yaml`; the Quick start prompt exists precisely because there is no install command. That is proportionate for a team already running intelligence-sync, and heavy for someone who wants the git/PR skills in one repository and nothing else - the entry cost is "adopt an engine first". Meanwhile the skills already sit in the exact layout the plugin formats expect, so the gap is a manifest, not a rewrite.
+**The mechanism question is answered.** The packs ship as versioned Intelligence Packages, installed with the [Intelligence CLI](https://github.com/ainova-systems/intelligence) from a registry this repository publishes as `index.yaml`. That meets what this entry required of any candidate - one source tree with no forked content, the sync path still working for teams that had it, and a version the installer can pin - and it clears the constraint that decided the question: **rules travel**, which no plugin format offered.
 
-**Shape.** Undecided - the mechanism is an open question, and this entry holds the requirement, not a chosen answer. What any candidate has to satisfy: one source tree (no forked content), the sync path still works for teams that have it, and a version the installer can pin.
+The condition this entry attached to whichever mechanism won - that `validate-pack.sh` gain the manifest-versus-folders check in the same change that introduces a manifest - was missed by one PR: the index landed first, the check followed. It is in place before the release that first ships the index, and it fails in both directions (a pack absent from the index, an index entry pointing nowhere).
 
-Candidates weighed so far, with what each does and does not cover:
+**Still open: a plugin-format channel** for people who want the skills in one repository without adopting a CLI. [Agent Plugins 1.0.0](https://agent-plugins.org/) is vendor-neutral (`plugin.json`, `skills/<name>/SKILL.md`, MCP in `mcp.json`) but defines *exactly* skills and MCP servers - agents, hooks and rules are outside v1, and it says nothing about distribution. Claude Code's own plugin layout reaches further (`agents/`, `hooks/hooks.json`, `settings.json`) with marketplaces as the delivery path, at the cost of being one client. Either is supplementary rather than a replacement, since the CLI remains the only channel that carries always-on rules.
 
-- **A plugin format.** [Agent Plugins 1.0.0](https://agent-plugins.org/) is vendor-neutral (`plugin.json`, `skills/<name>/SKILL.md`, MCP in `mcp.json`) but defines *exactly* skills and MCP servers - agents, hooks, and rules are outside v1, and it says nothing about distribution. Claude Code's own plugin layout reaches further (`agents/`, `hooks/hooks.json`, `settings.json`) with marketplaces as the delivery path, at the cost of being one client.
-- **A command-line installer** (`npx`-style or a script). Works in any tool and needs no format buy-in, but adds a package and a publish step to a repository that currently has zero build.
-- **Globally installed skills** - `scripts/claude-install-global.sh` already does this. Cheapest option, already shipped, but Claude-only and skills-only.
-- **Status quo**: the paste prompt plus intelligence-sync. Zero new machinery; the cost is that adoption starts with "adopt an engine first".
+Two things to settle before building one: whether the plugin manifest is generated from the pack folders or hand-maintained - generated, or it becomes a second place the inventory is written and the two drift - and whether the enforcement layer ships with it, because a mechanism that can deliver `hooks` and `settings.json` turns `docs/enforcement.md` from instructions into an install.
 
-The constraint that decides most of it: **rules travel under none of the plugin formats**, and always-on rules are the pack's core asset. So any answer either keeps sync as the rules channel and treats the new path as supplementary, or it has to solve rule delivery itself. A second thing worth pricing in: the enforcement layer is currently a hand-merge into the owner's settings, and a mechanism that can ship `hooks` and settings turns `docs/enforcement.md` from instructions into an install.
-
-**A condition on whichever mechanism wins.** The moment a manifest exists, the folders and the manifest can disagree, and a skill present in the folder but missing from the manifest ships to nobody with nothing to catch it. `validate-pack.sh` gains that check in the same change that introduces the manifest - not after.
-
-Also held until this entry resolves: **a `dev-init` setup skill**. Moving per-repo setup out of the paste prompt is worth doing, but a skill is itself one of the candidate mechanisms above, so building it now would prejudge the open question. It gets its own entry once a mechanism is chosen.
+**Unblocked by the above: a `dev-init` setup skill.** It was held because a skill was itself one of the candidate mechanisms, so building it would have prejudged the open question. The question is settled, so the entry now stands on its own merits, and has to answer one thing first: what per-repo setup actually remains once `intelligence init` and the profile prompt have run, and whether that residue is large enough to earn a skill.
