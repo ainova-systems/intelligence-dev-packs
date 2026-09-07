@@ -16,8 +16,11 @@ Take an accepted, merge-ready PR across the finish line. Deliberately non-diagno
 3. `git rev-parse HEAD` equals `git rev-parse @{u}` - the reviewed commit must equal local HEAD; unpushed work goes through `git-commit-push` first.
 4. Open PR for THIS branch: `gh pr list --head <branch> --state open --json number,headRefName --jq '.[0]'`. An explicit pr-number argument must have `headRefName == <current branch>` - otherwise refuse: never merge a PR that is not the current branch's.
 5. CI green on HEAD (latest-SHA filter, same probe as `git-finalize-pr`) - red or pending: hand off to `git-finalize-pr`.
-6. Zero unresolved review threads (GraphQL `reviewThreads.isResolved`) - unresolved: hand off to `git-review-pr-comments`.
+6. Zero unresolved review threads (GraphQL `reviewThreads.isResolved`) - unresolved: hand off to `git-complete-pr`.
 7. `gh pr view <pr> --json mergeable,mergeStateStatus,reviewDecision` - `CONFLICTING`: the profile `conflict_skill` (default `git-resolve-conflicts`); `BLOCKED` / `BEHIND`: report and stop.
+8. **Labels** (`gh pr view <pr> --json labels`) - skipped entirely when the PR carries no `ai:*` label, which means it is human-driven. Otherwise, per `git-workflow` > autonomous PR labels:
+   - state must be `ai:completed`. `ai:processing` means a run still holds it, `ai:manual` / `ai:failed` mean it never reached accept-ready - hand off to `git-finalize-pr`.
+   - every factor profile `pr_success_factors` declares (default `ai:verified, ai:reviewed`) must be present AND **fresh at HEAD**. For a factor this pack writes, its report comment names the SHA. For any other, compare the label event with the head commit: the PR's `timelineItems(itemTypes: LABELED_EVENT, last: 50)` gives each `LabeledEvent`'s `createdAt` and `label.name`, and the head commit's time is `gh pr view <pr> --json commits --jq '.commits[-1].committedDate'`; a label applied before that is stale. `gh pr view --json labels` alone cannot answer this - it carries no timestamps. Missing or stale: name the stage that must run (`git-verify-pr` / `git-review-pr`) and stop. A stale factor is the dangerous case, because the label looks green while nothing has judged this commit.
 
 ## Steps
 
@@ -35,7 +38,7 @@ Take an accepted, merge-ready PR across the finish line. Deliberately non-diagno
 
 ## Scope / hand-off
 
-- CI and comments - `git-finalize-pr`; conflicts - the profile `conflict_skill` (default `git-resolve-conflicts`); cutting a release - `git-create-release`.
+- CI, fixes and the judging stages - `git-finalize-pr`; threads and the outcome - `git-complete-pr`; conflicts - the profile `conflict_skill` (default `git-resolve-conflicts`); cutting a release - `git-create-release`.
 
 ## Constraints
 

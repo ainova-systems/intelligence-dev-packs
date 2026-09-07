@@ -16,9 +16,9 @@ Orchestrator-of-orchestrators: select ONE ready item, delegate the whole executi
    - In-flight work: `gh pr list --state open --json number,title,headRefName,labels,updatedAt`; per-PR file scope via `gh pr view <n> --json files --jq '.files[].path'`.
 3. **Select ONE.**
    - Value order: explicit priority marker - mid-flight spec with no open PR (finishing beats starting) - unblocks queued work - smaller effort at equal value. A focus-hint argument narrows the pool, never overrides the conflict gate.
-   - Conflict gate, skip the candidate if: it already has an open PR (`ai:manual` / `ai:failed` PRs need the owner, not a re-run); its file scope overlaps any open PR's files; it needs a decision the spec leaves open (that is `ai:manual` before even starting).
+   - Conflict gate, skip the candidate if: it already has an open PR (`ai:processing` means another run holds it; `ai:manual` / `ai:failed` need the owner, not a re-run); its file scope overlaps any open PR's files; it needs a decision the spec leaves open (that is `ai:manual` before even starting).
    - Interactive session - confirm the choice plus runner-up in one question. Autonomous run - proceed. No eligible candidate - report per-candidate skip reasons and stop (skip step 5's sync, still end clean).
-4. **Execute until outcome.** Mid-flight spec - `spec-continue`; otherwise `spec-execute`. Run until the PR carries exactly one `ai:*` label. Never merge.
+4. **Execute until outcome.** Mid-flight spec - `spec-continue`; otherwise `spec-execute`. Run until the PR carries an outcome label (`ai:completed` with every declared factor, or `ai:manual` / `ai:failed`). Never merge.
 5. **Reset (runs regardless of outcome).** `git switch <base> && git pull && git fetch --prune`. Close any spec whose PR merged since the last run (`spec-close`) so the queue and docs reflect reality. Re-render the project's generated intelligence outputs when it has an engine that produces them, using the command that engine documents; skip when it has none. Report: task picked + why; PR URL + outcome label; what needs the owner; runner-up for the next run.
 
 ## Verify

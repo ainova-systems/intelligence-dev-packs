@@ -39,7 +39,7 @@ keep / drop / scope. Do not commit or push.
 
 | Pack | Install when | Contents |
 |---|---|---|
-| **core** (`dev-`, `git-`)<br>`@ainova-systems/core` | Always - it is universal | 6 always-on rules (skill-first, context engineering, verification gates, rollback safety, commit conventions, git workflow), 2 agents (code reviewer, test engineer), 11 skills: tests, diff review, handoff, commit+push, open PR, drive PR to green, review comments, resolve conflicts, merge, release, secret scan |
+| **core** (`dev-`, `git-`)<br>`@ainova-systems/core` | Always - it is universal | 6 always-on rules (skill-first, context engineering, verification gates, rollback safety, commit conventions, git workflow), 3 agents (code reviewer, QA verifier, test engineer), 13 skills: tests, diff review, handoff, commit+push, open PR, drive the PR rounds, verify the PR's own steps, review the PR diff, complete the PR, resolve conflicts, merge, release, secret scan |
 | **spec** (`spec-`)<br>`@ainova-systems/spec` | Opt-in, depends on core | The spec-driven lifecycle: 2 rules (spec discipline, multi-agent orchestration), 2 agents (architect, docs writer), 15 skills from tracker intake through plan, adversarial validation, execution, and docs upkeep |
 
 Artifact-by-artifact catalog: [`packs/README.md`](packs/README.md).
@@ -89,11 +89,13 @@ With it, the flow runs in one of two execution modes (profile `execution_mode`):
 | 2. Spec written (requirements + plan) | AI | `spec-pull` / `spec-create`, then `spec-plan` |
 | 3. **Gate 1 - review and approve the spec** | **Owner** | `spec-approve` |
 | 4. Implementation: branch, parallel subagents, tests, milestone commits | AI | `spec-execute` |
-| 5. PR opened, CI driven to green, review comments handled, outcome label | AI | `git-finalize-pr` |
-| 6. **Gate 2 - accept the PR** | **Owner** | - |
-| 7. Squash-merge, close the spec, cleanup | AI | `git-merge-pr` -> `spec-close` |
+| 5. PR opened | AI | `git-open-pr` |
+| 6. Rounds until every success factor holds on one commit: CI green, steps verified, diff reviewed | AI | `git-finalize-pr` -> `git-verify-pr` / `git-review-pr` |
+| 7. Threads resolved, one outcome recorded | AI | `git-complete-pr` |
+| 8. **Gate 2 - accept the PR** | **Owner** | - |
+| 9. Squash-merge, close the spec, cleanup | AI | `git-merge-pr` -> `spec-close` |
 
-`spec-execute-next` drains the approved queue for scheduled or looped runs, and every autonomous run ends with exactly one outcome label: `ai:ready-to-merge`, `ai:manual`, or `ai:failed`. `spec-cancel` retires a dropped or superseded spec with a recorded reason. Before the first spec, `spec-init` scaffolds the in-repo docs substrate and migrates existing documentation into it, adopting a project's structure rather than imposing one.
+`spec-execute-next` drains the approved queue for scheduled or looped runs, and every autonomous run ends at a labeled PR: one outcome (`ai:completed`, `ai:manual`, `ai:failed`) plus the success factors it earned (`ai:verified`, `ai:reviewed`), each valid only for the commit that earned it, so a push invalidates them and `git-merge-pr` refuses a stale one. `spec-cancel` retires a dropped or superseded spec with a recorded reason. Before the first spec, `spec-init` scaffolds the in-repo docs substrate and migrates existing documentation into it, adopting a project's structure rather than imposing one.
 
 ## Design principles
 

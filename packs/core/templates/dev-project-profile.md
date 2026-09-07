@@ -33,6 +33,11 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 - test: npm test
 - verify: none                      <!-- single gate-runner command (reads the diff, picks gates); when set, the local flow and CI run exactly this and the keys above are its internals -->
 - coverage_gate: none               <!-- e.g. 90% ; none -->
+- verify_section: How to verify     <!-- PR body heading whose steps git-verify-pr executes; match the repo's PR template -->
+- qa_env: auto                      <!-- where git-verify-pr runs those steps: auto (preview when the PR has one, else local) | preview | local | none (behavioral steps are blocked, never passed) -->
+- app_run: none                     <!-- command that brings the app up for manual verification, e.g. npm run dev; none = detect -->
+- app_url: none                     <!-- base URL once it is up, e.g. http://localhost:3000 -->
+- code_review_skill: auto           <!-- reviewer git-review-pr invokes: auto = the host's own code-review skill when it ships one, else dev-review-changes | <skill name> -->
 
 ## Workspace
 
@@ -49,6 +54,8 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 - pr_risk_size: off                 <!-- off | on (git-open-pr prepends a deterministic Risk/Size line) -->
 - pr_size_thresholds: small <= 5 files & 50 lines; large >= 20 files or 400 lines; else medium
 - pr_risk_globs: none               <!-- e.g. high: **/Migrations/**, **/*Permission*; medium: src/shared/**; low: **/*.md ; none = skip Risk -->
+- pr_success_factors: ai:verified, ai:reviewed   <!-- factors a PR must carry fresh at head besides ai:completed, written as the label names themselves; the pack writes the first two, add any that an external agent, worker or pipeline applies; none = state label only -->
+- max_pr_rounds: 3                  <!-- fix/verify/review rounds git-finalize-pr may spend before escalating to ai:manual -->
 - delete_local_branch: true         <!-- delete the local branch after a confirmed merge -->
 - delete_remote_branch: false       <!-- pass --delete-branch on merge -->
 - post_merge: none                  <!-- command git-merge-pr runs after a confirmed merge, e.g. to regenerate committed generated outputs; none -->

@@ -31,7 +31,7 @@ State the resolved policy in one line before acting.
 
 1. **Pre-flight.** Source branch current (`git pull --ff-only`), `git status --porcelain` clean, CI green on HEAD. Red → STOP - that is `git-finalize-pr` territory. Establish the window: `<last tag>..<source>`, where the last tag is `git describe --tags --abbrev=0` and the source is the branch being released. For `gitflow-merge`, confirm the release target holds nothing the source lacks (`git log <source>..<target> --oneline` empty) - a hotfix tagged straight onto the target and never merged back is otherwise re-shipped as a regression.
 2. **Pending-release review.** Read the window four ways and produce one checklist:
-   - **PRs**: `git log --oneline <window>` and the PR numbers its subjects carry; in each PR body read the section `release_review` names (the PR template's, `## Deployment notes` by default). Anything other than a bare "none" (any casing - the template's own placeholder is `None`) is a pending step. A PR merged under an outcome label meaning *a human still has to act* (`git-workflow` › autonomous outcome labels) contributes its steps too - accepted at merge time is not applied.
+   - **PRs**: `git log --oneline <window>` and the PR numbers its subjects carry; in each PR body read the section `release_review` names (the PR template's, `## Deployment notes` by default). Anything other than a bare "none" (any casing - the template's own placeholder is `None`) is a pending step. A PR merged under an outcome label meaning *a human still has to act* (`git-workflow` > autonomous PR labels: `ai:manual` / `ai:failed`) contributes its steps too - accepted at merge time is not applied.
    - **Diff**: `git diff --name-only <window>` classified against `manual_apply_globs`. Every match is a step with a named target system, whatever its PR said.
    - **Schema/config changes** that a deploy applies on its own (migrations run at startup, self-applying stack files): list them for awareness, and check each is reversible or carries a restore procedure (`dev-rollback-safety`).
    - **Evidence**: run `drift_check` when set. It answers what is *actually* unapplied right now, which no PR body can.
@@ -60,7 +60,7 @@ State the resolved policy in one line before acting.
 
 ## Scope / hand-off
 
-- Getting the release PR green and merged - `git-finalize-pr` / `git-merge-pr`.
+- Getting the release PR green and merged - `git-finalize-pr` / `git-complete-pr` / `git-merge-pr`.
 - Keeping `## [Unreleased]` filled per feature PR - that is the `continuous` changelog habit (done at commit time / `git-commit-push`), not this skill.
 - Declaring a manual step in the first place - the merging PR's `release_review` section; this skill only collects what is already written there and reads the diff for what is not.
 

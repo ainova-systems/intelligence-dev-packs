@@ -13,5 +13,5 @@ How a planned spec is executed. Spec content, files, status, and questions belon
 - **No new patterns without a concrete sibling citation** or explicit owner approval. No sibling - halt and ask.
 - **Cross-cutting gate before every commit**: grep removed/renamed symbols across the whole tree; only the orchestrator sees across subagent scopes.
 - **A step is ticked only when a re-run of its gate comes back dry.** Within-scope rework goes to the plan's `## Corrections` log; a beyond-scope observation goes to `## Review findings` for the developer. The split axis is who closes the item, so nothing is double-counted.
-- **Outcome labels (autonomous).** A run ends with exactly one: `ai:ready-to-merge` | `ai:manual` | `ai:failed`. Autonomous runs never merge.
+- **PR labels (autonomous).** A run ends at a labeled PR: exactly one outcome (`ai:completed` | `ai:manual` | `ai:failed`) plus the success factors it earned, each fresh at the head commit - meanings and writers in `git-workflow`. Autonomous runs never merge.
 - **Conflict gate.** Never start work whose file scope overlaps an open PR; one task = one branch = one PR.

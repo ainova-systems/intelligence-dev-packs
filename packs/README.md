@@ -22,7 +22,8 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 | `dev-context-engineering` | rule | Conventions, decisions, and domain knowledge live in the repo |
 | `dev-verification-gates` | rule | Typecheck, lint, tests pass before every commit; gates never weakened |
 | `dev-rollback-safety` | rule | Reversible migrations, feature flags, expand-contract sequencing |
-| `dev-code-reviewer` | agent | Reviews changes for correctness, conventions, tests, security (read-only) |
+| `dev-code-reviewer` | agent | Reviews changes and PRs for correctness, conventions, tests, security, and the PR's own claims (read-only) |
+| `dev-qa-verifier` | agent | Executes a change's declared verification steps against the running software (read-only) |
 | `dev-test-engineer` | agent | Test strategy and coverage across all levels |
 | `dev-run-tests` | skill | Typecheck, lint, tests with scope detection and failure analysis |
 | `dev-review-changes` | skill | Read-only diff review with severity verdict |
@@ -35,10 +36,12 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 | `git-commit-conventions` | rule | Commit message format, push discipline, forbidden trailers |
 | `git-workflow` | rule | Branch model, protected branches, feature-branch flow |
 | `git-commit-push` | skill | Verified milestone commit and fast-forward push |
-| `git-open-pr` | skill | Open a PR for the branch, using the repo template and profile knobs |
+| `git-open-pr` | skill | Open a PR for the branch, filling the repo's template or the pack default; profile-driven target and Risk/Size |
 | `git-resolve-conflicts` | skill | Semantic conflict resolution, full gates after |
-| `git-review-pr-comments` | skill | Triage reviewer feedback: fix, discuss, or decline with reason |
-| `git-finalize-pr` | skill | CI to green plus every review comment handled - PR ready to merge |
+| `git-finalize-pr` | skill | Orchestrates the PR rounds: CI to green, verification, review, fixes - until every success factor holds on one commit |
+| `git-verify-pr` | skill | Executes the PR's own verification steps against the running change (`ai:verified`) |
+| `git-review-pr` | skill | Reviews the PR diff against the rules and against what the PR claims (`ai:reviewed`) |
+| `git-complete-pr` | skill | Answers and resolves every review thread, then records the one outcome (`ai:completed` / `ai:manual` / `ai:failed`) |
 | `git-merge-pr` | skill | After owner accept: guard-checked squash-merge, base sync, cleanup (owner-invoked only) |
 | `git-create-release` | skill | Pending-step review, owner gate, version, changelog, tag per the project's release flow (owner-invoked only) |
 | `git-scan-secrets` | skill | Credential scan over diff, tree, or history |
@@ -50,7 +53,7 @@ The pack also ships `packs/core/templates/claude-settings.json`, meant to be cop
 | Artifact | Kind | Role |
 |---|---|---|
 | `spec-discipline` | rule | When a change needs a spec, and the docs chain |
-| `spec-orchestration` | rule | Multi-agent doctrine: consistency, delegation by pointers, outcome labels |
+| `spec-orchestration` | rule | Multi-agent doctrine: consistency, delegation by pointers, PR labels |
 | `spec-architect` | agent | Authors specs, ADRs, module boundaries |
 | `spec-docs-writer` | agent | Documentation and decision records in sync with code |
 | `spec-init` | skill | One-time bootstrap: scaffold the in-repo docs substrate and migrate existing docs into it, drafting core docs from code |
