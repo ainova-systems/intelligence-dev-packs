@@ -26,6 +26,8 @@ Read the current state rather than re-deriving it: CI on head, unresolved thread
 - **`ai:manual`** - anything needs the owner: an escalated thread, a `blocked` verification step, a stop rule `git-finalize-pr` hit, a decision the task left open. List each item and the decision it needs.
 - **`ai:failed`** - CI could not be brought to green. Name the blocking failure, the rounds spent, and what was tried.
 
+`ai:manual` and `ai:failed` also leave a comment in the report envelope `git-workflow` defines (`## Outcome - MANUAL` / `## Outcome - FAILED`, `head: <sha>`, then one line per item: what it is and what decision it needs). A label says the run stopped; it cannot say what the owner has to decide. `ai:completed` leaves none - the stage reports and the two factor comments already say it.
+
 One `gh pr edit <pr> --add-label <outcome> --remove-label <the other three>` call. Then report: PR URL, outcome, factors present, and the owner's list.
 
 A PR carrying no `ai:*` label is human-driven: drain its threads and write no label.

@@ -21,7 +21,7 @@ Be the manual QA engineer the PR body asks for: run the steps it declares agains
 3. **Execute each step in order, exactly as written**, driving the interface it names with whatever the host provides (browser automation, an HTTP client, the CLI). Record for each: the action taken, the observed result verbatim, and the expected result the step states.
 4. **One verdict per step**: `pass` (observed matches expected) / `fail` (observed contradicts expected) / `blocked` (cannot execute - missing environment, credential or capability - or the expected result is stated too vaguely to judge). A `blocked` step never becomes a `pass` because everything around it passed.
 5. **One negative per passing step**: the obvious adjacent case the step implies - empty input, an unauthorized caller, the boundary value it names. The defect the happy path hides is exactly the one the diff does not show.
-6. **Record.** Post one PR comment (`gh pr comment`); never edit or delete an earlier one - each run against a new head is a new entry in the log:
+6. **Record.** Post one PR comment (`gh pr comment`) in the report envelope `git-workflow` defines - each run against a new head is a new entry in the log:
 
 ```
 ## Verification - PASS | FAIL | BLOCKED

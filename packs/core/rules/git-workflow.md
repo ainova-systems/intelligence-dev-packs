@@ -32,6 +32,8 @@ Profile `pr_success_factors` declares the set a PR must carry (default: both). A
 
 **A factor is a claim about one commit, not about the PR.** It counts only while *fresh*: the report comment that earned it names the current head SHA, or - for a factor this pack does not write - the label was applied after the head commit landed. A push therefore invalidates every factor whether or not anyone removed it. Clearing them is housekeeping the pusher does so the PR does not read as green; correctness never depends on it, because no gate trusts a label without checking freshness. A stale factor means one thing only: that stage must run again.
 
+**Every stage records its verdict as one PR comment and never edits an earlier one** - the comments are the log a later reader replays. First line `## <Stage> - <VERDICT>`; second line starts `head: <sha>`, the commit that was judged; the stage's own findings follow. That second line is what makes a factor checkable at all: a gate reads the stage's latest comment and compares its SHA with the current head.
+
 Accept-ready = `ai:completed` plus every declared factor fresh at head. Autonomous runs never merge themselves.
 
 The labels must exist in the repository (create once, e.g. `gh label create`). State labels are mutually exclusive, so a state change is one `gh pr edit <pr> --add-label <new> --remove-label <the others>` call, never an add now and a removal a later step can skip. A human-driven PR carries no `ai:*` label at all, and every gate skips label checks for it.

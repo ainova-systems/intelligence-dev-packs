@@ -25,7 +25,7 @@ An independent read of the whole diff from a context that never watched it being
 
    Each finding cites `file:line` plus the body line it contradicts.
 3. **Verify every finding** by re-reading the code; drop what cannot be evidenced. A finding that restates a rule without a line of the diff is not a finding.
-4. **Record.** One PR comment (`gh pr comment`), never an inline review thread - findings posted as threads come back through `git-complete-pr`, and the run starts reviewing itself in a circle:
+4. **Record.** One PR comment (`gh pr comment`) in the report envelope `git-workflow` defines - never an inline review thread, because findings posted as threads come back through `git-complete-pr` and the run starts reviewing itself in a circle:
 
 ```
 ## Code review - CLEAN | PASS-WITH-WARNINGS | BLOCK
