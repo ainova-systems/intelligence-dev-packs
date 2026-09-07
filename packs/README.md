@@ -36,7 +36,7 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 | `git-commit-conventions` | rule | Commit message format, push discipline, forbidden trailers |
 | `git-workflow` | rule | Branch model, protected branches, feature-branch flow |
 | `git-commit-push` | skill | Verified milestone commit and fast-forward push |
-| `git-open-pr` | skill | Open a PR for the branch, using the repo template and profile knobs |
+| `git-open-pr` | skill | Open a PR for the branch, filling the repo's template or the pack default; profile-driven target and Risk/Size |
 | `git-resolve-conflicts` | skill | Semantic conflict resolution, full gates after |
 | `git-finalize-pr` | skill | Orchestrates the PR rounds: CI to green, verification, review, fixes - until every success factor holds on one commit |
 | `git-verify-pr` | skill | Executes the PR's own verification steps against the running change (`ai:verified`) |

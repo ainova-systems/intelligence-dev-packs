@@ -18,7 +18,7 @@ A run with no human in the loop between task and PR labels its PR, so a human tr
 
 **State** - exactly one at a time, written by the actor doing the work:
 
-- `ai:processing` - an agent holds the PR right now (`git-finalize-pr`, on entry and after every push it makes).
+- `ai:processing` - an agent holds the PR right now. Written by whichever skill pushes: `git-finalize-pr` on entry and after each round's commit, `git-complete-pr` when a fix for a review thread pushes.
 - `ai:completed` - the run ended with nothing left for an agent (`git-complete-pr`).
 - `ai:manual` - the run ended needing an owner decision; name precisely what (`git-complete-pr`).
 - `ai:failed` - the run ended unable to reach green; name the blocking failure and what was tried (`git-complete-pr`).
@@ -28,7 +28,7 @@ A run with no human in the loop between task and PR labels its PR, so a human tr
 - `ai:verified` - the PR's own verification steps were executed against the running change and passed (`git-verify-pr`).
 - `ai:reviewed` - the diff passed review against the rules and against what the PR claims (`git-review-pr`).
 
-Profile `pr_success_factors` declares the set a PR must carry (default: both). A project adds factors that external agents, workers or pipelines apply - a security scan, a performance budget, a design sign-off - and every gate below covers them unchanged.
+Profile `pr_success_factors` declares the set a PR must carry (default: both). A project adds factors that external agents, workers or pipelines apply - a security scan, a performance budget, a design sign-off - and the gates that read it - `git-finalize-pr`'s rounds and `git-merge-pr`'s guard - cover them unchanged.
 
 **A factor is a claim about one commit, not about the PR.** It counts only while *fresh*: the report comment that earned it names the current head SHA, or - for a factor this pack does not write - the label was applied after the head commit landed. A push therefore invalidates every factor whether or not anyone removed it. Clearing them is housekeeping the pusher does so the PR does not read as green; correctness never depends on it, because no gate trusts a label without checking freshness. A stale factor means one thing only: that stage must run again.
 
