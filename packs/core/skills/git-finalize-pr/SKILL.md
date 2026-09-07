@@ -12,7 +12,7 @@ Orchestrate an open PR to accept-ready: CI green, the PR's own verification step
 
 1. `git branch --show-current` - abort on the default/integration/protected branch.
 2. Resolve the PR: `gh pr list --head <branch> --state open --json number,headRefOid --jq '.[0]'`. An explicit argument must match this branch's PR. None - open it with `git-open-pr` first, then retry.
-3. Declared factors: profile `pr_success_factors` (default `verified, reviewed`). A factor no stage in this project writes still gates the run - it is simply someone else's to apply.
+3. Declared factors: profile `pr_success_factors` (default `ai:verified, ai:reviewed`). A factor no stage in this project writes still gates the run - it is simply someone else's to apply.
 4. Take the PR: set `ai:processing`, and clear every factor that is not fresh at head (`git-workflow` > autonomous PR labels).
 
 ## The round
