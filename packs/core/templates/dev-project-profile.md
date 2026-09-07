@@ -54,7 +54,7 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 - pr_risk_size: off                 <!-- off | on (git-open-pr prepends a deterministic Risk/Size line) -->
 - pr_size_thresholds: small <= 5 files & 50 lines; large >= 20 files or 400 lines; else medium
 - pr_risk_globs: none               <!-- e.g. high: **/Migrations/**, **/*Permission*; medium: src/shared/**; low: **/*.md ; none = skip Risk -->
-- pr_success_factors: ai:verified, ai:reviewed   <!-- factors a PR must carry fresh at head besides ai:completed, written as the label names themselves; the pack writes verified + reviewed, add any an external agent, worker or pipeline applies; none = state label only -->
+- pr_success_factors: ai:verified, ai:reviewed   <!-- factors a PR must carry fresh at head besides ai:completed, written as the label names themselves; the pack writes the first two, add any that an external agent, worker or pipeline applies; none = state label only -->
 - max_pr_rounds: 3                  <!-- fix/verify/review rounds git-finalize-pr may spend before escalating to ai:manual -->
 - delete_local_branch: true         <!-- delete the local branch after a confirmed merge -->
 - delete_remote_branch: false       <!-- pass --delete-branch on merge -->
