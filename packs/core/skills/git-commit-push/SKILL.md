@@ -23,7 +23,7 @@ Land the pending work as one verified, cleanly described commit. Invoke at miles
 
 ## Scope / hand-off
 
-- Opening the PR - `git-open-pr`; CI babysitting and the outcome label - `git-finalize-pr` (or `spec-execute` Phase E in spec projects).
+- Opening the PR - `git-open-pr`; the CI / verify / review rounds - `git-finalize-pr`; the outcome - `git-complete-pr` (or `spec-execute` Phase E in spec projects).
 
 ## Constraints
 

@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+A pull request now has to prove it works, not just that it is green - and every claim is bound to the commit that earned it.
+
+### Added
+
+- **`git-verify-pr` skill** - the behavioral QA stage. It executes the steps the PR body itself declares (profile `verify_section`, default `## How to verify`) against the change actually running, brings that change up per profile `qa_env` / `app_run` / `app_url`, and posts one report comment naming the head SHA with a verdict and an observed result per step. A step it cannot execute is `blocked` and never silently becomes a pass; a step the PR never declared is never invented. Earns `ai:verified`. Green CI proves the code builds and its tests pass - it says nothing about the described result occurring.
+- **`git-review-pr` skill** - review of the PR's whole diff (`git diff <base>...HEAD`) from a context that never watched it being written, delegating the standards axis to profile `code_review_skill` (`auto`: the host's own code-review skill when it ships one, else `dev-review-changes`) and adding the axis a pre-commit review cannot have: the PR's own claims. Undeclared scope, a behavior the body promises but the diff does not deliver, and a migration or secret change missing from the deployment-notes section (which `git-create-release` reads) are findings. Earns `ai:reviewed`.
+- **`git-complete-pr` skill** - the single writer of a run's outcome. It drains the review threads (absorbing what `git-review-pr-comments` did) and then records exactly one of `ai:completed` / `ai:manual` / `ai:failed`. Escalation criteria live here once instead of in every stage that can hit a wall, which is what stops three copies of them from drifting.
+- **Success factors on a PR** - `ai:verified` and `ai:reviewed` are additive labels earned on top of the outcome, and profile `pr_success_factors` declares the set a PR must carry. The list is open: a project adds factors that external agents, workers or pipelines apply (a security scan, a performance budget, a design sign-off) and every gate covers them unchanged.
+- **`dev-qa-verifier` agent** (`access: readonly`) - the persona `git-verify-pr` runs as. Read-only is the point, not a detail: a verifier that can edit the code can make its own verdict come true, and `ai:verified` is what the merge gate trusts. `dev-test-engineer` could not take the role because it authors tests and needs `access: full`; a tool allowlist could not either, because the host capabilities a verifier needs (browser, HTTP client) cannot be enumerated portably.
+- **New profile knobs**: `verify_section`, `qa_env`, `app_run`, `app_url`, `code_review_skill`, `pr_success_factors`, `max_pr_rounds`.
+
+### Changed
+
+- **`git-finalize-pr` is now an orchestrator, not a two-loop babysitter.** It runs rounds - CI to green, `git-verify-pr`, `git-review-pr`, then all fixes of the round in one commit - until every declared factor holds on the *same* head commit, and hands to `git-complete-pr` for the threads and the outcome. Batching per round keeps the cost at rounds x stages instead of fixes x stages. It is the only actor that pushes, and it writes no outcome and no factor: the actor doing the work owns the state, the stage that judges owns its factor.
+- **Bounded runs.** Explicit stop rules end a run through `git-complete-pr` with a named reason instead of spinning: the same defect returning after a fix round, a factor lost twice in a row (the fixes are fighting each other), `max_pr_rounds` exceeded, or an owner-decision item with nothing fixable left. Someone else pushing to the branch restarts the round once and escalates the second time.
+- **A factor is a claim about one commit, not about the PR.** It counts only while *fresh* - its report comment names the current head SHA, or, for a factor the pack does not write, the label was applied after the head commit landed. A push therefore invalidates every factor whether or not anyone removed it; clearing them is housekeeping, and no gate trusts a label without checking freshness. This is what makes the model survive a human push, a crashed run, or a force-push.
+- **`dev-code-reviewer` now covers pull requests too** - it carries `git-review-pr` alongside `dev-review-changes` and gained a seventh review dimension, *claims*: the diff against what the PR says about itself. The persona was already the right one (independent, read-only, evidence first), so the PR stage extends it instead of duplicating it.
+- **Both judging stages carry an agent, so isolation is a contract rather than a request.** `git-verify-pr` runs as `dev-qa-verifier` and `git-review-pr` as `dev-code-reviewer`; each may fan out to workers when the diff or the step list exceeds one pass, but only by pointers and never with the author's account of why the change is right - a worker that inherits the rationale confirms it. Whatever comes back is re-evidenced by the stage before it is recorded.
+- **`git-merge-pr` gained a label guard**: state must be `ai:completed` and every declared factor must be present *and fresh at HEAD*. A stale factor is refused by name - it is the dangerous case, because the label reads green while nothing has judged that commit. A PR carrying no `ai:*` label is human-driven and skips the guard entirely.
+- **The outcome label `ai:ready-to-merge` is now `ai:completed`**, and `ai:processing` joins the state set for "an agent holds this PR right now". States are mutually exclusive and change in one `gh pr edit --add-label ... --remove-label ...` call, so they cannot accumulate.
+- **The default PR template moved from the `spec` pack to `core`** (`git-open-pr/assets/pr-template.md`), and `git-open-pr` now fills it when the repo has none. `git-verify-pr` is a `core` skill that executes the template's verification section, so leaving the template in `spec` meant a `core`-only install could never earn `ai:verified`. `spec-execute` Phase E opens its PR through `git-open-pr` instead of calling `gh pr create` itself.
+
+### Removed
+
+- **`git-review-pr-comments`** - absorbed into `git-complete-pr`. A thread that cannot be closed *is* the escalation that decides the outcome, so splitting the two put the same criteria in two places; the merge also removes the name collision with `git-review-pr`.
+
 ## [0.4.2] - 2026-09-07
 
 Every found defect is recorded: the rule states the invariant, and the profile says where the record goes.

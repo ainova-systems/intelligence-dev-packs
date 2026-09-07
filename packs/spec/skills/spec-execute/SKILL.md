@@ -56,14 +56,13 @@ Apply every needed doc update automatically (via `spec-document` conventions) so
 
 **`autonomous`**:
 
-1. Push; open the PR (`gh pr create --base <target> ...`) using the project's own PR template when one exists, else the pack default `assets/pr-template.md`.
-2. Run `git-finalize-pr` - CI to green plus every review comment handled.
-3. End with exactly one outcome label from `git-workflow`'s set (`ai:ready-to-merge` | `ai:manual` | `ai:failed`). Never merge.
-4. Report: PR URL, outcome label, anything that needs the owner. Final close (`spec-close`) runs after the owner accepts and the PR merges, not here.
+1. Push, then open the PR via `git-open-pr` - it resolves the target, fills the project's own template when one exists, else the pack default, and refuses to leave the verification section empty.
+2. Run `git-finalize-pr` - it drives the rounds until CI is green and every success factor the project declares holds on one head commit (`git-verify-pr`, `git-review-pr`), then hands to `git-complete-pr` for the threads and the one outcome. A stage that fails sends the PR back into a round; it never ends "green but unverified".
+3. Report: PR URL, outcome label, the factors present, anything that needs the owner. Never merge. Final close (`spec-close`) runs after the owner accepts and the PR merges, not here.
 
 ## Verify
 
-- Plan `## Work steps` fully ticked with every tick's gate re-run dry; feature doc matches shipped behavior; supervised - unstaged diff reported to the developer; autonomous - the PR carries exactly one `ai:*` label.
+- Plan `## Work steps` fully ticked with every tick's gate re-run dry; feature doc matches shipped behavior; supervised - unstaged diff reported to the developer; autonomous - the PR carries an outcome label plus every declared success factor, fresh at head.
 
 ## Scope / hand-off
 

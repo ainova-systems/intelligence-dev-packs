@@ -1,5 +1,5 @@
 <!--
-Pack default PR template. Used by spec-execute Phase E when the project has no
+Pack default PR template. Used by git-open-pr when the project has no
 .github/PULL_REQUEST_TEMPLATE.md (or platform equivalent). Fill every section;
 delete a section only if it is genuinely not applicable.
 -->

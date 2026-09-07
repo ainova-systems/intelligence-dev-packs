@@ -15,7 +15,9 @@ Turn a pushed feature branch into a reviewable PR. Idempotent: if a PR already e
 3. Existing-PR check: `gh pr list --head <branch> --state open --json number,url --jq '.[0]'`. Non-empty - report the URL and STOP (nothing to open).
 4. Resolve the target from profile `pr_target` (default `auto` - the integration branch when one exists, else the default branch).
 5. Title: an explicit argument wins; else the latest commit subject (`git log -1 --pretty=%s`). Honor profile `artifact_language` for title and body when set (e.g. write them in English even when the working language differs).
-6. Body: if the repo has a PR template (`.github/PULL_REQUEST_TEMPLATE.md` or `.github/pull_request_template.md`), fill ITS sections honestly - real content per section, "None" where one genuinely does not apply; never leave the template's hint comments. No template - a concise default: what & why, the changes, and how to verify (the concrete steps or call a reviewer runs, plus the gates already run). When profile `pr_risk_size: on`, prepend the deterministic Risk/Size line (below).
+6. Body: if the repo has a PR template (`.github/PULL_REQUEST_TEMPLATE.md` or `.github/pull_request_template.md`), fill ITS sections honestly - real content per section, "None" where one genuinely does not apply; never leave the template's hint comments. No template - use the pack default `assets/pr-template.md`. When profile `pr_risk_size: on`, prepend the deterministic Risk/Size line (below).
+
+   The section profile `verify_section` names (default `## How to verify`) is not optional: it states what a reviewer or QA runs to validate the **result**, not that CI passed, and it is the input `git-verify-pr` executes. A PR that leaves it empty cannot earn `ai:verified` - it never declared what "working" means.
 7. Open it: `gh pr create --base <target> --title <title> --body-file <file>` (`--body-file` avoids shell-quoting traps). On non-GitHub platforms use the profile `cli` (`glab mr create`, ...).
 8. Report the PR URL and number.
 
@@ -34,4 +36,4 @@ State one value each, e.g. `Risk: low | Size: small`.
 
 ## Scope / hand-off
 
-- Committing/pushing first - `git-commit-push`; driving the opened PR to green and draining comments - `git-finalize-pr`; merging - `git-merge-pr`.
+- Committing/pushing first - `git-commit-push`; driving the opened PR through its rounds - `git-finalize-pr`; merging - `git-merge-pr`.
