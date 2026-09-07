@@ -88,6 +88,7 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 - rules_dir: docs/rules             <!-- business rules as contracts -->
 - decisions_dir: docs/decisions     <!-- ADRs -->
 - adr_naming: date                  <!-- date (yyMMdd-<slug>.md, collision-free across branches) | numbered (NNNN-<slug>.md, MADR) ; an existing ADR folder's convention always wins -->
+- defect_log: auto                  <!-- where a defect found but not fixed in the same change is recorded (dev-context-engineering): auto = the tracker unless `tracker` is none, in which case ask once | tracker | roadmap | specs (a finding under specs_dir) | <repo-relative file, e.g. docs/known-issues.md> -->
 
 ## Tracker
 
