@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-09-07
+
+Review replies are log entries: the outcome and what made it so, nothing else, and a thread you acted on ends resolved.
+
 ### Changed
 
 - **A review reply is a log entry, not a conversation.** `git-review-pr-comments` told the replier to match the reviewer's tone, which invites a paragraph of prose where a reviewer wants one fact: what happened and what made it so. `git-commit-conventions` now states the shape — commit reference for a fix, blocking rule for a decline, follow-up link for a deferral — and forbids the padding around it. The rule carries it because a reply is often written ad hoc, outside the skill that would otherwise have said so.
