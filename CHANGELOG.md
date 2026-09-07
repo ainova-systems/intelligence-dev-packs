@@ -7,10 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-09-07
+
+Every found defect is recorded: the rule states the invariant, and the profile says where the record goes.
+
 ### Added
 
 - **A defect you found never stops at "noticed".** `dev-context-engineering` now requires it to be fixed in the change that found it, or recorded before that change ships. Judging it out of scope stays legitimate; leaving no trace does not — a commit message or a PR body records one review, not the defect, and nothing reads them again.
-- **Profile key `defect_log` says where that record goes.** The rule states the invariant and nothing else, because the destination is not universal: a tracker issue, a roadmap entry, a finding under `specs_dir`, or a plain file such as `docs/known-issues.md` are all right answers in different projects. `auto` resolves to the tracker when one is configured, and asks once when none is.
+- **Profile key `defect_log` says where that record goes.** The rule states the invariant and nothing else, because the destination is not universal: a tracker issue, a roadmap entry, a finding under `specs_dir`, or a plain file such as `docs/known-issues.md` are all right answers in different projects. `auto` resolves to the tracker unless `tracker` is none, and asks once when it is.
 
 ## [0.4.1] - 2026-09-07
 
