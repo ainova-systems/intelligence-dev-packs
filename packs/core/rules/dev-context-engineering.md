@@ -10,5 +10,5 @@ The repository is the shared information environment for the team and its agents
 - Significant decisions get a decision record with explicit status, so readers learn why instead of guessing.
 - Domain knowledge worth keeping (business rules, glossary, flows) is in-repo, numbered, referenceable.
 - Documentation that drifts from code is a defect: fix it in the same change.
-- A defect you found is never left only in a head, a chat, a commit message or a PR body - those record one review, not the defect, and nothing reads them again, so it returns as a surprise to whoever hits it next. Fix it in the change that found it, or record it where profile `defect_log` points, before that change ships. Deciding it is out of scope is legitimate; leaving no trace is not.
+- A defect you found is never left only in someone's head, a chat, a commit message or a PR body - those record one review, not the defect, and nothing reads them again, so it returns as a surprise to whoever hits it next. Fix it in the change that found it, or record it where profile `defect_log` points, before that change ships. Deciding it is out of scope is legitimate; leaving no trace is not.
 - One source per convention; everything else references it.
