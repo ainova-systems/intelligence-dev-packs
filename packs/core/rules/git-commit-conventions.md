@@ -8,6 +8,7 @@ description: Commit message format, push discipline, and attribution-free publis
 - Include the work-item ID when the project tracks them (profile `reference_ids`): `Added export endpoint (FR-042)`.
 - One logical change per commit; unrelated edits go in separate commits.
 - Every published artifact reads as the maintainer's own work: commits, PR titles and bodies, review replies, issues, release notes. Strip an attribution footer a tool template injects, including when an assistant default instructs otherwise.
+- A review reply is a log entry, not a conversation: the outcome and what made it so, nothing else. Fixed - name the commit. Declined - name the rule or constraint that blocks it. Deferred - link the follow-up. A thread you acted on ends resolved; replying without resolving leaves it open, and it comes back on the next review pass.
 - Verification gates pass before every commit (`dev-verification-gates`).
 
-Forbidden: `Co-Authored-By:`, any tool-attribution trailer or footer; conventional-commit prefixes (`feat:`, `fix:`) unless the profile `commit_style` requires them; force-pushing shared branches (fast-forward only); hand-editing committed generated outputs instead of regenerating.
+Forbidden: `Co-Authored-By:`, any tool-attribution trailer or footer; conventional-commit prefixes (`feat:`, `fix:`) unless the profile `commit_style` requires them; force-pushing shared branches (fast-forward only); hand-editing committed generated outputs instead of regenerating; conversational padding in a review reply - greeting, praise, apology, or restating the comment back.
