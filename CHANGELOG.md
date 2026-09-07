@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-09-08
+
 A pull request now has to prove it works, not just that it is green - and every claim is bound to the commit that earned it.
 
 ### Added
