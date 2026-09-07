@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **A review reply is a log entry, not a conversation.** `git-review-pr-comments` told the replier to match the reviewer's tone, which invites a paragraph of prose where a reviewer wants one fact: what happened and what made it so. `git-commit-conventions` now states the shape — commit reference for a fix, blocking rule for a decline, follow-up link for a deferral — and forbids the padding around it. The rule carries it because a reply is often written ad hoc, outside the skill that would otherwise have said so.
-- **A thread you acted on ends resolved.** The pairing was a skill constraint only, so it reached nobody who replied without invoking the skill. It is now also in the always-on rule.
+- **A thread you acted on ends resolved.** The pairing was a skill constraint only, so it reached nobody who replied without invoking the skill. It is now also in the always-on rule, with the consequence stated as it actually behaves: the thread stays open and returns on the next review pass.
 
 ## [0.4.0] - 2026-09-04
 
