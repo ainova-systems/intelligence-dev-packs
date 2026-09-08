@@ -34,7 +34,7 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 - verify: none                      <!-- single gate-runner command (reads the diff, picks gates); when set, the local flow and CI run exactly this and the keys above are its internals -->
 - coverage_gate: none               <!-- e.g. 90% ; none -->
 - verify_section: How to verify     <!-- PR body heading whose steps git-verify-pr executes; match the repo's PR template -->
-- qa_env: auto                      <!-- where git-verify-pr runs those steps: auto (preview when the PR has one, else local) | preview | local | none (behavioral steps are blocked, never passed) -->
+- qa_env: auto                      <!-- where git-verify-pr runs those steps: auto (preview when the PR has one, else local) | preview | local | none (nothing here can be exercised - pair it with dropping ai:verified from pr_success_factors, or every PR escalates) -->
 - app_run: none                     <!-- command that brings the app up for manual verification, e.g. npm run dev; none = detect -->
 - app_url: none                     <!-- base URL once it is up, e.g. http://localhost:3000 -->
 - code_review_skill: auto           <!-- reviewer git-review-pr invokes: auto = the host's own code-review skill when it ships one, else dev-review-changes | <skill name> -->
