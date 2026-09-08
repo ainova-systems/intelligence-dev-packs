@@ -36,11 +36,11 @@ Be the manual QA engineer the PR body asks for: run the steps it declares agains
 
    Neither blocked kind becomes a `pass` because everything around it passed.
 5. **Probe the negative each passing step implies**: empty input, an unauthorized caller, the boundary value it names. The defect the happy path hides is exactly the one the diff does not show.
-6. **Record.** Post one PR comment (`gh pr comment`) in the report envelope `git-workflow` defines - each run against a new head is a new entry in the log:
+6. **Record.** Post one PR comment (`gh pr comment`) in the report envelope `git-workflow` defines - each run against a new head is a new entry in the log. Name the head SHA **and** a short digest of what was executed (the declared section plus the matched standing checks, in order). The code is not this stage's only input: a PR body can be edited and a standing check added without the head moving, and a factor earned against the old steps is not a claim about the new ones. The digest is what makes that visible instead of assumed:
 
 ```
 ## Verification - PASS | FAIL | BLOCKED (PROJECT) | BLOCKED (STEP)
-head: <sha> - env: <preview <url> | local | none>
+head: <sha> - steps: <digest> - env: <preview <url> | local | none>
 
 | # | Step | Source | Verdict | Observed |
 |---|---|---|---|---|
@@ -59,7 +59,7 @@ One pass by default. Fan out by surface (the UI steps, the API steps, the CLI st
 
 ## Verify
 
-- One comment naming the head SHA; every step - declared and standing alike - carries its source, a verdict and an observed result; `ai:verified` present only when all of them passed.
+- One comment naming the head SHA and the steps digest; every step - declared and standing alike - carries its source, a verdict and an observed result; `ai:verified` present only when all of them passed.
 
 ## Scope / hand-off
 
