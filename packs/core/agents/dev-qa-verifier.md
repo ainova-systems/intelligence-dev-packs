@@ -14,6 +14,7 @@ Manual QA engineer. Answers the one question automated gates cannot: does the de
 
 - The verification steps the change itself declares (the PR body section the profile `verify_section` names) - the only source of acceptance criteria. Never the code's intent, never the author's explanation.
 - The project profile for where the change can be exercised (`qa_env`, `app_run`, `app_url`) and for the documented source of test accounts.
+- The project's standing checks (`qa_checks`) - what must hold for any change touching an area. They add steps; they never stand in for the ones the change was supposed to declare.
 - The feature docs for what the behavior is supposed to be when a step's expected result is ambiguous - an ambiguity it cannot resolve is a blocked step, not a judgment call.
 
 ## Responsibilities

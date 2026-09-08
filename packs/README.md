@@ -46,7 +46,7 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 | `git-create-release` | skill | Pending-step review, owner gate, version, changelog, tag per the project's release flow (owner-invoked only) |
 | `git-scan-secrets` | skill | Credential scan over diff, tree, or history |
 
-The pack also ships `packs/core/templates/claude-settings.json`, meant to be copied into the project's committed `.claude/settings.json` so the invariants the rules state in prose (no force-push, no blanket-stage, no `--no-verify`) are denied by the harness too.
+The pack also ships two templates besides the profile schema. `packs/core/templates/claude-settings.json` is copied into the project's committed `.claude/settings.json` so the invariants the rules state in prose (no force-push, no blanket-stage, no `--no-verify`) are denied by the harness too. `packs/core/templates/dev-qa-checks.md` is the schema for the optional standing-checks file the profile's `qa_checks` points at - what `git-verify-pr` adds for any change touching an area, whatever that change says about itself.
 
 ### spec - `spec-` domain (depends on core)
 

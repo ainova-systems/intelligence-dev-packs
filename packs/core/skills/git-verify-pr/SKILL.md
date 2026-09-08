@@ -19,11 +19,14 @@ Be the manual QA engineer the PR body asks for: run the steps it declares agains
 1. **Read the steps.** `gh pr view <pr> --json body`, the section profile `verify_section` names (default `How to verify`; the repo template's equivalent heading when it uses another). Missing or empty - stop with `blocked (step)`: the PR body has to declare what "working" means. Never invent acceptance criteria the PR does not state.
 
    A section may legitimately declare that there is nothing behavioral here - a change whose steps are all commands anyone can run, or one that states why it changes no behavior. Execute what it declares; a change with nothing to exercise needs no environment and is not blocked by lacking one, the same reading `dev-run-tests` gives a docs-only change. What it is not is an empty section: `git-open-pr` refuses to leave one, and that refusal is what keeps "nothing to verify" from becoming a free pass.
+
+   **Standing checks.** Profile `qa_checks` (`auto` - `docs/qa-checks.md` when it exists) points at the project's area-keyed checks: what must hold for any change touching an area, whatever the change says about itself. Match its globs against the PR's files (`gh pr view <pr> --json files --jq '.files[].path'`) and take every matching entry as a step of its own, alongside the declared ones. They are **additional**: a PR that declared nothing is still blocked above, because a change unwilling to say what working means for itself is not made verifiable by the project's standing list. No file, or no glob matches - nothing is added, and that is not a blocker.
 2. **Bring the change up.** Profile `qa_env`: `preview` - the per-PR deployment URL from the PR's deployment status; `local` - profile `app_run`, then `app_url`; `auto` (default) - a preview when the PR has one, else local; `none` - the project has already stated that behavior cannot be exercised here. Confirm what came up was built from the head SHA and not from the base - verifying the base is worse than not verifying, because it produces a passing report.
 
    **Nothing resolves and detection finds nothing** - that is a standing configuration gap, not an event of this PR, so it is resolved the way every other project value is: asked once, recorded in the profile. Two answers are valid and the profile holds both - set `qa_env` plus `app_run` / `app_url` (naming where test accounts come from, never the accounts themselves), or drop `ai:verified` from `pr_success_factors` because this project has nothing to exercise.
 
    **Who asks depends on where this runs, and the stage does not guess.** Invoked directly by a person, it asks and records. Inside a run it is an isolated subagent with no one to ask, so it returns `blocked (project)` naming both keys and the question travels out with the escalation - `git-finalize-pr` stops retrying it, `git-complete-pr` puts it to the owner. Either way the answer lands in the profile once; an escalation that repeats identically on every PR without saying how to end it is noise.
+
 3. **Execute each step in order, exactly as written**, driving the interface it names with whatever the host provides (browser automation, an HTTP client, the CLI). Record for each: the action taken, the observed result verbatim, and the expected result the step states.
 4. **One verdict per step**, and there are four - a bare `blocked` is not one of them, because the two kinds route differently and a generic verdict strands the router:
    - **`pass`** - observed matches expected.
@@ -39,9 +42,10 @@ Be the manual QA engineer the PR body asks for: run the steps it declares agains
 ## Verification - PASS | FAIL | BLOCKED (PROJECT) | BLOCKED (STEP)
 head: <sha> - env: <preview <url> | local | none>
 
-| # | Step | Verdict | Observed |
-|---|---|---|---|
-| 1 | <the step, as written> | pass | <what actually happened> |
+| # | Step | Source | Verdict | Observed |
+|---|---|---|---|---|
+| 1 | <the step, as written> | PR | pass | <what actually happened> |
+| 2 | <the standing check> | qa_checks | pass | <what actually happened> |
 
 ### Failures
 - Step 2 - expected <x>, observed <y>. Repro: <the exact actions>. Suspect: `path/file:line`.
@@ -55,7 +59,7 @@ One pass by default. Fan out by surface (the UI steps, the API steps, the CLI st
 
 ## Verify
 
-- One comment naming the head SHA; every declared step carries a verdict and an observed result; `ai:verified` present only when all of them passed.
+- One comment naming the head SHA; every step - declared and standing alike - carries its source, a verdict and an observed result; `ai:verified` present only when all of them passed.
 
 ## Scope / hand-off
 
@@ -65,5 +69,5 @@ One pass by default. Fan out by surface (the UI steps, the API steps, the CLI st
 
 - Never mark a step passed from reading the code - only from an observed result.
 - Never fix what it finds: a QA engineer who patches the build is no longer reporting on it.
-- Never widen the steps into a test plan the PR did not declare, and never drop one because it looks unnecessary.
+- Never widen the steps into a test plan the PR did not declare. The only additions are the project's standing checks, which are area-keyed and written in advance - not judgment invented for this PR - and they never fill in for steps the PR failed to declare. Never drop a step because it looks unnecessary.
 - No credentials in the report or in the profile - test accounts come from the project's documented secret source.
