@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-09-08
+
+The rule against restating a definition is now enforced, and the flow says which forge it actually speaks.
+
 ### Fixed
 
 - **One source per convention is now enforced, not only stated.** `dev-context-engineering` already carried the rule, and three consecutive changes broke it anyway - each one extended a definition in one place and left a restatement of it somewhere else: who writes `ai:processing`, the verdict vocabulary an agent may return, and what the report envelope's second line carries. The rule now names the failure mode (restating instead of citing, and the copy nobody updated being the one that executes), says what to do when inlining a vocabulary is unavoidable - name its definition site - and requires extending a definition to include every place that restates it, in the same change. `validate-pack.sh` gained the mechanical half for the one vocabulary that is greppable: an `ai:*` label used anywhere in the packs but not defined in `git-workflow` now fails the build - as does the definition site going missing while labels are still in use, because a gate that quietly disappears when its source is moved is the same unenforced rule in a new costume.
