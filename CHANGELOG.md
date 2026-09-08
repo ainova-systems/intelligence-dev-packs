@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Standing QA checks (`qa_checks`)** - a project can declare what must hold for any change touching an area, whatever that change says about itself, and `git-verify-pr` adds every entry whose glob the pull request touched as a step of its own. The report marks each step's source, so a reader can tell what the PR asked for from what the project always asks for. New profile key (`auto` resolves `docs/qa-checks.md` when it exists) plus the schema at `templates/dev-qa-checks.md`.
+
+  The boundary is the point of the feature: standing checks are **additional**, never a substitute. A pull request that declares nothing is still blocked, because a change unwilling to say what working means for itself is not made verifiable by the project's list - and `git-verify-pr` still never invents acceptance criteria for a change. Per-feature acceptance criteria stay in the feature docs, where one source stays in sync with the code and `spec-audit-docs` checks it; a second copy in a QA file would only drift.
+
+- **Freshness now covers the verifier's other input.** A success factor was defined as a claim about one commit, but `git-verify-pr` does not judge the code alone - it executes the steps the pull request declares, and those can be edited without the head moving. Standing checks widen the same gap. The report now names a digest of what was executed alongside the head SHA, and `git-workflow` states that a factor earned against the old steps is not a claim about the new ones. Found by running the loop on this change: a report passed while two of its own declared steps had been rewritten under it.
+
+  The schema carries its own bar, because a file like this is where dead rules accumulate: an entry earns its place only if a defect that actually shipped would have been caught by it, and the file is expected to *shrink* as checks that can be automated move into the test suite. A check nothing executes is the least reliable kind of rule.
+
 ## [0.5.1] - 2026-09-08
 
 A project with no way to run its own software now gets asked once instead of escalated forever.

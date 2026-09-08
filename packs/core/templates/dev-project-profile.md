@@ -38,6 +38,7 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 - app_run: none                     <!-- command that brings the app up for manual verification, e.g. npm run dev; none = detect -->
 - app_url: none                     <!-- base URL once it is up, e.g. http://localhost:3000 -->
 - code_review_skill: auto           <!-- reviewer git-review-pr invokes: auto = the host's own code-review skill when it ships one, else dev-review-changes | <skill name> -->
+- qa_checks: auto                   <!-- standing checks git-verify-pr adds for the areas a PR touched (schema: templates/dev-qa-checks.md): auto = docs/qa-checks.md when it exists | <repo-relative file> | none -->
 
 ## Workspace
 
