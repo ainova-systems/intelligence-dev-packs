@@ -21,7 +21,9 @@ Be the manual QA engineer the PR body asks for: run the steps it declares agains
    A section may legitimately declare that there is nothing behavioral here - a change whose steps are all commands anyone can run, or one that states why it changes no behavior. Execute what it declares; a change with nothing to exercise needs no environment and is not blocked by lacking one, the same reading `dev-run-tests` gives a docs-only change. What it is not is an empty section: `git-open-pr` refuses to leave one, and that refusal is what keeps "nothing to verify" from becoming a free pass.
 2. **Bring the change up.** Profile `qa_env`: `preview` - the per-PR deployment URL from the PR's deployment status; `local` - profile `app_run`, then `app_url`; `auto` (default) - a preview when the PR has one, else local; `none` - the project has already stated that behavior cannot be exercised here. Confirm what came up was built from the head SHA and not from the base - verifying the base is worse than not verifying, because it produces a passing report.
 
-   **Nothing resolves and detection finds nothing** - that is a standing configuration gap, not an event of this PR, so resolve it the way every other project value is resolved: ask once and record the answer. Two answers are valid and the profile holds both - set `qa_env` plus `app_run` / `app_url` (naming where test accounts come from, never the accounts themselves), or drop `ai:verified` from `pr_success_factors` because this project has nothing to exercise. A non-interactive run cannot ask, so it returns `blocked (project)` naming both keys: an escalation that repeats identically on every PR without ever saying how to end it is noise.
+   **Nothing resolves and detection finds nothing** - that is a standing configuration gap, not an event of this PR, so it is resolved the way every other project value is: asked once, recorded in the profile. Two answers are valid and the profile holds both - set `qa_env` plus `app_run` / `app_url` (naming where test accounts come from, never the accounts themselves), or drop `ai:verified` from `pr_success_factors` because this project has nothing to exercise.
+
+   **Who asks depends on where this runs, and the stage does not guess.** Invoked directly by a person, it asks and records. Inside a run it is an isolated subagent with no one to ask, so it returns `blocked (project)` naming both keys and the question travels out with the escalation - `git-finalize-pr` stops retrying it, `git-complete-pr` puts it to the owner. Either way the answer lands in the profile once; an escalation that repeats identically on every PR without saying how to end it is noise.
 3. **Execute each step in order, exactly as written**, driving the interface it names with whatever the host provides (browser automation, an HTTP client, the CLI). Record for each: the action taken, the observed result verbatim, and the expected result the step states.
 4. **One verdict per step**: `pass` (observed matches expected) / `fail` (observed contradicts expected) / `blocked` (cannot execute, or the expected result is stated too vaguely to judge). A `blocked` step never becomes a `pass` because everything around it passed, and blocked comes in two kinds that must not be confused:
    - **`blocked (project)`** - no environment at all, from step 2. One standing gap, one profile answer, and it ends for every future PR at once.
@@ -30,7 +32,7 @@ Be the manual QA engineer the PR body asks for: run the steps it declares agains
 6. **Record.** Post one PR comment (`gh pr comment`) in the report envelope `git-workflow` defines - each run against a new head is a new entry in the log:
 
 ```
-## Verification - PASS | FAIL | BLOCKED
+## Verification - PASS | FAIL | BLOCKED (PROJECT) | BLOCKED (STEP)
 head: <sha> - env: <preview <url> | local | none>
 
 | # | Step | Verdict | Observed |
