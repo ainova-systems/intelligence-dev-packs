@@ -7,15 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-09-08
+
+A project can state what every change to an area must pass, and a verification factor is bound to the steps it actually executed.
+
 ### Added
 
 - **Standing QA checks (`qa_checks`)** - a project can declare what must hold for any change touching an area, whatever that change says about itself, and `git-verify-pr` adds every entry whose glob the pull request touched as a step of its own. The report marks each step's source, so a reader can tell what the PR asked for from what the project always asks for. New profile key (`auto` resolves `docs/qa-checks.md` when it exists) plus the schema at `templates/dev-qa-checks.md`.
 
   The boundary is the point of the feature: standing checks are **additional**, never a substitute. A pull request that declares nothing is still blocked, because a change unwilling to say what working means for itself is not made verifiable by the project's list - and `git-verify-pr` still never invents acceptance criteria for a change. Per-feature acceptance criteria stay in the feature docs, where one source stays in sync with the code and `spec-audit-docs` checks it; a second copy in a QA file would only drift.
 
-- **Freshness now covers the verifier's other input.** A success factor was defined as a claim about one commit, but `git-verify-pr` does not judge the code alone - it executes the steps the pull request declares, and those can be edited without the head moving. Standing checks widen the same gap. The report now names a digest of what was executed alongside the head SHA, and `git-workflow` states that a factor earned against the old steps is not a claim about the new ones. Found by running the loop on this change: a report passed while two of its own declared steps had been rewritten under it.
-
   The schema carries its own bar, because a file like this is where dead rules accumulate: an entry earns its place only if a defect that actually shipped would have been caught by it, and the file is expected to *shrink* as checks that can be automated move into the test suite. A check nothing executes is the least reliable kind of rule.
+
+  The context cost decided the shape. The profile is inlined into every task, so it holds only a pointer; the checks themselves live in a file the verifier opens at the one moment it needs them - the same split `specs_dir`, `features_dir`, `decisions_dir` and `handoff_dir` already use.
+
+### Fixed
+
+- **A success factor is bound to what the stage judged, not to the commit alone.** `git-verify-pr` executes the steps the pull request declares, and those can be rewritten without the head moving - so `ai:verified` could stand over steps it never ran, with the freshness check unable to see it; standing checks widen the same input further. The report now names a digest of what it executed next to the head SHA, `git-workflow`'s envelope describes that second line, and `git-merge-pr`'s guard compares every input a report names rather than the SHA alone. Found by running the loop on this change: a report passed while two of its own declared steps had been rewritten under it.
 
 ## [0.5.1] - 2026-09-08
 
