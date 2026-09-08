@@ -127,10 +127,12 @@ fi
 # rule never defines is a second definition site - the failure mode that recurred
 # three times before this check existed.
 LABEL_RULE="$PACKS_DIR/core/rules/git-workflow.md"
-used_labels="$(grep -rho 'ai:[a-z][a-z-]*' "$PACKS_DIR" | sort -u)"
+# grep exits 1 on no match, and `set -euo pipefail` would kill the script mid-run
+# before any check could report: an empty result is an answer here, not a failure.
+used_labels="$(grep -rho 'ai:[a-z][a-z-]*' "$PACKS_DIR" | sort -u || true)"
 if [ -n "$used_labels" ]; then
     if [ -f "$LABEL_RULE" ]; then
-        defined_labels="$(grep -o 'ai:[a-z][a-z-]*' "$LABEL_RULE" | sort -u)"
+        defined_labels="$(grep -o 'ai:[a-z][a-z-]*' "$LABEL_RULE" | sort -u || true)"
         for label in $used_labels; do
             grep -qx "$label" <<< "$defined_labels" \
                 || fail "label '$label' is used in packs/ but not defined in packs/core/rules/git-workflow.md"
