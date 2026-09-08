@@ -127,13 +127,19 @@ fi
 # rule never defines is a second definition site - the failure mode that recurred
 # three times before this check existed.
 LABEL_RULE="$PACKS_DIR/core/rules/git-workflow.md"
-if [ -f "$LABEL_RULE" ]; then
-    defined_labels="$(grep -o 'ai:[a-z][a-z-]*' "$LABEL_RULE" | sort -u)"
-    used_labels="$(grep -rho 'ai:[a-z][a-z-]*' "$PACKS_DIR" | sort -u)"
-    for label in $used_labels; do
-        printf '%s
-' "$defined_labels" | grep -qx "$label"             || fail "label '$label' is used in packs/ but not defined in packs/core/rules/git-workflow.md"
-    done
+used_labels="$(grep -rho 'ai:[a-z][a-z-]*' "$PACKS_DIR" | sort -u)"
+if [ -n "$used_labels" ]; then
+    if [ -f "$LABEL_RULE" ]; then
+        defined_labels="$(grep -o 'ai:[a-z][a-z-]*' "$LABEL_RULE" | sort -u)"
+        for label in $used_labels; do
+            grep -qx "$label" <<< "$defined_labels" \
+                || fail "label '$label' is used in packs/ but not defined in packs/core/rules/git-workflow.md"
+        done
+    else
+        # A missing definition site must fail, not skip: a gate that disappears when
+        # its source is moved is the unenforced rule this check exists to prevent.
+        fail "ai:* labels are used in packs/ but the rule that defines them is missing at packs/core/rules/git-workflow.md"
+    fi
 fi
 
 if [ "$errors" -gt 0 ]; then
