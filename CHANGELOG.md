@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **The two writing conventions the validator now depends on are documented** in the repository's own contributor instructions: a profile key is referenced in backticks, and an artifact is named in backticks and must resolve. Both held everywhere already, which is exactly why they were never written down - and a gate enforcing an unwritten rule teaches it through failures that name the wrong problem.
 - **`docs/roadmap.md`** - what the repository intends to build next and what each item is waiting on. Two entries: behavioral evals for the skills (sequenced deliberately after the label model has been run end to end, so the suite pins behavior rather than assumptions), and risk scanning (blocked on deciding whether a scan or the deterministic `pr_risk_globs` match is authoritative, because two risk values for one change will disagree eventually).
 
 ## [0.6.1] - 2026-09-08
