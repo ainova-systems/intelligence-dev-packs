@@ -172,7 +172,7 @@ done
 # that does not exist; a key an artifact reads but the schema omits cannot be set.
 PROFILE="$PACKS_DIR/core/templates/dev-project-profile.md"
 # An artifact references a key in backticks, as `key` or `key: value`.
-artifact_files="$(grep -rl '' --include='*.md' "$PACKS_DIR" | grep -v "$PROFILE" || true)"
+artifact_files="$(find "$PACKS_DIR" -type f -name '*.md' | grep -v "$PROFILE" || true)"
 read_keys="$(grep -rhoE 'profile `[a-z_]+' $artifact_files /dev/null | sed 's/profile `//' | sort -u || true)"
 if [ ! -f "$PROFILE" ]; then
     # Same rule as the label gate: a check that skips when its source is gone is a
