@@ -23,12 +23,14 @@ End the run. Two jobs in order: leave no review thread unanswered, then state ho
 Read the current state rather than re-deriving it: CI on head, unresolved thread count, and each declared factor's freshness (profile `pr_success_factors`).
 
 - **`ai:completed`** - CI green on head, zero unresolved threads, every declared factor fresh, no escalation item. It is a claim that nothing is left for an agent.
-- **`ai:manual`** - anything needs the owner: an escalated thread, a `blocked` verification step, a stop rule `git-finalize-pr` hit, a decision the task left open. List each item and the decision it needs.
+- **`ai:manual`** - anything needs the owner: an escalated thread, a `blocked (step)` verification, a standing `blocked (project)` gap a non-interactive run could not ask about, a stop rule `git-finalize-pr` hit, a decision the task left open. List each item and the decision it needs, and let a `blocked (project)` item name the two profile keys that end it.
 - **`ai:failed`** - CI could not be brought to green. Name the blocking failure, the rounds spent, and what was tried.
 
 `ai:manual` and `ai:failed` also leave a comment in the report envelope `git-workflow` defines (`## Outcome - MANUAL` / `## Outcome - FAILED`, `head: <sha>`, then one line per item: what it is and what decision it needs). A label says the run stopped; it cannot say what the owner has to decide. `ai:completed` leaves none - the stage reports and the two factor comments already say it.
 
 One `gh pr edit <pr> --add-label <outcome> --remove-label <the other three>` call. Then report: PR URL, outcome, factors present, and the owner's list.
+
+A factor the project does not require (absent from `pr_success_factors`) is stated once in the outcome report - behavioral verification is not required in this project - so a reader can tell a recorded decision from a stage that quietly never ran. On the PR those two look identical, and only one of them is fine.
 
 A PR carrying no `ai:*` label is human-driven: drain its threads and write no label.
 

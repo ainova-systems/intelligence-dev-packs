@@ -21,7 +21,7 @@ Orchestrate an open PR to accept-ready: CI green, the PR's own verification step
 
 1. **Head moved, and not by this run** - someone else is on the branch. Clear the factors and restart the round. Twice in a row: stop, hand to `git-complete-pr` as an owner decision - two actors on one branch is not a merge conflict, it is a coordination failure.
 2. **CI.** `gh pr checks <pr>` plus `gh run list --branch <branch> --limit 8 --json databaseId,headSha,name,status,conclusion`. `in_progress` / `queued` - wait, sized to the longest job's typical duration. `failure` on HEAD_SHA - drill in: the failed step via `gh run view <run_id> --json jobs --jq '.jobs[] | select(.conclusion == "failure")'`, the log via `gh run view --job <job_id> --log` (fallback `gh api repos/{owner}/{repo}/actions/jobs/<job_id>/logs` while sibling jobs still run). Find the root-cause file:line, read it and the surrounding code, queue the defect.
-3. **`ai:verified` fresh on HEAD_SHA?** No - run `git-verify-pr` in an isolated subagent. A pass earns the factor; failures queue as defects; a `blocked` step queues as an owner-decision item.
+3. **`ai:verified` fresh on HEAD_SHA?** No - run `git-verify-pr` in an isolated subagent. A pass earns the factor; failures queue as defects; `blocked (step)` queues as an owner-decision item for this PR. `blocked (project)` queues as one too, but as a standing configuration gap - never retry it round after round, because nothing a round does can resolve it.
 4. **`ai:reviewed` fresh on HEAD_SHA?** No - run `git-review-pr` in an isolated subagent. Critical findings queue as defects; warnings and suggestions do not.
 5. **Fixable defects queued?** Fix them all, smallest-correct, top-down (what happened - what changed since last green - fix or delete per the feature doc - is there an existing primitive?). Run the local gates (`dev-run-tests`), then commit the **whole round as one commit** via `git-commit-push` and push. Re-set `ai:processing`, clear the factors, round += 1, back to 1.
 6. **Nothing fixable left** - hand to `git-complete-pr`. If it pushes a fix of its own, control returns here for another round.
@@ -53,4 +53,4 @@ The two judging stages carry their own agent (`dev-qa-verifier`, `dev-code-revie
 - A failure that already exists on the target branch is reported as pre-existing, never "fixed" on this PR.
 - One commit per round: fixing per defect makes every stage re-run per defect, and the cost becomes fixes x stages instead of rounds x stages.
 - Never write a factor label - only the stage that judged it may - and never write an outcome.
-- Never merge, even when everything is green.
+- Never merge, even when everything is green - accepting the PR is the owner's gate, and a run that both does the work and approves it has no gate at all.
