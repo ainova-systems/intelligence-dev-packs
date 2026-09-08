@@ -2,7 +2,7 @@
 
 Planned improvements, in intended order. Each entry states the problem it exists to fix, so a future session (or contributor) can pick one up without re-deriving the reasoning. The list evolves; shipped entries move to the CHANGELOG.
 
-## 0.5.0 candidates
+## Next candidates
 
 ### The red loop - one reference, then `dev-diagnose`, then `dev-add-tests`
 
