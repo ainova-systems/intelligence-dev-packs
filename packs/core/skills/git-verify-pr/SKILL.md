@@ -25,9 +25,13 @@ Be the manual QA engineer the PR body asks for: run the steps it declares agains
 
    **Who asks depends on where this runs, and the stage does not guess.** Invoked directly by a person, it asks and records. Inside a run it is an isolated subagent with no one to ask, so it returns `blocked (project)` naming both keys and the question travels out with the escalation - `git-finalize-pr` stops retrying it, `git-complete-pr` puts it to the owner. Either way the answer lands in the profile once; an escalation that repeats identically on every PR without saying how to end it is noise.
 3. **Execute each step in order, exactly as written**, driving the interface it names with whatever the host provides (browser automation, an HTTP client, the CLI). Record for each: the action taken, the observed result verbatim, and the expected result the step states.
-4. **One verdict per step**: `pass` (observed matches expected) / `fail` (observed contradicts expected) / `blocked` (cannot execute, or the expected result is stated too vaguely to judge). A `blocked` step never becomes a `pass` because everything around it passed, and blocked comes in two kinds that must not be confused:
+4. **One verdict per step**, and there are four - a bare `blocked` is not one of them, because the two kinds route differently and a generic verdict strands the router:
+   - **`pass`** - observed matches expected.
+   - **`fail`** - observed contradicts expected.
    - **`blocked (project)`** - no environment at all, from step 2. One standing gap, one profile answer, and it ends for every future PR at once.
-   - **`blocked (step)`** - this step needs a credential or capability the others did not. It belongs to this PR alone, and it is never grounds to drop the factor project-wide: that would disable verification for everything because one step needed a login.
+   - **`blocked (step)`** - this step alone cannot run: a credential or capability the others did not need, or an expected result stated too vaguely to judge. It belongs to this PR, and it is never grounds to drop the factor project-wide - that would disable verification for everything because one step needed a login.
+
+   Neither blocked kind becomes a `pass` because everything around it passed.
 5. **Probe the negative each passing step implies**: empty input, an unauthorized caller, the boundary value it names. The defect the happy path hides is exactly the one the diff does not show.
 6. **Record.** Post one PR comment (`gh pr comment`) in the report envelope `git-workflow` defines - each run against a new head is a new entry in the log:
 
