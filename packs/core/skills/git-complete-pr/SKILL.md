@@ -20,7 +20,7 @@ End the run. Two jobs in order: leave no review thread unanswered, then state ho
 
 ## Outcome - exactly one
 
-Read the current state rather than re-deriving it: CI on head, unresolved thread count, and each declared factor's freshness (profile `pr_success_factors`).
+The labels and their meanings belong to `git-workflow`; what follows is when this skill writes each. Read the current state rather than re-deriving it: CI on head, unresolved thread count, and each declared factor's freshness (profile `pr_success_factors`).
 
 - **`ai:completed`** - CI green on head, zero unresolved threads, every declared factor fresh, no escalation item. It is a claim that nothing is left for an agent.
 - **`ai:manual`** - anything needs the owner: an escalated thread, a `blocked (step)` verification, a standing `blocked (project)` gap a non-interactive run could not ask about, a stop rule `git-finalize-pr` hit, a decision the task left open. List each item and the decision it needs, and let a `blocked (project)` item name the two profile keys that end it.
