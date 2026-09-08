@@ -7,6 +7,7 @@
 # - a templates/ folder, if present, is non-empty.
 # - index.yaml (the registry index) and the packs on disk agree, in both
 #   directions: every pack is installable by name, every declared path exists.
+# - every ai:* label used anywhere is defined in the rule that owns the vocabulary.
 # Zero dependencies: bash + awk + grep.
 
 set -euo pipefail
@@ -120,6 +121,20 @@ if [ -f "$INDEX_FILE" ]; then
 fi
 
 [ "$pack_count" -gt 0 ] || fail "no packs found under packs/"
+
+# One source per convention (dev-context-engineering): the ai:* label vocabulary is
+# defined in git-workflow and only cited elsewhere. A label an artifact uses but the
+# rule never defines is a second definition site - the failure mode that recurred
+# three times before this check existed.
+LABEL_RULE="$PACKS_DIR/core/rules/git-workflow.md"
+if [ -f "$LABEL_RULE" ]; then
+    defined_labels="$(grep -o 'ai:[a-z][a-z-]*' "$LABEL_RULE" | sort -u)"
+    used_labels="$(grep -rho 'ai:[a-z][a-z-]*' "$PACKS_DIR" | sort -u)"
+    for label in $used_labels; do
+        printf '%s
+' "$defined_labels" | grep -qx "$label"             || fail "label '$label' is used in packs/ but not defined in packs/core/rules/git-workflow.md"
+    done
+fi
 
 if [ "$errors" -gt 0 ]; then
     echo "" >&2

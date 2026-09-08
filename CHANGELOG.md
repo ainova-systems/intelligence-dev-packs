@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **One source per convention is now enforced, not only stated.** `dev-context-engineering` already carried the rule, and three consecutive changes broke it anyway - each one extended a definition in one place and left a restatement of it somewhere else: who writes `ai:processing`, the verdict vocabulary an agent may return, and what the report envelope's second line carries. The rule now names the failure mode (restating instead of citing, and the copy nobody updated being the one that executes), says what to do when inlining a vocabulary is unavoidable - name its definition site - and requires extending a definition to include every place that restates it, in the same change. `validate-pack.sh` gained the mechanical half for the one vocabulary that is greppable: an `ai:*` label used anywhere in the packs but not defined in `git-workflow` now fails the build.
+- **The pull-request flow said `gh` and meant it, while the profile promised otherwise.** `platform` and `cli` offered GitLab and Bitbucket, but only `git-open-pr` ever read `cli` - the five skills that drive, judge, complete and merge a PR were GitHub-only with no fallback, and the four added in 0.5.0 widened a gap that already existed in `git-merge-pr`. `git-workflow` now states once that the commands throughout are the GitHub reference shapes, that another forge resolves them through `cli`, and that the flow's real requirement is a short list of capabilities - find a branch's open PR, read its checks for one commit, read and write its labels, read its review threads and their resolved flag, comment on it. A forge missing one of those is named as a capability gap rather than worked around, because a factor nobody can check is not a factor. No `glab` or Bitbucket command syntax is invented here: an unverified command in a skill is worse than an honest capability list.
+
 ## [0.6.0] - 2026-09-08
 
 A project can state what every change to an area must pass, and a verification factor is bound to the steps it actually executed.

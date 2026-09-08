@@ -36,4 +36,6 @@ Profile `pr_success_factors` declares the set a PR must carry (default: both). A
 
 Accept-ready = `ai:completed` plus every declared factor fresh at head. Autonomous runs never merge themselves.
 
+**The commands in these skills are the GitHub (`gh`) shapes - the reference implementation, not the requirement.** On another forge, resolve each through profile `cli`; what the flow actually needs is a small set of capabilities: find the open PR for a branch, read its checks for one commit, read and write its labels, read its review threads and their resolved flag, and comment on it. A forge that cannot do one of them is named as a capability gap in the report - never worked around silently, and never faked, because a factor nobody can check is not a factor. The same rule applies to the label mechanics below.
+
 The labels must exist in the repository (create once, e.g. `gh label create`). State labels are mutually exclusive, so a state change is one `gh pr edit <pr> --add-label <new> --remove-label <the others>` call, never an add now and a removal a later step can skip. A human-driven PR carries no `ai:*` label at all, and every gate skips label checks for it.
