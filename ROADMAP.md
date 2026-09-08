@@ -68,6 +68,14 @@ Sequenced last: it extends the plan contract and `spec-execute` that 0.2.0 intro
 
 **Shape.** Each skill records what it exists to fix and a task that proves it; on a model release the tasks re-run, and a skill whose tasks pass without it is a retirement candidate. Converts "is this artifact stale" from a judgment call into a scheduled check. Promoted from "under consideration" because it is the only mechanism that can shrink the pack; still unscheduled because the task corpus is the expensive half.
 
+The same harness answers a second question the validator cannot: whether following a skill produces the result it promises. The cases worth pinning are the ones whose failure is silent - a pull request whose verification section is empty must end `blocked (step)` and must not earn `ai:verified`; a factor whose report names an older head must be refused by the merge guard; a run that hits the round limit must escalate rather than continue. Sequenced deliberately after the label model has been executed end to end at least once: a suite written before the real failure modes are known pins the assumptions instead of the behavior, and assumptions that are wrong become assumptions that are enforced. The open question is which harness - `claude plugin eval` is the first-party option and fits exactly, but whether the packs should depend on one host's tooling is undecided.
+
+### Risk scanning - blocked on a decision, not on work
+
+**Problem.** A skill that scans a change and labels it `risk:low|medium|high` has been proposed. `git-open-pr` already computes a Risk value deterministically from `pr_risk_globs` and writes it into the pull request body.
+
+**What has to be settled first.** Two risk values for one change will disagree eventually, and whichever is read second wins by accident. Which one is authoritative - the deterministic glob match or the scan - decides whether the scan replaces that computation, feeds it, or is refused. Building either before that answer produces a second source for one claim, which is the defect this repository has had to fix three times.
+
 ## Distribution - resolved, with one supplementary channel still open
 
 **The mechanism question is answered.** The packs ship as versioned Intelligence Packages, installed with the [Intelligence CLI](https://github.com/ainova-systems/intelligence) from a registry this repository publishes as `index.yaml`. That meets what this entry required of any candidate - one source tree with no forked content, the sync path still working for teams that had it, and a version the installer can pin - and it clears the constraint that decided the question: **rules travel**, which no plugin format offered.
