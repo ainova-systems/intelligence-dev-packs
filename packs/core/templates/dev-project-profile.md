@@ -46,11 +46,9 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 
 ## Pull requests
 
-- platform: github                  <!-- github | gitlab | bitbucket -->
 - cli: gh                           <!-- gh | glab | bitbucket api wrapper -->
 - pr_target: auto                   <!-- auto = integration branch when set, else default branch -->
 - merge_method: squash              <!-- squash | merge | rebase -->
-- auto_open_pr: true                <!-- open a PR on first push when none exists (git-open-pr); false = open manually -->
 - pr_template: auto                 <!-- auto = use .github/PULL_REQUEST_TEMPLATE.md if present | none -->
 - pr_risk_size: off                 <!-- off | on (git-open-pr prepends a deterministic Risk/Size line) -->
 - pr_size_thresholds: small <= 5 files & 50 lines; large >= 20 files or 400 lines; else medium

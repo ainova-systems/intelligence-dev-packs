@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **The profile schema promised behavior nothing implemented.** `auto_open_pr` said a push would open a pull request when none existed, and no artifact had ever read it; `pr_template: none` said the repository's own template could be skipped, and `git-open-pr` filled it regardless. Both are resolved rather than left ambiguous: `pr_template` is now read where the body is composed, and `auto_open_pr` is removed - opening the PR is an explicit step in the documented flow, so a second implicit path to the same thing was a menu option, not a capability. `platform` is removed for the same reason: `cli` already decides everything the skills do with a forge, and two keys describing one fact is the defect this pack keeps fixing.
+- **`git-workflow` names the branch-model keys it had only ever described.** `default_branch`, `integration_branch`, `branch_prefixes` and `protected_branches` were used by concept throughout the rule and by name nowhere, so nothing connected the schema to the text that acts on it. The keys are named where the concepts are stated.
+- **`git-open-pr` had no `## Constraints` section**, which the artifact contract requires of every skill, and nothing checked. It has one now, carrying invariants rather than a restatement of its steps: one branch one PR for the life of the branch; a verification section is never satisfied by "CI passes", because `git-verify-pr` executes it later against a running change; a Risk level the globs did not produce is never stated, since a measured flag and a guessed one read identically.
+
+### Changed
+
+- **`validate-pack.sh` now checks the contracts, not only the shapes.** Three checks, each targeting a defect class that had gone unnoticed: every skill carries the sections the artifact contract requires; every artifact named in any artifact's text actually exists (renames leave dangling hand-offs that read as working ones); and the profile agrees with the artifacts in both directions - no schema key nothing reads, no key an artifact reads that the schema omits. The eight defects above are what these checks found on their first run.
+
+  Both new lookups fail rather than skip when their own source is missing, and grep calls carry a sentinel file so an empty match cannot make the run read stdin. The first version of this change reproduced the skip-when-missing bug fixed one release earlier - the reason it was caught is that the probes now include the check's own degenerate inputs, not only the fault it was written to detect.
+
+### Added
+
+- **`docs/roadmap.md`** - what the repository intends to build next and what each item is waiting on. Two entries: behavioral evals for the skills (sequenced deliberately after the label model has been run end to end, so the suite pins behavior rather than assumptions), and risk scanning (blocked on deciding whether a scan or the deterministic `pr_risk_globs` match is authoritative, because two risk values for one change will disagree eventually).
+
 ## [0.6.1] - 2026-09-08
 
 The rule against restating a definition is now enforced, and the flow says which forge it actually speaks.
