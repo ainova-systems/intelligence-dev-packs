@@ -4,13 +4,13 @@ description: Branch model, protected branches, feature-branch flow
 
 # Git Workflow
 
-Branch model comes from `dev-project-profile.md`. Without it, detect (default branch from `git symbolic-ref refs/remotes/origin/HEAD`; an existing `origin/develop` implies a gitflow integration branch) and ask once when still ambiguous - never guess silently.
+Branch model comes from `dev-project-profile.md` - `default_branch`, `integration_branch`, `branch_prefixes`, `protected_branches`. Without it, detect (default branch from `git symbolic-ref refs/remotes/origin/HEAD`; an existing `origin/develop` implies a gitflow integration branch) and ask once when still ambiguous - never guess silently.
 
-- Work on short-lived branches `<prefix>/<slug>` (defaults `feature/`, `bugfix/`, `hotfix/`), branched from the integration branch when one exists, otherwise from the default branch.
+- Work on short-lived branches `<prefix>/<slug>` (`branch_prefixes`, defaults `feature/`, `bugfix/`, `hotfix/`), branched from `integration_branch` when one is set, otherwise from `default_branch`.
 - PRs target the integration branch when one exists, otherwise the default branch.
 - Update long-running branches per profile `update_strategy` (default: merge from target). Delete branches after merge.
 
-Forbidden: committing directly to a protected branch (default and integration branches always are) - branch first; merging on red CI; rewriting history on shared branches.
+Forbidden: committing directly to a protected branch (`protected_branches`; the default and integration branches always are) - branch first; merging on red CI; rewriting history on shared branches.
 
 ## Autonomous PR labels
 

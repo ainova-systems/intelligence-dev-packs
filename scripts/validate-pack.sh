@@ -8,6 +8,10 @@
 # - index.yaml (the registry index) and the packs on disk agree, in both
 #   directions: every pack is installable by name, every declared path exists.
 # - every ai:* label used anywhere is defined in the rule that owns the vocabulary.
+# - every skill has the sections the artifact contract requires.
+# - every artifact an artifact names actually exists.
+# - the project profile and the artifacts agree: no schema key nothing reads,
+#   no key an artifact reads that the schema does not define.
 # Zero dependencies: bash + awk + grep.
 
 set -euo pipefail
@@ -71,6 +75,12 @@ for pack_dir in "$PACKS_DIR"/*/; do
             continue
         fi
         has_frontmatter_key "$d/SKILL.md" "name" || fail "[$pack] skill '$name' missing name frontmatter"
+        # A skill without these is not self-contained: nothing states when it is done,
+        # where it hands off, or which of its rules are invariants rather than defaults.
+        for section in "## Verify" "## Scope / hand-off" "## Constraints"; do
+            grep -q "^$section" "$d/SKILL.md" \
+                || fail "[$pack] skill '$name' missing section '$section'"
+        done
         has_frontmatter_key "$d/SKILL.md" "description" || fail "[$pack] skill '$name' missing description frontmatter"
         fm_name="$(grep -m1 '^name:' "$d/SKILL.md" | sed 's/^name:[[:space:]]*//' | tr -d '"' || true)"
         [ "$fm_name" = "$name" ] || fail "[$pack] skill '$name' frontmatter name is '$fm_name' (must match folder)"
@@ -142,6 +152,43 @@ if [ -n "$used_labels" ]; then
         # its source is moved is the unenforced rule this check exists to prevent.
         fail "ai:* labels are used in packs/ but the rule that defines them is missing at packs/core/rules/git-workflow.md"
     fi
+fi
+
+# Every artifact an artifact names must exist. Renaming or removing one otherwise
+# leaves a dangling reference that reads as a working hand-off.
+artifact_refs="$(grep -rhoE '`(dev|git|spec)-[a-z-]+`' "$PACKS_DIR" | tr -d '`' | sort -u || true)"
+for ref in $artifact_refs; do
+    found=""
+    for pack_dir in "$PACKS_DIR"/*/; do
+        [ -d "$pack_dir$(printf 'skills/%s' "$ref")" ] && found=1
+        [ -f "$pack_dir$(printf 'rules/%s.md' "$ref")" ] && found=1
+        [ -f "$pack_dir$(printf 'agents/%s.md' "$ref")" ] && found=1
+        [ -f "$pack_dir$(printf 'templates/%s.md' "$ref")" ] && found=1
+    done
+    [ -n "$found" ] || fail "artifact '$ref' is named in packs/ but no rule, agent, skill or template by that name exists"
+done
+
+# The profile is a contract in both directions. A key nothing reads promises behavior
+# that does not exist; a key an artifact reads but the schema omits cannot be set.
+PROFILE="$PACKS_DIR/core/templates/dev-project-profile.md"
+# An artifact references a key in backticks, as `key` or `key: value`.
+artifact_files="$(find "$PACKS_DIR" -type f -name '*.md' | grep -v "$PROFILE" || true)"
+read_keys="$(grep -rhoE 'profile `[a-z_]+' $artifact_files /dev/null | sed 's/profile `//' | sort -u || true)"
+if [ ! -f "$PROFILE" ]; then
+    # Same rule as the label gate: a check that skips when its source is gone is a
+    # check that disappears silently, which is what it exists to prevent.
+    [ -z "$read_keys" ] \
+        || fail "artifacts read profile keys but the schema is missing at packs/core/templates/dev-project-profile.md"
+else
+    schema_keys="$(grep -oE '^- [a-z_]+:' "$PROFILE" | sed 's/^- //;s/:$//' | sort -u || true)"
+    for key in $schema_keys; do
+        grep -qhE "\`$key[\`:]" $artifact_files /dev/null \
+            || fail "profile key '$key' is defined in the schema but no artifact reads it"
+    done
+    for key in $read_keys; do
+        printf '%s\n' "$schema_keys" | grep -qx "$key" \
+            || fail "profile key '$key' is read by an artifact but the schema does not define it"
+    done
 fi
 
 if [ "$errors" -gt 0 ]; then
