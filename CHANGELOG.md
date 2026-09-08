@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-09-08
+
+The validator checks the contracts instead of only the shapes, and the eight defects it found on its first run are fixed.
+
 ### Fixed
 
 - **The profile schema promised behavior nothing implemented.** `auto_open_pr` said a push would open a pull request when none existed, and no artifact had ever read it; `pr_template: none` said the repository's own template could be skipped, and `git-open-pr` filled it regardless. Both are resolved rather than left ambiguous: `pr_template` is now read where the body is composed, and `auto_open_pr` is removed - opening the PR is an explicit step in the documented flow, so a second implicit path to the same thing was a menu option, not a capability. `platform` is removed for the same reason: `cli` already decides everything the skills do with a forge, and two keys describing one fact is the defect this pack keeps fixing.
