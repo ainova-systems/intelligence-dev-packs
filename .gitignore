@@ -4,3 +4,10 @@ Thumbs.db
 node_modules/
 
 /CLAUDE.md
+# Intelligence generated state and tool output
+.intelligence/
+CLAUDE.md
+.claude/*
+!.claude/
+!.claude/settings.json
+intelligence/_backup/
