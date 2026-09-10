@@ -25,6 +25,7 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 | `dev-code-reviewer` | agent | Reviews changes and PRs for correctness, conventions, tests, security, and the PR's own claims (read-only) |
 | `dev-qa-verifier` | agent | Executes a change's declared verification steps against the running software (read-only) |
 | `dev-test-engineer` | agent | Test strategy and coverage across all levels |
+| `dev-init` | skill | After installing core: profile, labels, PR template, harness deny-list |
 | `dev-run-tests` | skill | Typecheck, lint, tests with scope detection and failure analysis |
 | `dev-review-changes` | skill | Read-only diff review with severity verdict |
 | `dev-handoff` | skill | Self-contained continuation prompt for a fresh session |
@@ -33,7 +34,7 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 
 | Artifact | Kind | Role |
 |---|---|---|
-| `git-commit-conventions` | rule | Commit message format, push discipline, forbidden trailers |
+| `git-commit-conventions` | rule | Commit message format, PR body audience, push discipline, forbidden trailers |
 | `git-workflow` | rule | Branch model, protected branches, feature-branch flow |
 | `git-commit-push` | skill | Verified milestone commit and fast-forward push |
 | `git-open-pr` | skill | Open a PR for the branch, filling the repo's template or the pack default; profile-driven target and Risk/Size |
@@ -46,7 +47,7 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 | `git-create-release` | skill | Pending-step review, owner gate, version, changelog, tag per the project's release flow (owner-invoked only) |
 | `git-scan-secrets` | skill | Credential scan over diff, tree, or history |
 
-The pack also ships two templates besides the profile schema. `packs/core/templates/claude-settings.json` is copied into the project's committed `.claude/settings.json` so the invariants the rules state in prose (no force-push, no blanket-stage, no `--no-verify`) are denied by the harness too. `packs/core/templates/dev-qa-checks.md` is the schema for the optional standing-checks file the profile's `qa_checks` points at - what `git-verify-pr` adds for any change touching an area, whatever that change says about itself.
+The pack also ships two templates besides the profile schema. `dev-init` merges `packs/core/templates/claude-settings.json` into the project's committed `.claude/settings.json` so the invariants the rules state in prose (no force-push, no blanket-stage, no `--no-verify`) are denied by the harness too. `packs/core/templates/dev-qa-checks.md` is the schema for the optional standing-checks file the profile's `qa_checks` points at - what `git-verify-pr` adds for any change touching an area, whatever that change says about itself.
 
 ### spec - `spec-` domain (depends on core)
 
@@ -56,7 +57,7 @@ The pack also ships two templates besides the profile schema. `packs/core/templa
 | `spec-orchestration` | rule | Multi-agent doctrine: consistency, delegation by pointers, PR labels |
 | `spec-architect` | agent | Authors specs, ADRs, module boundaries |
 | `spec-docs-writer` | agent | Documentation and decision records in sync with code |
-| `spec-init` | skill | One-time bootstrap: scaffold the in-repo docs substrate and migrate existing docs into it, drafting core docs from code |
+| `spec-init` | skill | After `dev-init`: scaffold the in-repo docs substrate and migrate existing docs into it, drafting core docs from code |
 | `spec-pull` | skill | Pull one tracker item into a spec, read-only, with drift keys; re-pull updates the same spec in place |
 | `spec-create` | skill | Manual intake when no tracker item covers the change: grills the owner, keeps the brief verbatim, writes numbered requirements |
 | `spec-plan` | skill | Writes the plan from existing requirements: coverage table, sibling citations, phases, checkboxed work steps |

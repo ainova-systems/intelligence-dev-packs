@@ -111,9 +111,10 @@ Uninstall: delete the installed skill folders from `~/.claude/skills/`.
 ## Mode D - plain copy
 
 ```bash
-cp -r intelligence-dev-packs/packs/core/rules/*  my-project/intelligence/rules/
-cp -r intelligence-dev-packs/packs/core/agents/* my-project/intelligence/agents/
-cp -r intelligence-dev-packs/packs/core/skills/* my-project/intelligence/skills/
+cp -r intelligence-dev-packs/packs/core/rules/*      my-project/intelligence/rules/
+cp -r intelligence-dev-packs/packs/core/agents/*     my-project/intelligence/agents/
+cp -r intelligence-dev-packs/packs/core/skills/*     my-project/intelligence/skills/
+cp -r intelligence-dev-packs/packs/core/templates    my-project/intelligence/templates
 # add packs/spec/* the same way for spec-driven projects
 ```
 
@@ -138,7 +139,7 @@ Review and commit the resulting diff. In CI, an alignment that has not been appl
 
 Skills work with no profile: they auto-detect the branch model from git and the commands from the project manifests, and ask once when something is genuinely ambiguous. That alone makes one set of packs serve a `main`-only trunk repo, a `master`-only repo, and a `master` + `develop` gitflow repo without editing any artifact.
 
-To pin those answers (so nothing is re-detected or re-asked), have your AI agent generate the profile once. It reads `.intelligence/packages/@ainova-systems/core/templates/dev-project-profile.md` as the schema (in this repository: [`packs/core/templates/dev-project-profile.md`](../packs/core/templates/dev-project-profile.md)), inspects the repo, and writes a filled `dev-project-profile.md` into a rules source, where it then rides as an always-on rule. The user never copies or hand-edits it; auto-detection is the fallback for any project that has none.
+To pin those answers (so nothing is re-detected or re-asked), run `dev-init`. It reads this pack's `templates/dev-project-profile.md` as the schema (in this repository: [`packs/core/templates/dev-project-profile.md`](../packs/core/templates/dev-project-profile.md)), inspects the repo, and writes a filled `dev-project-profile.md` into a rules source, where it then rides as an always-on rule. The user never copies or hand-edits it; auto-detection is the fallback for any project that has none.
 
 ## Naming and collision guarantees
 

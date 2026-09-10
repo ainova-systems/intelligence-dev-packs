@@ -11,17 +11,31 @@ delete a section only if it is genuinely not applicable.
 - **Size:** Small / Medium / Large
   <!-- Small: a few lines or files. Medium: several files / one feature. Large: broad or cross-cutting change. -->
 
-## What & why
-<!-- One or two sentences: the problem this PR solves and why it is needed. -->
+## Why
+<!-- One paragraph. Why this change exists, in plain language a reader who
+     does not remember the task, ticket, or chat can use to recover the
+     problem. A few sentences is enough to understand the issue. -->
+
+## What
+<!-- A few sentences: the solution this PR applies, in the same plain language
+     as Why. What we are doing about that problem - not how the code is wired. -->
 
 ## Changes
-<!-- Bullet list of the concrete changes, grouped by file or area where helpful. -->
+<!-- The shape of the work: what moved, in which area, and why that is the
+     approach. Core explanation only - not a file list, line-level mechanics,
+     or a restatement of the diff. -->
 -
 
-## How to verify
-<!-- Concrete steps a reviewer/QA runs to validate the RESULT, not just that CI passed.
-     UI: which page to open and the observable result. API: the call and the expected field/value.
-     Then list the gates you ran (build / lint / unit / integration / e2e). Screenshots if useful. -->
+## Manual Verification
+<!-- Concrete steps a reviewer or QA runs to validate the RESULT, not that CI
+     passed. UI: which page to open and the observable result. API: the call and
+     the expected field/value. This is the section git-verify-pr executes. -->
+-
+
+## Automated Gates
+<!-- Tests added or updated that cover this change: what they assert, and which
+     command runs them. Name existing tests that already cover it when no new
+     ones were needed. "None" only when there is no automated coverage. -->
 -
 
 ## Deployment notes

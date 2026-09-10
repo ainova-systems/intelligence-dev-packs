@@ -15,9 +15,9 @@ Turn a pushed feature branch into a reviewable PR. Idempotent: if a PR already e
 3. Existing-PR check: `gh pr list --head <branch> --state open --json number,url --jq '.[0]'`. Non-empty - report the URL and STOP (nothing to open).
 4. Resolve the target from profile `pr_target` (default `auto` - the integration branch when one exists, else the default branch).
 5. Title: an explicit argument wins; else the latest commit subject (`git log -1 --pretty=%s`). Honor profile `artifact_language` for title and body when set (e.g. write them in English even when the working language differs).
-6. Body: profile `pr_template` decides which template applies - `auto` (default) fills the repo's own (`.github/PULL_REQUEST_TEMPLATE.md` or `.github/pull_request_template.md`) when one exists, `none` skips it even when present, which is the setting for a repo whose template is written for a human filling a web form. Either way, with no template in play use the pack default `assets/pr-template.md`. Fill the chosen template's sections honestly - real content per section, "None" where one genuinely does not apply; never leave its hint comments. When profile `pr_risk_size: on`, prepend the deterministic Risk/Size line (below).
+6. Body: profile `pr_template` decides which template applies - `auto` (default) fills the repo's own (`.github/PULL_REQUEST_TEMPLATE.md` or `.github/pull_request_template.md`) when one exists, `none` skips it even when present, which is the setting for a repo whose template is written for a human filling a web form. Either way, with no template in play use the pack default `assets/pr-template.md`. Fill the chosen template's sections honestly - real content per section, "None" where one genuinely does not apply; never leave its hint comments. Write for the audience `git-commit-conventions` states: a reviewer who was not in the implementing session. When the pack default is in play, fill every section per its comments - Why and What are paragraphs, not a restatement of Changes. When profile `pr_risk_size: on`, prepend the deterministic Risk/Size line (below).
 
-   The section profile `verify_section` names (default `How to verify`) is not optional: it states what a reviewer or QA runs to validate the **result**, not that CI passed, and it is the input `git-verify-pr` executes. A PR that leaves it empty cannot earn `ai:verified` - it never declared what "working" means.
+   The section profile `verify_section` names (default `Manual Verification`) is not optional: it states what a reviewer or QA runs to validate the **result**, not that CI passed, and it is the input `git-verify-pr` executes. Automated coverage belongs in its own section; it does not fill this one. A PR that leaves the verification section empty cannot earn `ai:verified` - it never declared what "working" means.
 7. Open it: `gh pr create --base <target> --title <title> --body-file <file>` (`--body-file` avoids shell-quoting traps). On non-GitHub platforms use the profile `cli` (`glab mr create`, ...).
 8. Report the PR URL and number.
 
@@ -32,7 +32,7 @@ State one value each, e.g. `Risk: low | Size: small`.
 
 ## Verify
 
-- Exactly one open PR for the branch; it targets the resolved base; the body has real content (no template hint comments left).
+- Exactly one open PR for the branch; it targets the resolved base; the body has real content (no template hint comments left). When the pack default was used, Why and What are present as prose.
 
 ## Scope / hand-off
 
@@ -41,5 +41,5 @@ State one value each, e.g. `Risk: low | Size: small`.
 ## Constraints
 
 - One branch, one PR, for the life of the branch: never a second, and never a closed one reopened to carry different work.
-- The verification section is never satisfied by "CI passes". It states what a person or agent does to observe the result, and `git-verify-pr` executes it later against the running change - a section written for nobody to execute produces a PR that cannot earn `ai:verified`.
+- The verification section is never satisfied by "CI passes" or by listing tests. It states what a person or agent does to observe the result, and `git-verify-pr` executes it later against the running change - a section written for nobody to execute produces a PR that cannot earn `ai:verified`.
 - Never state a Risk level the globs did not produce: a measured flag and a guessed one read identically, and only one of them is worth acting on.

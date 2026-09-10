@@ -5,9 +5,9 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 # Project Profile (schema)
 
 > This is the **schema**, not a file to copy by hand. The profile is optional: skills
-> auto-detect from the repository and ask once when ambiguous. To pin the answers, an AI
-> agent fills this from the repo and saves it as `dev-project-profile.md` in a rules source,
-> where it becomes an always-on rule. Skills resolve each value in the one fixed order:
+> auto-detect from the repository and ask once when ambiguous. To pin the answers,
+> `dev-init` fills this from the repo and saves it as `dev-project-profile.md` in a
+> rules source, where it becomes an always-on rule. Skills resolve each value in the one fixed order:
 > **this profile, then auto-detection, then asking once and recording the answer here.**
 > Keep entries as plain `key: value` lines so both humans and agents parse them reliably.
 
@@ -33,7 +33,7 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 - test: npm test
 - verify: none                      <!-- single gate-runner command (reads the diff, picks gates); when set, the local flow and CI run exactly this and the keys above are its internals -->
 - coverage_gate: none               <!-- e.g. 90% ; none -->
-- verify_section: How to verify     <!-- PR body heading whose steps git-verify-pr executes; match the repo's PR template -->
+- verify_section: Manual Verification     <!-- PR body heading whose steps git-verify-pr executes; match the repo's PR template -->
 - qa_env: auto                      <!-- where git-verify-pr runs those steps: auto (preview when the PR has one, else local) | preview | local | none (nothing here can be exercised - pair it with dropping ai:verified from pr_success_factors, or every PR escalates) -->
 - app_run: none                     <!-- command that brings the app up for manual verification, e.g. npm run dev; none = detect -->
 - app_url: none                     <!-- base URL once it is up, e.g. http://localhost:3000 -->
