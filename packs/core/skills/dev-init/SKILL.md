@@ -15,13 +15,13 @@ A missing `intelligence.yaml` is not a blocker: that is the copy install, and st
 
 ## Steps
 
-1. **Profile.** Read this pack's `templates/dev-project-profile.md` as the schema. Fill every key from the repository using the schema's own comments as detection hints; ask once when still ambiguous; leave what cannot be detected for the owner. Write `dev-project-profile.md` to `intelligence/rules/` (create the directory if needed). Never write into `packs/` or `.intelligence/packages/` - those are pack and package content, not a project rules source. An existing profile is gap-filled only - explicit values stay, except `verify_section` in step 3.
+1. **Profile.** Read the core pack's `templates/dev-project-profile.md` as the schema (resolve in order: `.intelligence/packages/@ainova-systems/core/templates/`, else `packs/core/templates/` in this repository, else `intelligence/templates/` after a plain copy). If none of those exist, stop and name them. Fill every key from the repository using the schema's own comments as detection hints; ask once when still ambiguous; leave what cannot be detected for the owner. Write `dev-project-profile.md` to `intelligence/rules/` (create the directory if needed). Never write into `packs/` or `.intelligence/packages/` - those are pack and package content, not a project rules source. An existing profile is gap-filled only - explicit values stay, except `verify_section` in step 3.
 
 2. **Labels.** Create each `ai:*` label `git-workflow` names, via profile `cli` (`gh label create` on GitHub). Skip names that already exist. A forge that cannot create labels is a capability gap in the report, not a workaround.
 
 3. **PR template.** Profile `pr_template: none` - skip. A repo template already at `.github/PULL_REQUEST_TEMPLATE.md` or `.github/pull_request_template.md` stays. No repo template - copy the pack default `git-open-pr` ships at `assets/pr-template.md` to `.github/PULL_REQUEST_TEMPLATE.md`. In either case that keeps a template, pin profile `verify_section` to that file's verification heading (`Manual Verification` on the pack default), including when the profile already held a different explicit value.
 
-4. **Harness deny-list.** Merge this pack's `templates/claude-settings.json` into `.claude/settings.json` additively: keep the project's entries, add missing `permissions.deny` values. The mapping of invariants to machinery is `docs/enforcement.md`; further hooks on that page are owner options, not this step.
+4. **Harness deny-list.** Merge the same templates directory's `claude-settings.json` into `.claude/settings.json` additively: keep the project's entries, add missing `permissions.deny` values. The mapping of invariants to machinery is `docs/enforcement.md`; further hooks on that page are owner options, not this step.
 
 5. **QA environment.** Resolve profile `qa_env` / `app_run` / `app_url` now, per `git-verify-pr`, so the first pull request is not the first time the question appears.
 

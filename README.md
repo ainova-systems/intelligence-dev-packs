@@ -57,7 +57,7 @@ Nothing is wired by hand. Skills read the repository - default branch from git, 
 
 To pin those answers so nothing is re-detected or re-asked, run `dev-init`. It declares the branch model, verification commands (including an optional single gate-runner via `verify`), PR platform and merge method, release flow, the tracker, and the docs structure. It is generated and filled from your repo - never copied or hand-edited - and rides as an always-on rule.
 
-Hard invariants (never force-push, never blanket-stage, never bypass gates) can be backed by machinery rather than prose: `dev-init` merges `packs/core/templates/claude-settings.json` into the project's `.claude/settings.json`, and [docs/enforcement.md](docs/enforcement.md) maps each invariant to its mechanism.
+Hard invariants (never force-push, never blanket-stage, never bypass gates) can be backed by machinery rather than prose: `dev-init` merges the pack's `templates/claude-settings.json` into the project's `.claude/settings.json`, and [docs/enforcement.md](docs/enforcement.md) maps each invariant to its mechanism.
 
 ## The spec lifecycle (spec pack only)
 

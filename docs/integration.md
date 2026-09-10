@@ -111,9 +111,10 @@ Uninstall: delete the installed skill folders from `~/.claude/skills/`.
 ## Mode D - plain copy
 
 ```bash
-cp -r intelligence-dev-packs/packs/core/rules/*  my-project/intelligence/rules/
-cp -r intelligence-dev-packs/packs/core/agents/* my-project/intelligence/agents/
-cp -r intelligence-dev-packs/packs/core/skills/* my-project/intelligence/skills/
+cp -r intelligence-dev-packs/packs/core/rules/*      my-project/intelligence/rules/
+cp -r intelligence-dev-packs/packs/core/agents/*     my-project/intelligence/agents/
+cp -r intelligence-dev-packs/packs/core/skills/*     my-project/intelligence/skills/
+cp -r intelligence-dev-packs/packs/core/templates    my-project/intelligence/templates
 # add packs/spec/* the same way for spec-driven projects
 ```
 
