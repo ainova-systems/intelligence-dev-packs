@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-09-10
+
+A named setup skill and a PR body a cold reviewer can follow.
+
 ### Added
 
 - **`dev-init` skill.** One-time per-repo setup after the core pack is installed: fill and pin the project profile, create the `ai:*` labels `git-workflow` names, copy the pack PR template when the repo has none, merge the harness deny-list, and resolve the QA environment keys before the first PR asks. Idempotent and it does not commit. The README's copy-paste profile prompt is this skill; `spec-init` now runs it first when the profile is missing. After a template copy or an existing template, it pins `verify_section` to that heading. Sync runs once after the last profile write, and only when `intelligence.yaml` is present - a CLI on PATH without a manifest is still the copy install.
+- **This repository now carries an Intelligence manifest.** `intelligence.yaml`, `intelligence.lock`, and generated `AGENTS.md` landed after 0.7.0 so the pack can be developed with the CLI.
 
 ### Changed
 
