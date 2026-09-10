@@ -1,6 +1,6 @@
 ---
 name: spec-init
-description: "Scaffolds the in-repo docs substrate for spec-driven work and migrates existing documentation into it. Runs once, before the first spec."
+description: "Scaffolds the in-repo docs substrate for spec-driven work and migrates existing documentation into it. Runs once, after `dev-init`, before the first spec."
 argument-hint: "[docs root, e.g. docs | Documentation]"
 agent: spec-architect
 ---
@@ -8,6 +8,10 @@ agent: spec-architect
 # Initialize the Spec-Driven Docs Substrate
 
 Stand up the repository's shared knowledge base - the layer both humans and agents read - so the rest of the spec pack (`spec-create`, `spec-execute`) has somewhere to write. Safe and additive: nothing is deleted, drafts are inferred-until-confirmed, the owner approves before anything is authoritative.
+
+## Pre-flight
+
+The spec pack depends on core. If the project has no filled `dev-project-profile.md` in a rules source, run `dev-init` first and continue after its report. Do not recreate its work.
 
 ## Resolve the target structure (learn, then profile, then default) - never impose
 
@@ -38,6 +42,7 @@ Ordered by how strongly each constrains an agent: an agent follows an executable
 
 ## Scope / hand-off
 
+- Core pack setup (profile, labels, PR template, harness deny-list) - `dev-init`.
 - Creating a change spec inside the scaffolded `specs/` - `spec-create`.
 - Layer-A executable constraints (lint, boundary, contract tests) - out of scope; separate setup.
 - Keeping docs in sync with code afterwards - `spec-audit-docs`.

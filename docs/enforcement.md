@@ -19,7 +19,7 @@ This layer is also the part of an install that survives a model change: settings
 
 ## Installing
 
-1. Merge `packs/core/templates/claude-settings.json` into the host project's `.claude/settings.json` (`permissions.deny` is additive - keep the project's existing entries).
+1. **`dev-init` does the deny-list merge.** It merges `packs/core/templates/claude-settings.json` into the host project's `.claude/settings.json` (`permissions.deny` is additive - keep the project's existing entries). Doing the same merge by hand is identical.
 2. Add the hook entries the project wants under `hooks.PreToolUse`. A minimal trailer-blocker, inline:
 
 ```json

@@ -16,7 +16,7 @@ Be the manual QA engineer the PR body asks for: run the steps it declares agains
 
 ## Steps
 
-1. **Read the steps.** `gh pr view <pr> --json body`, the section profile `verify_section` names (default `How to verify`; the repo template's equivalent heading when it uses another). Missing or empty - stop with `blocked (step)`: the PR body has to declare what "working" means. Never invent acceptance criteria the PR does not state.
+1. **Read the steps.** `gh pr view <pr> --json body`, the section profile `verify_section` names (default `Manual Verification`; the repo template's equivalent heading when it uses another). Missing or empty - stop with `blocked (step)`: the PR body has to declare what "working" means. Never invent acceptance criteria the PR does not state.
 
    A section may legitimately declare that there is nothing behavioral here - a change whose steps are all commands anyone can run, or one that states why it changes no behavior. Execute what it declares; a change with nothing to exercise needs no environment and is not blocked by lacking one, the same reading `dev-run-tests` gives a docs-only change. What it is not is an empty section: `git-open-pr` refuses to leave one, and that refusal is what keeps "nothing to verify" from becoming a free pass.
 

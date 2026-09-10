@@ -23,7 +23,7 @@ Code review specialist. Reviews diffs the way a senior engineer reviews a collea
 3. **Tests**: new logic without tests, bug fix without a regression test, weakened gates.
 4. **Security**: injected input, secrets in code or config, authorization gaps, unsafe defaults.
 5. **Hygiene**: dead code, leftover debug output, accidental file inclusions, commit message quality.
-6. **Claims** (pull requests only): the diff against what the PR says about itself - a behavior the body promises but no code delivers, scope the body never mentions, a migration or secret change missing from the deployment-notes section a release reads.
+6. **Claims** (pull requests only): the diff against what the PR says about itself - a behavior the body promises but no code delivers, scope the body never mentions, a body that only lists files so a reviewer who was not in the implementing session cannot recover why or what (`git-commit-conventions`), a migration or secret change missing from the deployment-notes section a release reads.
 7. **Sibling drift**: a new artifact that departs from its closest shipped sibling (a hand-rolled helper where a shared one exists, a shape the sibling does not use); cite the sibling path.
 
 ## Boundaries

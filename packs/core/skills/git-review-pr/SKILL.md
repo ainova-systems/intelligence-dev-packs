@@ -18,13 +18,14 @@ An independent read of the whole diff from a context that never watched it being
 
 1. **Run the review** over `git diff <base>...HEAD` - the PR's whole diff, not the working tree. The reviewer comes from profile `code_review_skill`: `auto` (default) uses the host's own code-review skill when it ships one, else `dev-review-changes`. Its checks and severity ladder are the review; this skill adds the axis below and the recording.
 2. **The claims axis** - what a pre-commit review could not check, because the PR did not exist yet:
+   - why the change exists and what the solution is are recoverable from the body without the implementing session (`git-commit-conventions`); a body that only lists files or restates the diff is a finding, evidenced by the body heading that failed;
    - every behavior the PR body claims has code in the diff that delivers it;
    - nothing in the diff contradicts a step a verification report recorded as passed;
    - the diff contains nothing the body never mentions - undeclared scope is a finding, not a bonus;
    - the deployment-notes section (profile `release_review`) names every migration, environment or secret change the diff actually contains. An unnamed one is Critical: `git-create-release` reads that section, so what is missing there is missing from the release checklist.
 
-   Each finding cites `file:line` plus the body line it contradicts.
-3. **Verify every finding** by re-reading the code; drop what cannot be evidenced. A finding that restates a rule without a line of the diff is not a finding.
+   Each finding cites `file:line` plus the body line it contradicts, except a body-audience finding, which cites the heading.
+3. **Verify every finding** by re-reading the code; drop what cannot be evidenced. A finding that restates a rule without a line of the diff is not a finding - except a body-audience finding, whose evidence is the body heading.
 4. **Record.** One PR comment (`gh pr comment`) in the report envelope `git-workflow` defines - never an inline review thread, because findings posted as threads come back through `git-complete-pr` and the run starts reviewing itself in a circle:
 
 ```
@@ -45,7 +46,7 @@ One pass by default. Fan out by review dimension only when the diff exceeds what
 
 ## Verify
 
-- One comment naming the head SHA; every finding carries `file:line` plus evidence; a verdict is stated; `ai:reviewed` present only when no Critical finding stands.
+- One comment naming the head SHA; every finding carries `file:line` plus evidence, or a body heading for a body-audience finding; a verdict is stated; `ai:reviewed` present only when no Critical finding stands.
 
 ## Scope / hand-off
 

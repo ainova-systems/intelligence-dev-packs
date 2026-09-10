@@ -19,27 +19,13 @@ intelligence package add @ainova-systems/core   # add @ainova-systems/spec for s
 
 `init` writes `intelligence.yaml` and `intelligence.lock` - both committed - and renders each enabled tool's native files. `registry add` is what makes this repository's package names resolvable: names resolve only through registries the project has explicitly trusted, so nothing installs from a guessed URL. `package add` records the name and pins the resolved tag and commit in the lock.
 
-Then have your AI coding agent generate the project profile once, so nothing is re-detected or re-asked:
-
-```
-Generate the intelligence-dev-packs project profile for THIS repository.
-
-Read `.intelligence/packages/@ainova-systems/core/templates/dev-project-profile.md` as the
-schema, fill it from this repository (branch model, verification commands, PR platform and
-merge method, release flow, tracker, and - if the spec package is installed - the docs
-structure), and save it as `intelligence/rules/dev-project-profile.md`. Leave anything you
-cannot detect for me.
-
-Then run `intelligence sync` and report: the profile values you filled and the ones you left,
-and every project rule that overlaps or contradicts a package rule - mine wins, recommend
-keep / drop / scope. Do not commit or push.
-```
+Then run **`dev-init`** so the agent pins the project profile, creates the `ai:*` labels, copies the pack PR template when the repo has none, and merges the harness deny-list. It reports what it filled, what it left, and any project rule that overlaps a package rule. It does not commit. If the spec pack is installed, `spec-init` is the next step.
 
 ## What you get
 
 | Pack | Install when | Contents |
 |---|---|---|
-| **core** (`dev-`, `git-`)<br>`@ainova-systems/core` | Always - it is universal | 6 always-on rules (skill-first, context engineering, verification gates, rollback safety, commit conventions, git workflow), 3 agents (code reviewer, QA verifier, test engineer), 13 skills: tests, diff review, handoff, commit+push, open PR, drive the PR rounds, verify the PR's own steps, review the PR diff, complete the PR, resolve conflicts, merge, release, secret scan |
+| **core** (`dev-`, `git-`)<br>`@ainova-systems/core` | Always - it is universal | 6 always-on rules (skill-first, context engineering, verification gates, rollback safety, commit conventions, git workflow), 3 agents (code reviewer, QA verifier, test engineer), 14 skills: init, tests, diff review, handoff, commit+push, open PR, drive the PR rounds, verify the PR's own steps, review the PR diff, complete the PR, resolve conflicts, merge, release, secret scan |
 | **spec** (`spec-`)<br>`@ainova-systems/spec` | Opt-in, depends on core | The spec-driven lifecycle: 2 rules (spec discipline, multi-agent orchestration), 2 agents (architect, docs writer), 15 skills from tracker intake through plan, adversarial validation, execution, and docs upkeep |
 
 Artifact-by-artifact catalog: [`packs/README.md`](packs/README.md).
@@ -69,9 +55,9 @@ packages:
 
 Nothing is wired by hand. Skills read the repository - default branch from git, an `origin/develop` as the integration branch, typecheck/lint/test commands from the manifests, PR platform from the remote - and ask once only when something is genuinely ambiguous.
 
-To pin those answers so nothing is re-detected or re-asked, have your agent generate a profile once (the Quick start's second prompt does this). It declares the branch model, verification commands (including an optional single gate-runner via `verify`), PR platform and merge method, release flow, the tracker, and the docs structure. It is generated and filled from your repo - never copied or hand-edited - and rides as an always-on rule.
+To pin those answers so nothing is re-detected or re-asked, run `dev-init`. It declares the branch model, verification commands (including an optional single gate-runner via `verify`), PR platform and merge method, release flow, the tracker, and the docs structure. It is generated and filled from your repo - never copied or hand-edited - and rides as an always-on rule.
 
-Hard invariants (never force-push, never blanket-stage, never bypass gates) can be backed by machinery rather than prose: `packs/core/templates/claude-settings.json` ships the `permissions.deny` set, and [docs/enforcement.md](docs/enforcement.md) maps each invariant to its mechanism.
+Hard invariants (never force-push, never blanket-stage, never bypass gates) can be backed by machinery rather than prose: `dev-init` merges `packs/core/templates/claude-settings.json` into the project's `.claude/settings.json`, and [docs/enforcement.md](docs/enforcement.md) maps each invariant to its mechanism.
 
 ## The spec lifecycle (spec pack only)
 
@@ -95,7 +81,7 @@ With it, the flow runs in one of two execution modes (profile `execution_mode`):
 | 8. **Gate 2 - accept the PR** | **Owner** | - |
 | 9. Squash-merge, close the spec, cleanup | AI | `git-merge-pr` -> `spec-close` |
 
-`spec-execute-next` drains the approved queue for scheduled or looped runs, and every autonomous run ends at a labeled PR: one outcome (`ai:completed`, `ai:manual`, `ai:failed`) plus the success factors it earned (`ai:verified`, `ai:reviewed`), each valid only for the commit that earned it, so a push invalidates them and `git-merge-pr` refuses a stale one. `spec-cancel` retires a dropped or superseded spec with a recorded reason. Before the first spec, `spec-init` scaffolds the in-repo docs substrate and migrates existing documentation into it, adopting a project's structure rather than imposing one.
+`spec-execute-next` drains the approved queue for scheduled or looped runs, and every autonomous run ends at a labeled PR: one outcome (`ai:completed`, `ai:manual`, `ai:failed`) plus the success factors it earned (`ai:verified`, `ai:reviewed`), each valid only for the commit that earned it, so a push invalidates them and `git-merge-pr` refuses a stale one. `spec-cancel` retires a dropped or superseded spec with a recorded reason. Before the first spec, `dev-init` then `spec-init` scaffold the core setup and the in-repo docs substrate, adopting a project's structure rather than imposing one.
 
 ## Design principles
 

@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`dev-init` skill.** One-time per-repo setup after the core pack is installed: fill and pin the project profile, create the `ai:*` labels `git-workflow` names, copy the pack PR template when the repo has none, merge the harness deny-list, and resolve the QA environment keys before the first PR asks. Idempotent and it does not commit. The README's copy-paste profile prompt is this skill; `spec-init` now runs it first when the profile is missing. Sync runs after every profile mutation, and a missing `intelligence.yaml` is the documented copy install, not a stop.
+
+### Changed
+
+- **The default PR template now separates context from verification.** `What & why` splits into `Why` (the problem, in plain language a reader who was not in the implementing session can recover) and `What` (the solution, same register); `Changes` stays as the shape of the work without becoming a file list. `How to verify` splits into `Manual Verification` (the executable steps `git-verify-pr` runs) and `Automated Gates` (the tests that cover the change). `Risk & Size` and `Deployment notes` are unchanged. Profile `verify_section` and the skill defaults follow the new heading; a repo whose template still uses the old heading pins `verify_section` to match it.
+- **`git-commit-conventions` now states the PR-body audience** the template encodes. `git-open-pr` fills to that audience; `git-review-pr` treats a body that only lists files or restates the diff as a claims finding.
+
 ## [0.7.0] - 2026-09-08
 
 The validator checks the contracts instead of only the shapes, and the eight defects it found on its first run are fixed.
