@@ -25,7 +25,7 @@ Then run **`dev-init`** so the agent pins the project profile, creates the `ai:*
 
 | Pack | Install when | Contents |
 |---|---|---|
-| **core** (`dev-`, `git-`)<br>`@ainova-systems/core` | Always - it is universal | 6 always-on rules (skill-first, context engineering, verification gates, rollback safety, commit conventions, git workflow), 3 agents (code reviewer, QA verifier, test engineer), 14 skills: init, tests, diff review, handoff, commit+push, open PR, drive the PR rounds, verify the PR's own steps, review the PR diff, complete the PR, resolve conflicts, merge, release, secret scan |
+| **core** (`dev-`, `git-`)<br>`@ainova-systems/core` | Always - it is universal | 6 always-on rules (skill-first, context engineering, verification gates, rollback safety, commit conventions, git workflow), 3 agents (code reviewer, QA verifier, test engineer), 15 skills: init, deliver a task end to end, tests, diff review, handoff, commit+push, open PR, drive the PR rounds, verify the PR's own steps, review the PR diff, complete the PR, resolve conflicts, merge, release, secret scan |
 | **spec** (`spec-`)<br>`@ainova-systems/spec` | Opt-in, depends on core | The spec-driven lifecycle: 2 rules (spec discipline, multi-agent orchestration), 2 agents (architect, docs writer), 15 skills from tracker intake through plan, adversarial validation, execution, and docs upkeep |
 
 Artifact-by-artifact catalog: [`packs/README.md`](packs/README.md).
@@ -58,6 +58,16 @@ Nothing is wired by hand. Skills read the repository - default branch from git, 
 To pin those answers so nothing is re-detected or re-asked, run `dev-init`. It declares the branch model, verification commands (including an optional single gate-runner via `verify`), PR platform and merge method, release flow, the tracker, and the docs structure. It is generated and filled from your repo - never copied or hand-edited - and rides as an always-on rule.
 
 Hard invariants (never force-push, never blanket-stage, never bypass gates) can be backed by machinery rather than prose: `dev-init` merges the pack's `templates/claude-settings.json` into the project's `.claude/settings.json`, and [docs/enforcement.md](docs/enforcement.md) maps each invariant to its mechanism.
+
+## One task, one command
+
+The pack's git skills each own one step, and driving the chain by hand means relaying every hand-off. **`dev-deliver`** is the chain as one invocation: it interviews until the goal and the expected result are explicit, implements, drives the pull request to accept-ready, and - after the owner accepts - merges and cuts the release.
+
+- **Four phases** - interview, implement, review, release - and the owner is interrupted only between them. A question raised inside a phase ends that phase rather than parking inside it.
+- **Two owner gates**, accept and release, asked at the boundary each governs or both upfront (profile `flow_approvals`). Neither is ever inferred.
+- **Resumable from anywhere**, with no state file: branch, commits, pull request, its labels and their freshness, and the tag already say which phase a change is in.
+- **It adopts the project's flow.** Each phase resolves its owner from the profile, then from the installed catalog, then falls back to its own behavior - a project that ships its own intake or execution skill (the spec pack's `spec-create` / `spec-execute`, or your own) has that skill run the phase.
+- **The interview's acceptance criteria become the PR's verification section**, which `git-verify-pr` later executes against the running change - so "done" means the owner's expectation was observed, not that CI was green.
 
 ## The spec lifecycle (spec pack only)
 
