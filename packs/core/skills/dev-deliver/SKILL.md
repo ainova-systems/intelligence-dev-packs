@@ -20,17 +20,20 @@ Every phase resolves its owner the way the pack resolves anything else: **profil
 
 Resumption is derived, never stored: git and the pull request hold every answer a state file would, and cannot drift from the work the way a file can. `git status --porcelain` dirty on a feature branch means Phase B is mid-flight; dirty on a protected branch is a stop - never sweep foreign work in.
 
-Resolve the subject (the argument's task, branch or PR number; otherwise the current branch), then walk the ladder top-down. The first unmet rung is where this run starts; all of them met means the change is delivered - report it and stop.
+Resolve the subject - the argument's task, branch name or PR number, otherwise the current branch - and keep the branch **name** as the identity rather than the branch itself: `git-merge-pr` deletes the local branch on a confirmed merge, and the pull request still carries that name as its head ref afterwards.
 
-| Rung | Unmet means |
+Then read the ladder from the most advanced signal down. **The first rung that holds is where this run stands**, and nothing below it is consulted. The order is not cosmetic: a probe that can revert to false once the work advances is never read before one that cannot, or a run resumed after the merge sees a missing branch, restarts at Phase A, and re-implements what already shipped.
+
+| The first of these that holds | The run stands at |
 |---|---|
-| the branch exists | Phase A |
-| it carries commits over its base (`git log <base>..<branch>`) | Phase B |
-| `git rev-parse HEAD` equals `@{u}` | Phase B, at its commit and push |
-| a pull request is open or merged for it | Phase B, at `git-open-pr` |
-| that PR is accept-ready as `git-workflow` defines it | Phase C |
-| the PR is `MERGED` | the accept gate, then `git-merge-pr` |
-| a tag contains the merge commit (`git tag --contains <sha>`) | Phase D |
+| a tag contains the merge commit (`git tag --contains <sha>`) | delivered - report and stop |
+| the pull request for that head ref is `MERGED` | Phase D |
+| an open pull request for it is accept-ready as `git-workflow` defines it | the accept gate |
+| an open pull request for it exists | Phase C |
+| the branch is pushed (`git rev-parse HEAD` equals `@{u}`) with commits over its base | Phase B, at `git-open-pr` |
+| the branch carries commits over its base (`git log <base>..<branch>`) | Phase B, at its commit and push |
+| the branch exists | Phase B |
+| none of them | Phase A |
 
 Two things the ladder cannot answer, each with one rule:
 
@@ -102,5 +105,6 @@ A second task arriving while a branch is occupied never enters that worktree. `g
 - Both gates are the owner's words in this run - never inferred from a label, a green pipeline, or an earlier session.
 - A phase the project already ships a skill for is handed to that skill, never re-implemented here.
 - One instance, one branch, one worktree, one pull request.
+- Resumption never re-enters a phase the forge already shows as past.
 - A question inside a phase ends that phase; it never pauses inside one.
 - Subagent prompts are pointers - the phase's goal, what to read, which skills to invoke, the scope fence. A judging stage never receives this run's reasoning about the code.
