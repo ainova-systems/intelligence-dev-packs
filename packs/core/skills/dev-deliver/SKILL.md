@@ -22,7 +22,7 @@ Resumption is derived, never stored: git and the pull request hold every answer 
 
 Resolve the subject - the argument's task, branch name or PR number, otherwise the current branch - and keep the branch **name** as the identity rather than the branch itself: `git-merge-pr` deletes the local branch on a confirmed merge, and the pull request still carries that name as its head ref afterwards.
 
-Then read the ladder from the most advanced signal down. **The first rung that holds is where this run stands**, and nothing below it is consulted. The order is not cosmetic: a probe that can revert to false once the work advances is never read before one that cannot, or a run resumed after the merge sees a missing branch, restarts at Phase A, and re-implements what already shipped.
+Then read the ladder from the most advanced signal down. **The first rung that holds is where this run stands**, and nothing below it is consulted. The order is not cosmetic. A rung may stop holding - a push clears the factors that made a pull request accept-ready - and that costs nothing, because the run drops to the rung below, which is still ahead of everything that shipped. What must never happen is a probe that stops holding *because the work advanced past it*: `git-merge-pr` deletes the local branch on a confirmed merge, so branch existence read first would send a run resumed after the merge back to Phase A to re-implement what already shipped.
 
 | The first of these that holds | The run stands at |
 |---|---|
@@ -67,11 +67,10 @@ It talks to the owner, so it stays where the owner is; it is never a subagent.
 
 Its own context because it is the largest one of the run, and because nothing after it should remember why the code was written.
 
-1. **The phase's owner per the resolution above does the work.** A skill that owns its own git lifecycle keeps all of it - the branch it names, its commits, and the pull request it opens when it opens one. You hand it the Phase A criteria for the verification section, and re-read the ladder when it returns: that is how the branch it chose becomes this run's identity, and which rung it left off at. Steps 2 to 4 are the built-in path, taken only when nothing installed covers the phase.
-2. Branch per `git-workflow`, its slug from the task.
-3. The subagent implements against the criteria and the scope fence, and nothing else.
-4. `git-commit-push` at the milestone, then `git-open-pr` with the verification section filled with the Phase A criteria verbatim. You supply them; whoever wrote the code does not author them.
-5. On either path, a question that cannot be answered from the repository comes back unanswered and ends the phase.
+1. **The phase's owner per the resolution above does the work**, and keeps whatever part of the git lifecycle it performs - the branch it names, its commits, the pull request it opens. How much that is varies by skill and by its own mode, so it is never assumed: **re-read the ladder when it returns.** The ladder says what the owner did and what is left, the branch it chose becomes this run's identity, and this phase finishes the rest. `spec-execute` in its `supervised` mode returns an uncommitted branch by design, and that rest is the whole of step 2.
+2. Everything the ladder still leaves unmet, this phase does: branch per `git-workflow` with its slug from the task, one subagent implementing against the criteria and the scope fence and nothing else, `git-commit-push` at the milestone, then `git-open-pr`.
+3. The verification section is filled with the Phase A criteria verbatim. You supply them; whoever wrote the code does not author them.
+4. A question that cannot be answered from the repository comes back unanswered and ends the phase.
 
 ## Phase C - Review (one subagent)
 
