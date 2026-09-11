@@ -14,7 +14,7 @@ Phase A captures what the owner expects to observe. Those criteria are yours for
 
 ## Whose skill runs each phase
 
-Every phase resolves its owner the way the pack resolves anything else: **profile, then the installed catalog, then the built-in behavior here.** A project that already ships a skill for a phase has that skill run it (`dev-skill-first`) - the spec pack's `spec-create` / `spec-plan` and `spec-execute` are one such project, not the shape this skill assumes. Profile `flow_intake` and `flow_implement` pin the answer where detection would guess. Review and release are the pack's own throughout, each already policy-driven from the profile.
+Every phase resolves its owner the way the pack resolves anything else: **profile, then the installed catalog, then the built-in behavior here.** A project that already ships a skill for a phase has that skill run it (`dev-skill-first`) - the spec pack's `spec-pull` or `spec-create` / `spec-plan`, and `spec-execute`, are one such project, not the shape this skill assumes. Profile `flow_intake` and `flow_implement` pin the answer where detection would guess. Review and release are the pack's own throughout, each already policy-driven from the profile.
 
 ## Pre-flight - read where the work already stands
 
@@ -51,6 +51,8 @@ Two things the ladder cannot answer, each with one rule:
 
 Profile `flow_approvals` decides *when* the two gates are asked - `per-gate` (default) at the boundary each governs, `upfront` both at the end of Phase A - never *whether*. An approval this run did not receive from the owner does not exist - a run with nobody to ask ends at the gate it reached and reports what it needs. A declined release gate ends the run after the merge with the reason recorded.
 
+`upfront` takes both gates before the work exists, so each is a standing authorization and not a judgement of a diff: the accept gate authorizes merging once the pull request is accept-ready **and nothing has escalated to the owner**, the release gate authorizes cutting the change once it is merged. An upfront grant is permission not to be asked again; it is never permission to proceed past a caveat, and anything that would have reached the owner mid-run still reaches them.
+
 ## Phase A - Interview (main session)
 
 It talks to the owner, so it stays where the owner is; it is never a subagent.
@@ -65,10 +67,11 @@ It talks to the owner, so it stays where the owner is; it is never a subagent.
 
 Its own context because it is the largest one of the run, and because nothing after it should remember why the code was written.
 
-1. Branch per `git-workflow`, its slug from the task.
-2. The phase's owner per the resolution above does the work, continued from wherever it leaves off - re-read the ladder when it returns to see which rung that is. Nothing installed covers the phase - the subagent implements against the criteria and the scope fence, and nothing else.
-3. `git-commit-push` at the milestone, then `git-open-pr` with the verification section filled with the Phase A criteria verbatim. You supply them; whoever wrote the code does not author them.
-4. A question the subagent cannot answer from the repository comes back unanswered and ends the phase.
+1. **The phase's owner per the resolution above does the work.** A skill that owns its own git lifecycle keeps all of it - the branch it names, its commits, and the pull request it opens when it opens one. You hand it the Phase A criteria for the verification section, and re-read the ladder when it returns: that is how the branch it chose becomes this run's identity, and which rung it left off at. Steps 2 to 4 are the built-in path, taken only when nothing installed covers the phase.
+2. Branch per `git-workflow`, its slug from the task.
+3. The subagent implements against the criteria and the scope fence, and nothing else.
+4. `git-commit-push` at the milestone, then `git-open-pr` with the verification section filled with the Phase A criteria verbatim. You supply them; whoever wrote the code does not author them.
+5. On either path, a question that cannot be answered from the repository comes back unanswered and ends the phase.
 
 ## Phase C - Review (one subagent)
 

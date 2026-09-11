@@ -50,7 +50,7 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 > Its four phases resolve their owner in the pack's usual order - these keys, then the
 > installed skill catalog, then its own built-in behavior.
 
-- flow_intake: auto                  <!-- the skill dev-deliver's interview phase hands to: auto = the project's own intake skill when one is installed (spec-create then spec-plan with the spec pack), else the built-in interview | <skill name> -->
+- flow_intake: auto                  <!-- the skill dev-deliver's interview phase hands to: auto = the project's own intake skill when one is installed, which with the spec pack means spec-pull when the task names a tracker item and spec-create then spec-plan when it does not; else the built-in interview | <skill name> -->
 - flow_implement: auto               <!-- the skill dev-deliver's implement phase hands to: auto = the project's own execution skill when one is installed (spec-execute with the spec pack), else one subagent working to the phase's criteria | <skill name> -->
 - flow_approvals: per-gate           <!-- WHEN the owner's two gates are taken, never whether: per-gate (each asked at the boundary it governs) | upfront (both asked once at the end of the interview) -->
 - worktree_root: auto                <!-- where a parallel task's git worktree is created: auto = a sibling directory of the repository root | <path> -->
