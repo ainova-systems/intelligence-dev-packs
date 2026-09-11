@@ -34,12 +34,6 @@ The reference comes first precisely so the pack's strongest new word is defined 
 
 **Shape.** A skill that turns one large brief or epic into several specs with declared blocking edges, so `spec-approve` has a batch to review in one sitting and `spec-execute-next` a real queue to drain. Two design decisions come before any build: whether the output is N spec folders written straight away or a proposed decomposition the owner converts one at a time, and how blocking edges are expressed so `spec-execute-next`'s existing value ordering can read them.
 
-### The change-flow map
-
-**Problem.** After install, nothing in the host project states the order in which its skills are meant to be used. The flow tables live in this repository's README, which no install path delivers - the package store holds each pack's own subtree, not the repository root.
-
-**Shape.** A skill that generates one numbered walk - work item → spec → implementation → review → acceptance → merge - each step naming the skill that performs it, written against what is *actually installed* in that project rather than against a static list. Two constraints, both load-bearing: it is generated and regenerated, never hand-maintained (a map maintained by hand is the second place the chains are written, and the two drift), and it names its consumer, or it fails the pack's own no-consumer-no-doc gate.
-
 ### Rejected decisions and known defects - one registry
 
 **Problem.** The pack records what to build (specs) and why an architecture was chosen (ADRs), but nowhere records what was deliberately **not** done, or what is known broken and deliberately not being fixed. The same idea re-enters intake every quarter and the arguments against it are reconstructed from scratch; the same known defect gets re-reported as new. Agents planning adjacent work cannot see that a neighboring option was already weighed and refused.
@@ -51,6 +45,8 @@ The reference comes first precisely so the pack's strongest new word is defined 
 **Problem.** `execution_mode` is a session-level switch: the whole project is either `supervised` or `autonomous`. The real granularity is the work step. Inside one spec, some steps are safely unattended (write the migration, run the suite) and some cannot proceed without a human (confirm a data shape, pick between two readings of a requirement). A session-level mode forces a bad trade: supervised parks a human next to mechanical steps; autonomous lets the agent answer its own questions - which defeats the reason the question existed.
 
 **Shape.** Each work step carries a marker: **AFK** (runs unattended; research and mechanical steps default here) or **HITL** (the run parks and puts the question in the three-part shape; decision forks default here). `spec-execute` reads the marker instead of a global mode: AFK steps run in batches without stopping, a HITL step ends the batch with the question. "Wait for the human" then falls out of the nature of the step, not out of a setting. `execution_mode` stays as the default for unmarked steps, so existing plans keep working.
+
+`dev-deliver` settled the *outer* granularity - a run pauses at a phase boundary, and a question raised inside a phase ends that phase rather than parking inside it - which leaves this entry exactly the inner one: which work step within an execution phase may run unattended. The two compose without a second pause model: a HITL step ends the implement phase carrying its question to the boundary, where the owner already is.
 
 Sequenced last: it extends the plan contract and `spec-execute` that 0.2.0 introduced, and the interface deserves a release of real use before it grows.
 
