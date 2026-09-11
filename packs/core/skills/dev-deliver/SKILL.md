@@ -18,7 +18,7 @@ Every phase resolves its owner the way the pack resolves anything else: **profil
 
 ## Pre-flight - read where the work already stands
 
-Resumption is derived, never stored: git and the pull request hold every answer a state file would, and cannot drift from the work the way a file can. `git status --porcelain` dirty on a feature branch means Phase B is mid-flight; dirty on a protected branch is a stop - never sweep foreign work in.
+Resumption is derived, never stored: git and the pull request hold every answer a state file would, and cannot drift from the work the way a file can. `git status --porcelain` dirty on a protected branch is a stop. On a feature branch it establishes that uncommitted work exists, never that this run produced it: an instance owns its worktree, so a run that did not dirty the tree itself reports what is uncommitted and asks before Phase B continues into it.
 
 Resolve the subject - the argument's task, branch name or PR number, otherwise the current branch - and keep the branch **name** as the identity rather than the branch itself: `git-merge-pr` deletes the local branch on a confirmed merge, and the pull request still carries that name as its head ref afterwards.
 
