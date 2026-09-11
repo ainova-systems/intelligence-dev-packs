@@ -66,7 +66,7 @@ The pack's git skills each own one step, and driving the chain by hand means rel
 - **Four phases** - interview, implement, review, release - and the owner is interrupted only between them. A question raised inside a phase ends that phase rather than parking inside it.
 - **Two owner gates**, accept and release, asked at the boundary each governs or both upfront (profile `flow_approvals`). Neither is ever inferred.
 - **Resumable from anywhere**, with no state file: branch, commits, pull request, its labels and their freshness, and the tag already say which phase a change is in.
-- **It adopts the project's flow.** Each phase resolves its owner from the profile, then from the installed catalog, then falls back to its own behavior - a project that ships its own intake or execution skill (the spec pack's `spec-create` / `spec-execute`, or your own) has that skill run the phase.
+- **It adopts the project's flow.** Each phase resolves its owner from the profile, then from the installed catalog, then falls back to its own behavior - a project that ships its own intake or execution skill (the spec pack's `spec-pull` / `spec-create` and `spec-execute`, or your own) has that skill run the phase, and the run picks up whatever that skill left undone.
 - **The interview's acceptance criteria become the PR's verification section**, which `git-verify-pr` later executes against the running change - so "done" means the owner's expectation was observed, not that CI was green.
 
 ## The spec lifecycle (spec pack only)

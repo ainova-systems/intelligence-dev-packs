@@ -44,6 +44,7 @@ Two things the ladder cannot answer, each with one rule:
 
 | Boundary | What happens there |
 |---|---|
+| start to A | nothing, unless pre-flight found uncommitted work this run did not produce |
 | A to B | nothing, unless the interview left the owner a question |
 | B to C | nothing, unless Phase B returned a question it could not answer from the repository |
 | C to D | **Accept** - the owner accepts the pull request, then `git-merge-pr` |
@@ -67,7 +68,7 @@ It talks to the owner, so it stays where the owner is; it is never a subagent.
 
 Its own context because it is the largest one of the run, and because nothing after it should remember why the code was written.
 
-1. **The phase's owner per the resolution above does the work**, and keeps whatever part of the git lifecycle it performs - the branch it names, its commits, the pull request it opens. How much that is varies by skill and by its own mode, so it is never assumed: **re-read the ladder when it returns.** The ladder says what the owner did and what is left, the branch it chose becomes this run's identity, and this phase finishes the rest. `spec-execute` in its `supervised` mode returns an uncommitted branch by design, and that rest is the whole of step 2.
+1. **The phase's owner per the resolution above does the work**, and keeps whatever part of the git lifecycle it performs - the branch it names, its commits, the pull request it opens. How much that is varies by skill and by its own mode, so it is never assumed: **re-read the ladder when it returns.** The ladder says what the owner did and what is left, and the branch it chose becomes this run's identity.
 2. Everything the ladder still leaves unmet, this phase does: branch per `git-workflow` with its slug from the task, one subagent implementing against the criteria and the scope fence and nothing else, `git-commit-push` at the milestone, then `git-open-pr`.
 3. The verification section is filled with the Phase A criteria verbatim. You supply them; whoever wrote the code does not author them.
 4. A question that cannot be answered from the repository comes back unanswered and ends the phase.
@@ -97,7 +98,7 @@ A second task arriving while a branch is occupied never enters that worktree. `g
 
 ## Scope / hand-off
 
-- A planned spec executed to a pull request and no further - `spec-execute`; intake and planning on the spec substrate - `spec-create`, `spec-plan`.
+- A planned spec executed to a pull request and no further - `spec-execute`; intake and planning on the spec substrate - `spec-pull` or `spec-create`, then `spec-plan`.
 - Each phase's work belongs to the skill that owns it: `git-commit-push`, `git-open-pr`, `git-finalize-pr`, `git-complete-pr`, `git-merge-pr`, `git-create-release`, plus whatever the project ships for intake and implementation.
 - Conflicts - profile `conflict_skill`. Continuing after a session ends - `dev-handoff` writes the prompt, and this skill's pre-flight recovers the rest.
 
@@ -105,7 +106,7 @@ A second task arriving while a branch is occupied never enters that worktree. `g
 
 - The acceptance criteria are authored in Phase A and by nobody else; one appearing later is a changed contract and goes back to the owner.
 - Both gates are the owner's words in this run - never inferred from a label, a green pipeline, or an earlier session.
-- A phase the project already ships a skill for is handed to that skill, never re-implemented here.
+- A phase the project already ships a skill for is handed to that skill; this run finishes what that skill left and never redoes what it did.
 - One instance, one branch, one worktree, one pull request.
 - Resumption never re-enters a phase the forge already shows as past.
 - A question inside a phase ends that phase; it never pauses inside one.
