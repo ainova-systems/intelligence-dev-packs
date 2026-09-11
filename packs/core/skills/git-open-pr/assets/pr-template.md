@@ -1,7 +1,8 @@
 <!--
 Pack default PR template. Used by git-open-pr when the project has no
 .github/PULL_REQUEST_TEMPLATE.md (or platform equivalent). Fill every section;
-delete a section only if it is genuinely not applicable.
+delete a section only if it is genuinely not applicable. Each section's comment
+sets that section's ceiling - a change that needs less says less.
 -->
 
 ## Risk & Size
@@ -12,13 +13,14 @@ delete a section only if it is genuinely not applicable.
   <!-- Small: a few lines or files. Medium: several files / one feature. Large: broad or cross-cutting change. -->
 
 ## Why
-<!-- One paragraph. Why this change exists, in plain language a reader who
-     does not remember the task, ticket, or chat can use to recover the
-     problem. A few sentences is enough to understand the issue. -->
+<!-- One or two sentences: the problem or request this change answers, in plain
+     language a reader who does not remember the task, ticket, or chat can
+     recover it from. The smallest statement that makes the change make sense -
+     investigation notes and root-cause mechanics belong in Changes. -->
 
 ## What
-<!-- A few sentences: the solution this PR applies, in the same plain language
-     as Why. What we are doing about that problem - not how the code is wired. -->
+<!-- One or two sentences: what this change does about that problem, in the same
+     plain language as Why. Not how the code is wired - that is Changes. -->
 
 ## Changes
 <!-- The shape of the work: what moved, in which area, and why that is the
