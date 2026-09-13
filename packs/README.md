@@ -26,6 +26,7 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 | `dev-qa-verifier` | agent | Executes a change's declared verification steps against the running software (read-only) |
 | `dev-test-engineer` | agent | Test strategy and coverage across all levels |
 | `dev-init` | skill | After installing core: profile, labels, PR template, harness deny-list |
+| `dev-deliver` | skill | One task from interview to released change: four phases, subagents per phase, pauses only at the boundaries, resumable from git and the PR |
 | `dev-run-tests` | skill | Typecheck, lint, tests with scope detection and failure analysis |
 | `dev-review-changes` | skill | Read-only diff review with severity verdict |
 | `dev-handoff` | skill | Self-contained continuation prompt for a fresh session |
