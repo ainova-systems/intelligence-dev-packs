@@ -42,7 +42,7 @@ Ordered by how strongly each constrains an agent: an agent follows an executable
 
 ## Scope / hand-off
 
-- Core pack setup (profile, labels, PR template, harness deny-list) - `dev-init`.
+- Core pack setup (profile, labels, PR template, harness permission rules) - `dev-init`.
 - Creating a change spec inside the scaffolded `specs/` - `spec-create`.
 - Layer-A executable constraints (lint, boundary, contract tests) - out of scope; separate setup.
 - Keeping docs in sync with code afterwards - `spec-audit-docs`.
