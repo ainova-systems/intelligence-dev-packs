@@ -47,12 +47,12 @@ Two things the ladder cannot answer, each with one rule:
 | start to A | nothing, unless pre-flight found uncommitted work this run did not produce |
 | A to B | nothing, unless the interview left the owner a question |
 | B to C | nothing, unless Phase B returned a question it could not answer from the repository |
-| C to D | **Accept** - the owner accepts the pull request, then `git-merge-pr` |
-| D | **Release** - the owner authorizes cutting this change, then `git-create-release` |
+| C to D | **Accept** - the owner accepts the pull request, and `git-merge-pr` runs on that accept |
+| D | **Release** - the owner authorizes cutting this change, and `git-create-release` runs on that authorization |
 
 Profile `flow_approvals` decides *when* the two gates are asked - `per-gate` (default) at the boundary each governs, `upfront` both at the end of Phase A - never *whether*. An approval this run did not receive from the owner does not exist - a run with nobody to ask ends at the gate it reached and reports what it needs. A declined release gate ends the run after the merge with the reason recorded.
 
-`upfront` takes both gates before the work exists, so each is a standing authorization and not a judgement of a diff: the accept gate authorizes merging once the pull request is accept-ready **and nothing has escalated to the owner**, the release gate authorizes cutting the change once it is merged. An upfront grant is permission not to be asked again; it is never permission to proceed past a caveat, and anything that would have reached the owner mid-run still reaches them.
+`upfront` takes both gates before the work exists, so each is a standing authorization and not a judgement of a diff: the accept gate authorizes merging once the pull request is accept-ready **and nothing has escalated to the owner**, the release gate authorizes cutting the change once it is merged. An upfront grant is permission not to be asked again; it is never permission to proceed past a caveat, and anything that would have reached the owner mid-run still reaches them. It moves when the owner acts, never whether: where the host reserves the merge and release skills for the owner's own invocation, that invocation is the act, and no grant given earlier performs it.
 
 ## Phase A - Interview (main session)
 
@@ -83,7 +83,7 @@ Its own context because the stages that judge this pull request must not inherit
 
 ## Phase D - Release (main session)
 
-1. `git-create-release` after the release gate.
+1. `git-create-release` runs on the release gate.
 2. Its own owner gate - the pending-step checklist, the tag confirmation - is about facts discovered at release time, so an upfront release approval never answers it. Reaching it is the skill working, not a run that stalled.
 3. Closing report: the goal as captured, each acceptance criterion against the result observed for it, the pull request, the merge commit, and the tag.
 
