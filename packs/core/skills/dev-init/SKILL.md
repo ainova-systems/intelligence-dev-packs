@@ -1,6 +1,6 @@
 ---
 name: dev-init
-description: "Sets up a repository to follow the core pack after install: project profile, PR labels, PR template, and harness deny-list. Docs substrate is `spec-init`."
+description: "Sets up a repository to follow the core pack after install: project profile, PR labels, PR template, and harness permission rules. Docs substrate is `spec-init`."
 ---
 
 # Initialize the core pack
@@ -21,7 +21,7 @@ A missing `intelligence.yaml` is not a blocker: that is the copy install, and st
 
 3. **PR template.** Profile `pr_template: none` - skip. A repo template already at `.github/PULL_REQUEST_TEMPLATE.md` or `.github/pull_request_template.md` stays. No repo template - copy the pack default `git-open-pr` ships at `assets/pr-template.md` to `.github/PULL_REQUEST_TEMPLATE.md`. In either case that keeps a template, pin profile `verify_section` to that file's verification heading (`Manual Verification` on the pack default), including when the profile already held a different explicit value.
 
-4. **Harness deny-list.** Merge the same templates directory's `claude-settings.json` into `.claude/settings.json` additively: keep the project's entries, add missing `permissions.deny` values. The mapping of invariants to machinery is `docs/enforcement.md`; further hooks on that page are owner options, not this step.
+4. **Harness permission rules.** Merge the same templates directory's `claude-settings.json` into `.claude/settings.json` additively: keep the project's entries, add missing values under every `permissions` list it carries - `deny` for what is never allowed, `ask` for the irreversible acts the owner approves at the command. The mapping of invariants to machinery is `docs/enforcement.md`; further hooks on that page are owner options, not this step.
 
 5. **QA environment.** Resolve profile `qa_env` / `app_run` / `app_url` now, per `git-verify-pr`, so the first pull request is not the first time the question appears.
 
@@ -29,11 +29,11 @@ A missing `intelligence.yaml` is not a blocker: that is the copy install, and st
 
 7. **Overlap.** List every project rule that overlaps or contradicts a package rule. Project wins; recommend keep / drop / scope. Do not edit project rules.
 
-8. **Report.** Profile values filled vs left; labels created; template copied or skipped; deny-list merged; the overlap list; the owner's remaining items. If the spec pack is installed, the next step is `spec-init`. Do not commit or push.
+8. **Report.** Profile values filled vs left; labels created; template copied or skipped; permission rules merged; the overlap list; the owner's remaining items. If the spec pack is installed, the next step is `spec-init`. Do not commit or push.
 
 ## Verify
 
-- A `dev-project-profile.md` exists in `intelligence/rules/`; every `ai:*` label `git-workflow` names exists on the forge or the report names the capability gap; the PR template outcome is stated (copied / left / skipped); `verify_section` matches the template heading in play when a template is in play; `.claude/settings.json` contains the template's deny entries when that file was in play; when `intelligence.yaml` was present, `intelligence status --check` passed after the sync.
+- A `dev-project-profile.md` exists in `intelligence/rules/`; every `ai:*` label `git-workflow` names exists on the forge or the report names the capability gap; the PR template outcome is stated (copied / left / skipped); `verify_section` matches the template heading in play when a template is in play; `.claude/settings.json` contains the template's `deny` and `ask` entries when that file was in play; when `intelligence.yaml` was present, `intelligence status --check` passed after the sync.
 
 ## Scope / hand-off
 

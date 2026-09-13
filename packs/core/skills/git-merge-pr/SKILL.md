@@ -1,8 +1,7 @@
 ---
 name: git-merge-pr
-description: "Merges an accepted pull request behind guard checks, then syncs the base branch and cleans up. Owner-invoked only - merge timing is not the model's call."
+description: "Merges an accepted pull request behind guard checks, then syncs the base branch and cleans up. Runs only on the owner's accept - merge timing is not the model's call."
 argument-hint: "[pr number]"
-disable-model-invocation: true
 ---
 
 # Merge the PR

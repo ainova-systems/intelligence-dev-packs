@@ -1,8 +1,7 @@
 ---
 name: git-create-release
-description: "Cuts a release - pending-step review, owner gate, version, changelog, tag - per the project's release policy. Owner-invoked only; release timing is not the model's call."
+description: "Cuts a release - pending-step review, owner gate, version, changelog, tag - per the project's release policy. Runs only on the owner's authorization; release timing is not the model's call."
 argument-hint: "[version, e.g. 1.4.0]"
-disable-model-invocation: true
 ---
 
 # Create a Release

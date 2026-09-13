@@ -19,7 +19,7 @@ intelligence package add @ainova-systems/core   # add @ainova-systems/spec for s
 
 `init` writes `intelligence.yaml` and `intelligence.lock` - both committed - and renders each enabled tool's native files. `registry add` is what makes this repository's package names resolvable: names resolve only through registries the project has explicitly trusted, so nothing installs from a guessed URL. `package add` records the name and pins the resolved tag and commit in the lock.
 
-Then run **`dev-init`** so the agent pins the project profile, creates the `ai:*` labels, copies the pack PR template when the repo has none, and merges the harness deny-list. It reports what it filled, what it left, and any project rule that overlaps a package rule. It does not commit. If the spec pack is installed, `spec-init` is the next step.
+Then run **`dev-init`** so the agent pins the project profile, creates the `ai:*` labels, copies the pack PR template when the repo has none, and merges the harness permission rules. It reports what it filled, what it left, and any project rule that overlaps a package rule. It does not commit. If the spec pack is installed, `spec-init` is the next step.
 
 ## What you get
 
@@ -57,7 +57,7 @@ Nothing is wired by hand. Skills read the repository - default branch from git, 
 
 To pin those answers so nothing is re-detected or re-asked, run `dev-init`. It declares the branch model, verification commands (including an optional single gate-runner via `verify`), PR platform and merge method, release flow, the tracker, and the docs structure. It is generated and filled from your repo - never copied or hand-edited - and rides as an always-on rule.
 
-Hard invariants (never force-push, never blanket-stage, never bypass gates) can be backed by machinery rather than prose: `dev-init` merges the pack's `templates/claude-settings.json` into the project's `.claude/settings.json`, and [docs/enforcement.md](docs/enforcement.md) maps each invariant to its mechanism.
+Hard invariants can be backed by machinery rather than prose - force-push, blanket-stage and `--no-verify` denied outright, and the merge, the tag push and the release object prompting the owner at the command: `dev-init` merges the pack's `templates/claude-settings.json` into the project's `.claude/settings.json`, and [docs/enforcement.md](docs/enforcement.md) maps each invariant to its mechanism.
 
 ## One task, one flow
 
