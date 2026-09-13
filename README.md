@@ -59,9 +59,9 @@ To pin those answers so nothing is re-detected or re-asked, run `dev-init`. It d
 
 Hard invariants (never force-push, never blanket-stage, never bypass gates) can be backed by machinery rather than prose: `dev-init` merges the pack's `templates/claude-settings.json` into the project's `.claude/settings.json`, and [docs/enforcement.md](docs/enforcement.md) maps each invariant to its mechanism.
 
-## One task, one command
+## One task, one flow
 
-The pack's git skills each own one step, and driving the chain by hand means relaying every hand-off. **`dev-deliver`** is the chain as one invocation: it interviews until the goal and the expected result are explicit, implements, drives the pull request to accept-ready, and - after the owner accepts - merges and cuts the release.
+The pack's git skills each own one step, and driving the chain by hand means relaying every hand-off. **`dev-deliver`** drives that chain as one flow: it interviews until the goal and the expected result are explicit, implements, and takes the pull request to accept-ready; the merge and the release then run on the owner's two gates.
 
 - **Four phases** - interview, implement, review, release - and the owner is interrupted only between them. A question raised inside a phase ends that phase rather than parking inside it.
 - **Two owner gates**, accept and release, asked at the boundary each governs or both upfront (profile `flow_approvals`). Neither is ever inferred.
