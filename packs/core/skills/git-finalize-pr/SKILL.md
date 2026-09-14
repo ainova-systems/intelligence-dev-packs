@@ -53,4 +53,5 @@ The two judging stages carry their own agent (`dev-qa-verifier`, `dev-code-revie
 - A failure that already exists on the target branch is reported as pre-existing, never "fixed" on this PR.
 - One commit per round: fixing per defect makes every stage re-run per defect, and the cost becomes fixes x stages instead of rounds x stages.
 - Never write a factor label - only the stage that judged it may - and never write an outcome.
+- The workspace a stage was given does not move while that stage runs: no switch, no commit, no pull into it until the round's stages have returned. This run is the one actor that pushes, so it is the one that can hold it still.
 - Never merge, even when everything is green - accepting the PR is the owner's gate, and a run that both does the work and approves it has no gate at all.

@@ -58,3 +58,4 @@ One pass by default. Fan out by review dimension only when the diff exceeds what
 - Only Critical blocks the factor. Promoting warnings to blockers makes the factor unearnable and the ladder meaningless.
 - A diff mixing unrelated changes - the first finding is "split it".
 - One issue comment per run; never inline review comments.
+- Judge the location you were given. Never create a worktree, export a copy or fetch your own: holding the workspace still is the caller's job. If the tree is not at the head under judgement, or moves during the run, report that instead of working around it - a verdict read from two commits looks exactly like one read from a single commit.

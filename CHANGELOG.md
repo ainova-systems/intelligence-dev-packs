@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **A judging stage no longer reads a workspace that is moving under it.** The first `dev-deliver`-shaped run committed and switched branches while `git-verify-pr` and `git-review-pr` were reading the same checkout; one of them noticed the tree had moved and worked around it unprompted. A stage that reads half its files at one commit and half at another reports a verdict for a state that existed at neither, and the report is indistinguishable from an honest one - which is what makes the factor it earns worthless. The invariant now sits with the party that can hold it: `git-finalize-pr` does not switch, commit or pull into a workspace while the round's stages are in flight, and `dev-deliver` owns every worktree a run needs, including one a stage needs, so creation and cleanup keep a single owner. Both judging stages state the other half - judge the location you were given, never create a worktree or export a copy to work around the caller, and report a tree that is not at the head under judgement instead of routing around it.
+
+### Added
+
+- **`dev-init` reports where repository protection and the profile disagree.** `git-workflow` treats the default and integration branches as always protected and `dev-init` writes them into `protected_branches`, but nothing ever asked the forge whether they are - this repository's own `main` answered `protected: false` while carrying exactly that claim. The new step reads what the forge enforces for the branches the profile names and reports each mismatch with the command that would close it, including `release_cut: direct` against a protected target, which the release would otherwise refuse only once it got there. It changes no repository setting: detecting a mismatch and deciding what to do about it are different acts, and only the first belongs to a setup skill.
+- **`docs/enforcement.md` states the layer it does not reach into.** Every mechanism on that page constrains an agent's behaviour on one machine; who may push to a branch, what a ruleset locks and who may delete a tag are repository configuration. A permission rule does not stop a person, so compensating there manufactures a sense of protection rather than providing one. Without the line the boundary had to be rediscovered - it was, twice, in the session that produced 0.9.0.
+
 ## [0.9.0] - 2026-09-14
 
 The delivery chain as one flow, and the owner gate moved onto the act it guards.

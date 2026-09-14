@@ -25,15 +25,17 @@ A missing `intelligence.yaml` is not a blocker: that is the copy install, and st
 
 5. **QA environment.** Resolve profile `qa_env` / `app_run` / `app_url` now, per `git-verify-pr`, so the first pull request is not the first time the question appears.
 
-6. **Sync.** When `intelligence.yaml` is present, `intelligence sync` once after steps 1, 3, and 5 have all finished, then `intelligence status --check`. Either command failing is a stop, not a report. No manifest - skip; the profile file is the source. A CLI on PATH without a manifest is still the copy install - do not sync.
+6. **Protection - reported, never applied.** Read what the forge enforces for the branches the profile names and compare it with what the profile claims: on GitHub `gh api repos/{owner}/{repo}/branches/<branch> --jq '.protected'`, elsewhere the equivalent through profile `cli`. Report each mismatch with the command that would close it - a branch `protected_branches` names that the forge does not protect; `release_cut: direct` against a protected target, which `git-create-release` refuses when it lands the change-set; `release_cut: direct` against an unprotected one, which is legal and worth saying once. Repository settings belong to the owner, so this step changes none of them, and a forge that cannot report protection is a capability gap in the report rather than an assumption.
 
-7. **Overlap.** List every project rule that overlaps or contradicts a package rule. Project wins; recommend keep / drop / scope. Do not edit project rules.
+7. **Sync.** When `intelligence.yaml` is present, `intelligence sync` once after steps 1, 3, and 5 have all finished, then `intelligence status --check`. Either command failing is a stop, not a report. No manifest - skip; the profile file is the source. A CLI on PATH without a manifest is still the copy install - do not sync.
 
-8. **Report.** Profile values filled vs left; labels created; template copied or skipped; permission rules merged; the overlap list; the owner's remaining items. If the spec pack is installed, the next step is `spec-init`. Do not commit or push.
+8. **Overlap.** List every project rule that overlaps or contradicts a package rule. Project wins; recommend keep / drop / scope. Do not edit project rules.
+
+9. **Report.** Profile values filled vs left; labels created; template copied or skipped; permission rules merged; protection mismatches and what each would take to close; the overlap list; the owner's remaining items. If the spec pack is installed, the next step is `spec-init`. Do not commit or push.
 
 ## Verify
 
-- A `dev-project-profile.md` exists in `intelligence/rules/`; every `ai:*` label `git-workflow` names exists on the forge or the report names the capability gap; the PR template outcome is stated (copied / left / skipped); `verify_section` matches the template heading in play when a template is in play; `.claude/settings.json` contains the template's `deny` and `ask` entries when that file was in play; when `intelligence.yaml` was present, `intelligence status --check` passed after the sync.
+- A `dev-project-profile.md` exists in `intelligence/rules/`; every `ai:*` label `git-workflow` names exists on the forge or the report names the capability gap; the PR template outcome is stated (copied / left / skipped); `verify_section` matches the template heading in play when a template is in play; `.claude/settings.json` contains the template's `deny` and `ask` entries when that file was in play; every branch the profile names has its protection state reported against what the profile claims, or the report names the capability gap; when `intelligence.yaml` was present, `intelligence status --check` passed after the sync.
 
 ## Scope / hand-off
 
@@ -44,6 +46,7 @@ A missing `intelligence.yaml` is not a blocker: that is the copy install, and st
 ## Constraints
 
 - Never overwrite a filled profile value, an existing PR template, or an existing settings entry, except `verify_section` when aligning it to the PR template heading in play.
+- Report what the forge enforces; never change a repository setting. Detecting a mismatch and deciding what to do about it are different acts, and only the first is this skill's.
 - Never commit or push.
 - Never recreate `spec-init`'s work.
 - Never report completion after a profile mutation without a successful sync when `intelligence.yaml` is present.
