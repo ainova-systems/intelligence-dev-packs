@@ -58,3 +58,4 @@ One pass by default. Fan out by review dimension only when the diff exceeds what
 - Only Critical blocks the factor. Promoting warnings to blockers makes the factor unearnable and the ladder meaningless.
 - A diff mixing unrelated changes - the first finding is "split it".
 - One issue comment per run; never inline review comments.
+- Judge the location you were given and never make your own. If it is not at the head under judgement, or it moves mid-run, write no factor and report that instead - a verdict drawn from a workspace nobody could pin must not end up looking green (`git-finalize-pr` > Isolation).

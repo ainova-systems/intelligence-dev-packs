@@ -89,7 +89,7 @@ Its own context because the stages that judge this pull request must not inherit
 
 ## Parallel tasks
 
-A second task arriving while a branch is occupied never enters that worktree. `git worktree add <root>/<slug> -b <prefix>/<slug> <base>`, where `<root>` is profile `worktree_root` (default `auto` - a sibling directory of the repository root), and it becomes its own instance: its own branch, pull request and position on the ladder, its Phase A still here with the owner, its B and C subagents working in that directory. Instances share only you and the owner's attention, so the gates serialize - one question at a time, each naming its instance. Remove the worktree once `git-merge-pr` confirms the merge landed.
+A second task arriving while a branch is occupied never enters that worktree. `git worktree add <root>/<slug> -b <prefix>/<slug> <base>`, where `<root>` is profile `worktree_root` (default `auto` - a sibling directory of the repository root), and it becomes its own instance: its own branch, pull request and position on the ladder, its Phase A still here with the owner, its B and C subagents working in that directory. Instances share only you and the owner's attention, so the gates serialize - one question at a time, each naming its instance. Remove the worktree once `git-merge-pr` confirms the merge landed. Every worktree a run needs is yours to create and to remove, including one a stage needs: a stage works where it was told and never makes its own, so creation and cleanup keep a single owner.
 
 ## Verify
 
