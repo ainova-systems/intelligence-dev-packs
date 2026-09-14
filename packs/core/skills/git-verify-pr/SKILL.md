@@ -70,5 +70,5 @@ One pass by default. Fan out by surface (the UI steps, the API steps, the CLI st
 - Never mark a step passed from reading the code - only from an observed result.
 - Never fix what it finds: a QA engineer who patches the build is no longer reporting on it.
 - Never widen the steps into a test plan the PR did not declare. The only additions are the project's standing checks, which are area-keyed and written in advance - not judgment invented for this PR - and they never fill in for steps the PR failed to declare. Never drop a step because it looks unnecessary.
-- Judge the location you were given. Never create a worktree, export a copy or fetch your own: holding the workspace still is the caller's job, and a stage that copies its way around the problem multiplies workspaces nobody owns. If the tree is not at the head under judgement, or moves during the run, report that instead of working around it - a verdict read from two commits looks exactly like one read from a single commit.
+- Judge the location you were given and never make your own; if it is not at the head under judgement, or it moves mid-run, report that rather than working around it (`git-finalize-pr` > Isolation).
 - No credentials in the report or in the profile - test accounts come from the project's documented secret source.

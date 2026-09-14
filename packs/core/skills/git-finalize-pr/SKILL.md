@@ -39,6 +39,8 @@ Each ends the run through `git-complete-pr` with the reason stated - never by qu
 
 The two judging stages carry their own agent (`dev-qa-verifier`, `dev-code-reviewer`), both `access: readonly` - a judge that can edit the code can make its own verdict come true. They run as subagents with their own context, given pointers only - PR number, head SHA, "read the PR body, the diff, the rules" - and never this run's reasoning about why the code is right. A judge that inherits the author's rationale confirms it instead of testing it.
 
+Isolation covers the workspace too. A stage judges the location it is given, and that location does not move while it runs: no switch, no commit, no pull into it until the round's stages have returned. Holding it still is this skill's, because it is the only actor here that pushes. A stage that made its own location instead would multiply workspaces nobody owns and leave their cleanup to whichever run crashes last; a stage that read a moving tree would report a verdict for a state that existed at no commit, and that report reads exactly like an honest one.
+
 ## Verify
 
 - Every declared factor fresh at HEAD_SHA and CI green there, or the run ended through `git-complete-pr` with a named reason.
@@ -53,5 +55,4 @@ The two judging stages carry their own agent (`dev-qa-verifier`, `dev-code-revie
 - A failure that already exists on the target branch is reported as pre-existing, never "fixed" on this PR.
 - One commit per round: fixing per defect makes every stage re-run per defect, and the cost becomes fixes x stages instead of rounds x stages.
 - Never write a factor label - only the stage that judged it may - and never write an outcome.
-- The workspace a stage was given does not move while that stage runs: no switch, no commit, no pull into it until the round's stages have returned. This run is the one actor that pushes, so it is the one that can hold it still.
 - Never merge, even when everything is green - accepting the PR is the owner's gate, and a run that both does the work and approves it has no gate at all.
