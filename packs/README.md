@@ -25,7 +25,7 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 | `dev-code-reviewer` | agent | Reviews changes and PRs for correctness, conventions, tests, security, and the PR's own claims (read-only) |
 | `dev-qa-verifier` | agent | Executes a change's declared verification steps against the running software (read-only) |
 | `dev-test-engineer` | agent | Test strategy and coverage across all levels |
-| `dev-init` | skill | After installing core: profile, labels, PR template, harness deny-list |
+| `dev-init` | skill | After installing core: profile, labels, PR template, harness permission rules |
 | `dev-deliver` | skill | One task from interview to released change: four phases, subagents per phase, pauses only at the boundaries, resumable from git and the PR |
 | `dev-run-tests` | skill | Typecheck, lint, tests with scope detection and failure analysis |
 | `dev-review-changes` | skill | Read-only diff review with severity verdict |
@@ -44,11 +44,11 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 | `git-verify-pr` | skill | Executes the PR's own verification steps against the running change (`ai:verified`) |
 | `git-review-pr` | skill | Reviews the PR diff against the rules and against what the PR claims (`ai:reviewed`) |
 | `git-complete-pr` | skill | Answers and resolves every review thread, then records the one outcome (`ai:completed` / `ai:manual` / `ai:failed`) |
-| `git-merge-pr` | skill | After owner accept: guard-checked squash-merge, base sync, cleanup (owner-invoked only) |
-| `git-create-release` | skill | Pending-step review, owner gate, version, changelog, tag per the project's release flow (owner-invoked only) |
+| `git-merge-pr` | skill | After owner accept: guard-checked squash-merge, base sync, cleanup; the merge command itself prompts the owner |
+| `git-create-release` | skill | Pending-step review, owner gate, version, changelog, tag per the project's release flow; the tag push and the release object prompt the owner |
 | `git-scan-secrets` | skill | Credential scan over diff, tree, or history |
 
-The pack also ships two templates besides the profile schema. `dev-init` merges `packs/core/templates/claude-settings.json` into the project's committed `.claude/settings.json` so the invariants the rules state in prose (no force-push, no blanket-stage, no `--no-verify`) are denied by the harness too. `packs/core/templates/dev-qa-checks.md` is the schema for the optional standing-checks file the profile's `qa_checks` points at - what `git-verify-pr` adds for any change touching an area, whatever that change says about itself.
+The pack also ships two templates besides the profile schema. `dev-init` merges `packs/core/templates/claude-settings.json` into the project's committed `.claude/settings.json` so the invariants the rules state in prose are machinery too: no force-push, no blanket-stage and no `--no-verify` are denied outright, and the merge, the tag push and the release object prompt the owner at the command rather than relying on who invoked the skill. `packs/core/templates/dev-qa-checks.md` is the schema for the optional standing-checks file the profile's `qa_checks` points at - what `git-verify-pr` adds for any change touching an area, whatever that change says about itself.
 
 ### spec - `spec-` domain (depends on core)
 
