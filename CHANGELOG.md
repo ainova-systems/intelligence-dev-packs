@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-09-14
+
+A judging stage that cannot trust its workspace says so instead of going green.
+
 ### Fixed
 
 - **A judging stage no longer reads a workspace that is moving under it.** The first `dev-deliver`-shaped run committed and switched branches while `git-verify-pr` and `git-review-pr` were reading the same checkout; one of them noticed the tree had moved and worked around it unprompted. A stage that reads half its files at one commit and half at another reports a verdict for a state that existed at neither, and the report is indistinguishable from an honest one - which is what makes the factor it earns worthless. The invariant now sits with the party that can hold it, and it is defined once: `git-finalize-pr` > Isolation already owned how a judging stage is run, and now covers the workspace it is run against - neither the location nor the refs a stage resolves against move while it runs - fetch included, because `git diff <base>...HEAD` answers differently once a ref has moved with the checkout untouched - and the stage judges where it was told rather than making its own. A stage that finds its workspace moved writes no factor at all, since a label is the part a later gate trusts and one earned against a workspace nobody could pin is worse than an absent one. `git-verify-pr` and `git-review-pr` carry one identical line apiece naming that site, the inline form `dev-context-engineering` allows for a reader who needs the rule where they are standing. `dev-deliver` owns every worktree a run needs, including one a stage needs, so creation and cleanup keep a single owner.
