@@ -23,6 +23,14 @@ A run with no human in the loop between task and PR labels its PR, so a human tr
 - `ai:manual` - the run ended needing an owner decision; name precisely what (`git-complete-pr`).
 - `ai:failed` - the run ended unable to reach green; name the blocking failure and what was tried (`git-complete-pr`).
 
+The last three are terminal and `ai:processing` is not, so a run is over when it is gone: a PR left on it by a run that has stopped reads exactly like one an agent is still working, and both triage and merge gating believe that.
+
+**It is a claim, not a lock**, and nothing about it makes one: no run id, no expiry, no way for a second run to take it atomically. So a run cannot tell a claim it did not write from a live one, and does not guess - it takes a pull request only when no `ai:processing` stands on it, or when the claim is its own. Its own means one of two things, and both are knowable rather than felt: the run took the PR itself, or a handoff handed the claim over in writing (`dev-handoff` names the held pull request), which is what makes a resumed session the same run continuing instead of a second actor. Anyone else's claim stops it where it stands: no factors cleared, no stage run, no outcome written, none of those being its to write for a PR it does not hold.
+
+**A refusal is recorded, not just returned.** The stopped run posts one comment in the envelope below saying it found the PR held and took nothing - additive, so it cannot race the holder the way writing a label would - and that comment is the whole of the owner's signal that two actors wanted one pull request. Without it the refusal is visible only to whoever invoked the losing run, which on a PR that nobody is watching is the same as silence.
+
+That restriction is affordable only because every run ends at a terminal label. A pull request still claimed with no run behind it therefore means a run died rather than a run working, and the way out is stated rather than taken: the owner clears the claim, or hands it to a run through a handoff. Rare enough that no takeover rule has to serve it, and never so rare that nobody wrote down how it ends.
+
 **Success factors** - additive, each written by the stage that judged it and never by the actor that did the work:
 
 - `ai:verified` - the PR's own verification steps were executed against the running change and passed (`git-verify-pr`).

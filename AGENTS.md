@@ -36,7 +36,7 @@ Source of truth: `intelligence/` | Sync: `intelligence sync`
 | [git-commit-push](packs/core/skills/git-commit-push/SKILL.md) | Commits pending work as one verified milestone and pushes it. Stops at the push - opening the pull request is git-open-pr. |
 | [git-complete-pr](packs/core/skills/git-complete-pr/SKILL.md) | Answers and resolves every review thread on a pull request, then records exactly one outcome for the run. The fix and review rounds that get it there are git-finalize-pr. |
 | [git-create-release](packs/core/skills/git-create-release/SKILL.md) | Cuts a release - pending-step review, owner gate, version, changelog, tag - per the project's release policy. Runs only on the owner's authorization; release timing is not the model's call. |
-| [git-finalize-pr](packs/core/skills/git-finalize-pr/SKILL.md) | Drives an open pull request through rounds of fix, verification and review until every success factor holds on one commit. Opening it is git-open-pr; recording the outcome is git-complete-pr. |
+| [git-finalize-pr](packs/core/skills/git-finalize-pr/SKILL.md) | Drives an open pull request through rounds of fix, verification and review until every success factor holds on one commit, and ends only at an outcome label. Opening it is git-open-pr; recording the outcome is git-complete-pr. |
 | [git-merge-pr](packs/core/skills/git-merge-pr/SKILL.md) | Merges an accepted pull request behind guard checks, then syncs the base branch and cleans up. Runs only on the owner's accept - merge timing is not the model's call. |
 | [git-open-pr](packs/core/skills/git-open-pr/SKILL.md) | Opens a pull request for the current branch against its target, filling the repo's template. Driving it to green afterwards is git-finalize-pr. |
 | [git-resolve-conflicts](packs/core/skills/git-resolve-conflicts/SKILL.md) | Resolves merge or rebase conflicts by what each side intended, never by picking a hunk, then re-runs the full gates. |
@@ -139,6 +139,14 @@ A run with no human in the loop between task and PR labels its PR, so a human tr
 - `ai:completed` - the run ended with nothing left for an agent (`git-complete-pr`).
 - `ai:manual` - the run ended needing an owner decision; name precisely what (`git-complete-pr`).
 - `ai:failed` - the run ended unable to reach green; name the blocking failure and what was tried (`git-complete-pr`).
+
+The last three are terminal and `ai:processing` is not, so a run is over when it is gone: a PR left on it by a run that has stopped reads exactly like one an agent is still working, and both triage and merge gating believe that.
+
+**It is a claim, not a lock**, and nothing about it makes one: no run id, no expiry, no way for a second run to take it atomically. So a run cannot tell a claim it did not write from a live one, and does not guess - it takes a pull request only when no `ai:processing` stands on it, or when the claim is its own. Its own means one of two things, and both are knowable rather than felt: the run took the PR itself, or a handoff handed the claim over in writing (`dev-handoff` names the held pull request), which is what makes a resumed session the same run continuing instead of a second actor. Anyone else's claim stops it where it stands: no factors cleared, no stage run, no outcome written, none of those being its to write for a PR it does not hold.
+
+**A refusal is recorded, not just returned.** The stopped run posts one comment in the envelope below saying it found the PR held and took nothing - additive, so it cannot race the holder the way writing a label would - and that comment is the whole of the owner's signal that two actors wanted one pull request. Without it the refusal is visible only to whoever invoked the losing run, which on a PR that nobody is watching is the same as silence.
+
+That restriction is affordable only because every run ends at a terminal label. A pull request still claimed with no run behind it therefore means a run died rather than a run working, and the way out is stated rather than taken: the owner clears the claim, or hands it to a run through a handoff. Rare enough that no takeover rule has to serve it, and never so rare that nobody wrote down how it ends.
 
 **Success factors** - additive, each written by the stage that judged it and never by the actor that did the work:
 

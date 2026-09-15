@@ -35,10 +35,11 @@ Then read the ladder from the most advanced signal down. **The first rung that h
 | the branch exists | Phase B |
 | none of them | Phase A |
 
-Two things the ladder cannot answer, each with one rule:
+Three things the ladder cannot answer, each with one rule:
 
 - **The captured intent, before a pull request exists.** Recover it from the PR body when one exists, or from whatever Phase A's owner wrote when it wrote files. Neither - re-run Phase A. An inherited goal nobody can read is a guess, and every gate after it measures against that guess.
 - **The approvals.** They do not survive the session that received them; a resumed run asks again at the gate it reaches.
+- **Whether the pull request's claim is this run's.** An `ai:processing` on it proves only that some run took it, never which (`git-workflow`), so the answer comes from the prompt that started this run: a handoff naming that pull request as held hands the claim over, and this run continues it. No such sentence - the claim belongs to another run however familiar the branch looks, and Phase C will stop on it rather than take it.
 
 ## Phase boundaries - the only pauses
 
@@ -53,6 +54,22 @@ Two things the ladder cannot answer, each with one rule:
 Profile `flow_approvals` decides *when* the two gates are asked - `per-gate` (default) at the boundary each governs, `upfront` both at the end of Phase A - never *whether*. An approval this run did not receive from the owner does not exist - a run with nobody to ask ends at the gate it reached and reports what it needs. A declined release gate ends the run after the merge with the reason recorded.
 
 `upfront` takes both gates before the work exists, so each is a standing authorization and not a judgement of a diff: the accept gate authorizes merging once the pull request is accept-ready **and nothing has escalated to the owner**, the release gate authorizes cutting the change once it is merged. An upfront grant is permission not to be asked again; it is never permission to proceed past a caveat, and anything that would have reached the owner mid-run still reaches them. It moves when the owner acts, never whether: a host may stop again at the irreversible command itself, and a grant given earlier does not answer that.
+
+A gate declined upfront withholds the boundary it governs and nothing earlier: each still sits where the boundary table puts it, so a refused accept ends the run at C to D and a refused release after the merge, exactly where `per-gate` would have ended it. Asking sooner never shortens the work that reaches the gate - a declined accept is the owner saying this will not merge itself, not that the change goes unwritten and unreviewed.
+
+## How the run ends
+
+Five endings, each stated to the owner rather than left to be read out of silence:
+
+| Ending | What the owner is left with |
+|---|---|
+| delivered | the closing report - the tag, the merge commit, each criterion against what was observed for it |
+| a gate the owner did not give | the gate named, and the pull request carrying the outcome label Phase C wrote |
+| Phase C reached `ai:manual` or `ai:failed` | that outcome's list of what the owner has to decide or what blocked it |
+| a phase raised a question | the question, and which phase it ended |
+| the pull request was already another run's | the `Finalize - HELD` comment naming what this run wanted, and the holder's claim untouched |
+
+Past Phase C every one of them leaves the pull request carrying exactly one outcome label - except the last, which leaves the holder's label exactly as it found it, that pull request never having been this run's to end. `ai:processing` left on a PR this run did take says an agent holds it right now (`git-workflow`), so a run that stops there has told the owner's triage view and the merge gate the opposite of what is true - and it is the state a resumed run cannot distinguish from a sibling instance working the same branch, which is why the claim travels in the handoff rather than being inferred from the label.
 
 ## Phase A - Interview (main session)
 
@@ -77,8 +94,8 @@ Its own context because it is the largest one of the run, and because nothing af
 
 Its own context because the stages that judge this pull request must not inherit the author's account of why the code is right - `git-finalize-pr` > Isolation - and a phase that begins by reading the PR and the diff holds that isolation for free.
 
-1. `git-finalize-pr`, then `git-complete-pr`. The rounds, the factors and the outcome belong to them; nothing here re-decides any of it.
-2. The phase ends at exactly one outcome label. `ai:manual` or `ai:failed` ends the run there, reporting the owner's list - there is no merge on a caveat.
+1. `git-finalize-pr`, then `git-complete-pr`. The rounds, the factors and the outcome belong to them; nothing here re-decides any of it. When pre-flight established the claim as this run's, the prompt says so - that sentence is what separates this phase from a second actor, and without it `git-finalize-pr` refuses the very pull request the phase was spawned to finish.
+2. The phase ends at exactly one outcome label. `ai:manual` or `ai:failed` ends the run there, reporting the owner's list - there is no merge on a caveat. One ending writes no label at all: a pull request already claimed by another run stops `git-finalize-pr` at its pre-flight (`git-workflow`), and this instance ends on the comment it left there rather than on an outcome it has no standing to write.
 3. Accept-ready reaches the accept gate.
 
 ## Phase D - Release (main session)
@@ -95,6 +112,7 @@ A second task arriving while a branch is occupied never enters that worktree. `g
 
 - Every Phase A criterion appears in the merged pull request's verification section and carries a `pass` in the report that earned `ai:verified` at the merged head; the closing report maps each criterion to the result observed for it and names any that never reached an observation.
 - Re-reading the pre-flight ladder at the end reports the phase the run actually reached.
+- Every instance that took its pull request ends with one outcome label on it and no `ai:processing`; one refused the claim ends with its `Finalize - HELD` comment and no label of its own.
 
 ## Scope / hand-off
 
@@ -110,4 +128,4 @@ A second task arriving while a branch is occupied never enters that worktree. `g
 - One instance, one branch, one worktree, one pull request.
 - Resumption never re-enters a phase the forge already shows as past.
 - A question inside a phase ends that phase; it never pauses inside one.
-- Subagent prompts are pointers - the phase's goal, what to read, which skills to invoke, the scope fence. A judging stage never receives this run's reasoning about the code.
+- Subagent prompts are pointers - the phase's goal, what to read, which skills to invoke, the scope fence, and any claim this run holds on the pull request. A judging stage never receives this run's reasoning about the code; a claim is not reasoning, it is the operational fact without which the phase cannot act on its own pull request.
