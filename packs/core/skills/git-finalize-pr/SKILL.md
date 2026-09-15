@@ -18,14 +18,14 @@ Three middles read like an ending, and each continues the run instead:
 - **A stop rule.** Each below ends the fix loop; the run carries on into `git-complete-pr` and ends there.
 - **A stage that cannot run at all** - no environment for it, a capability the forge lacks. That is a finding, and it reaches the owner in the outcome's list rather than as a run that went quiet.
 
-A run that reports progress and waits to be invoked again leaves the pull request claimed by an agent that is no longer working on it, which is the one state no later reader can tell from a live one - the owner's triage view and the merge gate both read it as work in flight. Pre-flight step 4 is where an abandoned claim is repaired: taking the PR is what makes it this run's.
+A run that reports progress and waits to be invoked again leaves the pull request claimed by an agent that is no longer working on it, which is the one state no later reader can tell from a live one - the owner's triage view and the merge gate both read it as work in flight. No later run repairs that: pre-flight step 4 stops on a claim this run did not write rather than taking it (`git-workflow`), so the cost of ending here lands on whoever has to clear it by hand.
 
 ## Pre-flight
 
 1. `git branch --show-current` - abort on the default/integration/protected branch.
 2. Resolve the PR: `gh pr list --head <branch> --state open --json number,headRefOid --jq '.[0]'`. An explicit argument must match this branch's PR. None - open it with `git-open-pr` first, then retry.
 3. Declared factors: profile `pr_success_factors` (default `ai:verified, ai:reviewed`). A factor no stage in this project writes still gates the run - it is simply someone else's to apply.
-4. Take the PR: set `ai:processing`, and clear every factor that is not fresh at head (`git-workflow` > autonomous PR labels).
+4. Take the PR (`git-workflow` > autonomous PR labels). An `ai:processing` standing that this run did not write is another run's claim and is never taken: STOP and report the PR as held, having changed nothing - no factor cleared, no stage run, no outcome written. Otherwise set `ai:processing` and clear every factor that is not fresh at head.
 
 ## The round
 
@@ -34,7 +34,7 @@ A run that reports progress and waits to be invoked again leaves the pull reques
 1. **Head moved, and not by this run** - someone else is on the branch. Clear the factors and restart the round. Twice in a row: stop, hand to `git-complete-pr` as an owner decision - two actors on one branch is not a merge conflict, it is a coordination failure.
 2. **CI.** `gh pr checks <pr>` plus `gh run list --branch <branch> --limit 8 --json databaseId,headSha,name,status,conclusion`. `in_progress` / `queued` - wait, sized to the longest job's typical duration. `failure` on HEAD_SHA - drill in: the failed step via `gh run view <run_id> --json jobs --jq '.jobs[] | select(.conclusion == "failure")'`, the log via `gh run view --job <job_id> --log` (fallback `gh api repos/{owner}/{repo}/actions/jobs/<job_id>/logs` while sibling jobs still run). Find the root-cause file:line, read it and the surrounding code, queue the defect.
 3. **`ai:verified` fresh on HEAD_SHA?** No - run `git-verify-pr` in an isolated subagent. A pass earns the factor; failures queue as defects; `blocked (step)` queues as an owner-decision item for this PR. `blocked (project)` queues as one too, but as a standing configuration gap - never retry it round after round, because nothing a round does can resolve it.
-4. **`ai:reviewed` fresh on HEAD_SHA?** No - run `git-review-pr` in an isolated subagent. Critical findings queue as defects; warnings and suggestions do not. A stage that returns no verdict at all - a capability the forge lacks, a workspace it could not pin - queues as an owner-decision item exactly as step 3's blocked kinds do, and is never retried round after round: an absent verdict is not a slow one, and a round that re-runs it changes nothing about why it could not answer.
+4. **`ai:reviewed` fresh on HEAD_SHA?** No - run `git-review-pr` in an isolated subagent. Critical findings queue as defects; warnings and suggestions do not. A stage that returns no verdict at all - a capability the forge lacks, a workspace it could not pin - queues as an owner-decision item, as step 3's blocked kinds do, and like `blocked (project)` it is never retried round after round: an absent verdict is not a slow one, and a round that re-runs it changes nothing about why it could not answer.
 5. **Fixable defects queued?** Fix them all, smallest-correct, top-down (what happened - what changed since last green - fix or delete per the feature doc - is there an existing primitive?). Run the local gates (`dev-run-tests`), then commit the **whole round as one commit** via `git-commit-push` and push. Re-set `ai:processing`, clear the factors, round += 1, back to 1.
 6. **Nothing fixable left** - hand to `git-complete-pr`. If it pushes a fix of its own, control returns here for another round.
 

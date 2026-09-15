@@ -23,7 +23,11 @@ A run with no human in the loop between task and PR labels its PR, so a human tr
 - `ai:manual` - the run ended needing an owner decision; name precisely what (`git-complete-pr`).
 - `ai:failed` - the run ended unable to reach green; name the blocking failure and what was tried (`git-complete-pr`).
 
-The last three are terminal and `ai:processing` is not, so a run is over when it is gone: a PR left on it by a run that has stopped reads exactly like one an agent is still working, and both triage and merge gating believe that. A later run reclaims an abandoned claim by taking the PR for itself.
+The last three are terminal and `ai:processing` is not, so a run is over when it is gone: a PR left on it by a run that has stopped reads exactly like one an agent is still working, and both triage and merge gating believe that.
+
+**It is a claim, not a lock**, and nothing about it makes one: no run id, no expiry, no way for a second run to take it atomically. So a run cannot tell a claim it did not write from a live one, and does not guess - it takes a pull request only when no `ai:processing` stands on it, or when the claim is its own, which a run knows because it knows the pull requests it took. Anyone else's claim stops it where it stands: no factors cleared, no stage run, no outcome written, none of those being its to write for a PR it does not hold. Two actors on one pull request is a coordination failure the owner is told about, never one the second actor settles by taking the PR from the first.
+
+That restriction is affordable only because every run ends at a terminal label. A pull request still claimed with no run behind it therefore means a run died rather than a run working - the owner's to clear, and rare enough that no takeover rule has to serve it.
 
 **Success factors** - additive, each written by the stage that judged it and never by the actor that did the work:
 
