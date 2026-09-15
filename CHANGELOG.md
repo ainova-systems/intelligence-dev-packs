@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **The round budget says when it is read, so a run cannot argue itself one more round.** `git-finalize-pr`'s stop rule said only that rounds "exceed" `max_pr_rounds`, which left the case that decides everything unanswered: a round entered past the budget and coming back green. One reading escalates it, the other accepts it, and a run wanting the second reading could have it - the ambiguity handed the decision to whoever was mid-flight, which is the one party a budget exists to bind. The budget is now read at the top of a round before any of its work, so a run that has completed its rounds never begins another and no round is ever judged after the budget ran out; the question cannot arise rather than being settled twice. Every round counts, including one entered because `git-complete-pr` pushed a fix and handed back - stated where the budget lives, so the hand-off does not quietly reset it. A project that needs more raises the key.
+
 ## [0.9.2] - 2026-09-15
 
 A run ends where it said it would, and a claim on a pull request stops being something a second run can take.
