@@ -35,10 +35,11 @@ Then read the ladder from the most advanced signal down. **The first rung that h
 | the branch exists | Phase B |
 | none of them | Phase A |
 
-Two things the ladder cannot answer, each with one rule:
+Three things the ladder cannot answer, each with one rule:
 
 - **The captured intent, before a pull request exists.** Recover it from the PR body when one exists, or from whatever Phase A's owner wrote when it wrote files. Neither - re-run Phase A. An inherited goal nobody can read is a guess, and every gate after it measures against that guess.
 - **The approvals.** They do not survive the session that received them; a resumed run asks again at the gate it reaches.
+- **Whether the pull request's claim is this run's.** An `ai:processing` on it proves only that some run took it, never which (`git-workflow`), so the answer comes from the prompt that started this run: a handoff naming that pull request as held hands the claim over, and this run continues it. No such sentence - the claim belongs to another run however familiar the branch looks, and Phase C will stop on it rather than take it.
 
 ## Phase boundaries - the only pauses
 
@@ -93,7 +94,7 @@ Its own context because it is the largest one of the run, and because nothing af
 
 Its own context because the stages that judge this pull request must not inherit the author's account of why the code is right - `git-finalize-pr` > Isolation - and a phase that begins by reading the PR and the diff holds that isolation for free.
 
-1. `git-finalize-pr`, then `git-complete-pr`. The rounds, the factors and the outcome belong to them; nothing here re-decides any of it.
+1. `git-finalize-pr`, then `git-complete-pr`. The rounds, the factors and the outcome belong to them; nothing here re-decides any of it. When pre-flight established the claim as this run's, the prompt says so - that sentence is what separates this phase from a second actor, and without it `git-finalize-pr` refuses the very pull request the phase was spawned to finish.
 2. The phase ends at exactly one outcome label. `ai:manual` or `ai:failed` ends the run there, reporting the owner's list - there is no merge on a caveat. One ending writes no label at all: a pull request already claimed by another run stops `git-finalize-pr` at its pre-flight (`git-workflow`), and this instance ends on the comment it left there rather than on an outcome it has no standing to write.
 3. Accept-ready reaches the accept gate.
 
@@ -127,4 +128,4 @@ A second task arriving while a branch is occupied never enters that worktree. `g
 - One instance, one branch, one worktree, one pull request.
 - Resumption never re-enters a phase the forge already shows as past.
 - A question inside a phase ends that phase; it never pauses inside one.
-- Subagent prompts are pointers - the phase's goal, what to read, which skills to invoke, the scope fence. A judging stage never receives this run's reasoning about the code.
+- Subagent prompts are pointers - the phase's goal, what to read, which skills to invoke, the scope fence, and any claim this run holds on the pull request. A judging stage never receives this run's reasoning about the code; a claim is not reasoning, it is the operational fact without which the phase cannot act on its own pull request.
