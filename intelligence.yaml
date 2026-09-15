@@ -24,9 +24,9 @@ sources:
     - "packs/core/agents"
   skills:
     - ".intelligence/packages/@ainova-systems/sync/skills"
+    - "packs/core/skills"
 
 # Generated output, one entry per tool. Add or drop tools freely.
-    - "packs/core/skills"
 targets:
   agents: { enabled: true, output: "AGENTS.md" }
   claude: { enabled: true, output: ".claude" }
