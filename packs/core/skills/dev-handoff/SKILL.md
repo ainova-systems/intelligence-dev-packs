@@ -12,6 +12,7 @@ Produce a portable prompt a fresh session (any tool, any machine) pastes to cont
 
 1. Verify state with commands, never from memory: `git branch --show-current`, `git log --oneline -5`, `git status --porcelain`, gate results actually observed this session.
 2. Capture: the task in the owner's framing plus agreed scope; the spec path and current task position; done-and-verified vs in-progress, with the exact next action.
+   - **A pull request this run holds is named explicitly** - its number and that this run set `ai:processing` on it. That sentence is what hands the claim over: without it the next session is a second actor and every skill that reads the label will refuse the PR rather than continue it (`git-workflow` > autonomous PR labels). A run holding no claim says so, so the next session does not infer one from a PR that merely exists.
 3. Capture decisions with one-line rationale, including rejected approaches so they are not retried.
 4. Reference, don't duplicate: content already in artifacts (spec, ADRs, commits, PR description) is cited by path or URL, never copied in.
 5. Add a **suggested skills** section: the skills the next session should invoke (the project's resume skill when it has one, plus whatever the stated focus needs).

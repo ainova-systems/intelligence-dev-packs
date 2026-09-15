@@ -25,7 +25,7 @@ A run that reports progress and waits to be invoked again leaves the pull reques
 1. `git branch --show-current` - abort on the default/integration/protected branch.
 2. Resolve the PR: `gh pr list --head <branch> --state open --json number,headRefOid --jq '.[0]'`. An explicit argument must match this branch's PR. None - open it with `git-open-pr` first, then retry.
 3. Declared factors: profile `pr_success_factors` (default `ai:verified, ai:reviewed`). A factor no stage in this project writes still gates the run - it is simply someone else's to apply.
-4. Take the PR (`git-workflow` > autonomous PR labels). An `ai:processing` standing that this run did not write is another run's claim and is never taken: STOP and report the PR as held, having changed nothing - no factor cleared, no stage run, no outcome written. Otherwise set `ai:processing` and clear every factor that is not fresh at head.
+4. Take the PR (`git-workflow` > autonomous PR labels). An `ai:processing` this run neither wrote nor was handed by a handoff is another run's claim and is never taken: post one `## Finalize - HELD` comment (`head: <sha>`, what this run was asked to do, and that it took nothing), then STOP. No label, no factor cleared, no stage run - none of them are this run's to write, and the comment is what turns the refusal into something the owner can see. Otherwise set `ai:processing` and clear every factor that is not fresh at head.
 
 ## The round
 

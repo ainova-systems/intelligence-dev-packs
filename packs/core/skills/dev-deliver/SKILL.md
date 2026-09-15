@@ -58,7 +58,7 @@ A gate declined upfront withholds the boundary it governs and nothing earlier: e
 
 ## How the run ends
 
-Four endings, each stated to the owner rather than left to be read out of silence:
+Five endings, each stated to the owner rather than left to be read out of silence:
 
 | Ending | What the owner is left with |
 |---|---|
@@ -66,8 +66,9 @@ Four endings, each stated to the owner rather than left to be read out of silenc
 | a gate the owner did not give | the gate named, and the pull request carrying the outcome label Phase C wrote |
 | Phase C reached `ai:manual` or `ai:failed` | that outcome's list of what the owner has to decide or what blocked it |
 | a phase raised a question | the question, and which phase it ended |
+| the pull request was already another run's | the `Finalize - HELD` comment naming what this run wanted, and the holder's claim untouched |
 
-Past Phase C every one of them leaves the pull request carrying exactly one outcome label. `ai:processing` left on it says an agent holds the PR right now (`git-workflow`), so a run that stops there has told the owner's triage view and the merge gate the opposite of what is true - and it is the state a resumed run cannot distinguish from a sibling instance working the same branch.
+Past Phase C every one of them leaves the pull request carrying exactly one outcome label - except the last, which leaves the holder's label exactly as it found it, that pull request never having been this run's to end. `ai:processing` left on a PR this run did take says an agent holds it right now (`git-workflow`), so a run that stops there has told the owner's triage view and the merge gate the opposite of what is true - and it is the state a resumed run cannot distinguish from a sibling instance working the same branch, which is why the claim travels in the handoff rather than being inferred from the label.
 
 ## Phase A - Interview (main session)
 
@@ -93,7 +94,7 @@ Its own context because it is the largest one of the run, and because nothing af
 Its own context because the stages that judge this pull request must not inherit the author's account of why the code is right - `git-finalize-pr` > Isolation - and a phase that begins by reading the PR and the diff holds that isolation for free.
 
 1. `git-finalize-pr`, then `git-complete-pr`. The rounds, the factors and the outcome belong to them; nothing here re-decides any of it.
-2. The phase ends at exactly one outcome label. `ai:manual` or `ai:failed` ends the run there, reporting the owner's list - there is no merge on a caveat.
+2. The phase ends at exactly one outcome label. `ai:manual` or `ai:failed` ends the run there, reporting the owner's list - there is no merge on a caveat. One ending writes no label at all: a pull request already claimed by another run stops `git-finalize-pr` at its pre-flight (`git-workflow`), and this instance ends on the comment it left there rather than on an outcome it has no standing to write.
 3. Accept-ready reaches the accept gate.
 
 ## Phase D - Release (main session)
@@ -110,7 +111,7 @@ A second task arriving while a branch is occupied never enters that worktree. `g
 
 - Every Phase A criterion appears in the merged pull request's verification section and carries a `pass` in the report that earned `ai:verified` at the merged head; the closing report maps each criterion to the result observed for it and names any that never reached an observation.
 - Re-reading the pre-flight ladder at the end reports the phase the run actually reached.
-- Every instance that reached Phase C ends with one outcome label on its pull request and no `ai:processing`.
+- Every instance that took its pull request ends with one outcome label on it and no `ai:processing`; one refused the claim ends with its `Finalize - HELD` comment and no label of its own.
 
 ## Scope / hand-off
 
