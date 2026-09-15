@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **This repository's own `intelligence.yaml` no longer documents the wrong line.** A comment introducing the `targets:` block sat one entry higher, inside the `skills:` list and directly above `packs/core/skills`, so it read as describing a source path. YAML allows a comment mid-sequence, so both skill sources always resolved and nothing behaved differently - which is exactly why it survived: the only reader it misled was a human. No consumer-facing change.
+
 ## [0.9.2] - 2026-09-15
 
 A run ends where it said it would, and a claim on a pull request stops being something a second run can take.
