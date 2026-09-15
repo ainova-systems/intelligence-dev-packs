@@ -10,7 +10,7 @@ Orchestrate an open PR to accept-ready: CI green, the PR's own verification step
 
 ## The state this run leaves behind
 
-`ai:processing` says an agent holds this pull request right now, and this skill is what puts it there. So the run has one expected final state: that claim gone, replaced by the single outcome label `git-complete-pr` wrote. Which outcome it is belongs to `git-complete-pr`, which holds the escalation criteria once instead of every stage that hits a wall deciding for itself.
+`ai:processing` says an agent holds this pull request right now (`git-workflow`), and this skill is what puts it there. So the run has one expected final state: that claim gone, replaced by the single outcome label `git-complete-pr` wrote. Which outcome it is belongs to `git-complete-pr`, which holds the escalation criteria once instead of every stage that hits a wall deciding for itself.
 
 Three middles read like an ending, and each continues the run instead:
 
