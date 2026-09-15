@@ -38,7 +38,7 @@ A run that reports progress and waits to be invoked again leaves the pull reques
 3. **`ai:verified` fresh on HEAD_SHA?** No - run `git-verify-pr` in an isolated subagent. A pass earns the factor; failures queue as defects; `blocked (step)` queues as an owner-decision item for this PR. `blocked (project)` queues as one too, but as a standing configuration gap - never retry it round after round, because nothing a round does can resolve it.
 4. **`ai:reviewed` fresh on HEAD_SHA?** No - run `git-review-pr` in an isolated subagent. Critical findings queue as defects; warnings and suggestions do not. A stage that returns no verdict at all - a capability the forge lacks, a workspace it could not pin - queues as an owner-decision item, as step 3's blocked kinds do, and like `blocked (project)` it is never retried round after round: an absent verdict is not a slow one, and a round that re-runs it changes nothing about why it could not answer.
 5. **Fixable defects queued?** Fix them all, smallest-correct, top-down (what happened - what changed since last green - fix or delete per the feature doc - is there an existing primitive?). Run the local gates (`dev-run-tests`), then commit the **whole round as one commit** via `git-commit-push` and push. Re-set `ai:processing`, clear the factors, round += 1, back to 1.
-6. **Nothing fixable left** - hand to `git-complete-pr`. If it pushes a fix of its own, control returns here: round += 1, back to 1. That push is a round like any other, and it is counted here because this is where the run re-enters the loop.
+6. **Nothing fixable left** - hand to `git-complete-pr`. If it pushes a fix of its own, control returns here: round += 1, back to 1.
 
 ## Stop rules
 
