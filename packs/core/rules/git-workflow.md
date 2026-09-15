@@ -23,6 +23,8 @@ A run with no human in the loop between task and PR labels its PR, so a human tr
 - `ai:manual` - the run ended needing an owner decision; name precisely what (`git-complete-pr`).
 - `ai:failed` - the run ended unable to reach green; name the blocking failure and what was tried (`git-complete-pr`).
 
+The last three are terminal and `ai:processing` is not, so a run is over when it is gone: a PR left on it by a run that has stopped reads exactly like one an agent is still working, and both triage and merge gating believe that. A later run reclaims an abandoned claim by taking the PR for itself.
+
 **Success factors** - additive, each written by the stage that judged it and never by the actor that did the work:
 
 - `ai:verified` - the PR's own verification steps were executed against the running change and passed (`git-verify-pr`).

@@ -54,6 +54,19 @@ Profile `flow_approvals` decides *when* the two gates are asked - `per-gate` (de
 
 `upfront` takes both gates before the work exists, so each is a standing authorization and not a judgement of a diff: the accept gate authorizes merging once the pull request is accept-ready **and nothing has escalated to the owner**, the release gate authorizes cutting the change once it is merged. An upfront grant is permission not to be asked again; it is never permission to proceed past a caveat, and anything that would have reached the owner mid-run still reaches them. It moves when the owner acts, never whether: a host may stop again at the irreversible command itself, and a grant given earlier does not answer that.
 
+## How the run ends
+
+Four endings, each stated to the owner rather than left to be read out of silence:
+
+| Ending | What the owner is left with |
+|---|---|
+| delivered | the closing report - the tag, the merge commit, each criterion against what was observed for it |
+| a gate the owner did not give | the gate named, and the pull request carrying the outcome label Phase C wrote |
+| Phase C reached `ai:manual` or `ai:failed` | that outcome's list of what the owner has to decide or what blocked it |
+| a phase raised a question | the question, and which phase it ended |
+
+Past Phase C every one of them leaves the pull request carrying exactly one outcome label. `ai:processing` left on it says an agent holds the PR right now (`git-workflow`), so a run that stops there has told the owner's triage view and the merge gate the opposite of what is true - and it is the state a resumed run cannot distinguish from a sibling instance working the same branch.
+
 ## Phase A - Interview (main session)
 
 It talks to the owner, so it stays where the owner is; it is never a subagent.
@@ -95,6 +108,7 @@ A second task arriving while a branch is occupied never enters that worktree. `g
 
 - Every Phase A criterion appears in the merged pull request's verification section and carries a `pass` in the report that earned `ai:verified` at the merged head; the closing report maps each criterion to the result observed for it and names any that never reached an observation.
 - Re-reading the pre-flight ladder at the end reports the phase the run actually reached.
+- Every instance that reached Phase C ends with one outcome label on its pull request and no `ai:processing`.
 
 ## Scope / hand-off
 

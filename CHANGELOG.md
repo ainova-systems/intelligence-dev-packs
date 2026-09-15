@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **A run states where it is allowed to end, so pull requests stop collecting on `ai:processing`.** The four state labels were each defined, and nothing said which of them a run may stop on - so a run that reported progress and waited to be invoked again, or that ended while a check was still queued, left behind the label claiming an agent holds the PR right now. No reader can tell that from a live run, which is exactly the audience the labels exist for: an owner's triage view and the merge gate both read it as work in flight, and the only repair was a person noticing and re-invoking the skill by hand. `git-workflow` now names the three terminal labels against the one that is not, and says an abandoned claim is reclaimed by the next run taking the PR. `git-finalize-pr` gains the final state it is responsible for - that claim replaced by the outcome label `git-complete-pr` wrote - plus the three middles that read like an ending and each continue the run instead: a check still running, a stop rule (which ends the fix loop, not the run), and a stage that cannot run at all, whose inability is a finding for the outcome's list rather than a reason to go quiet. Which outcome it is stays `git-complete-pr`'s, which already holds those criteria once. `dev-deliver` states its four endings the same way, each with what the owner is left holding.
+
 ## [0.9.1] - 2026-09-14
 
 A judging stage that cannot trust its workspace says so instead of going green.

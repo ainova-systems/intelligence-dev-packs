@@ -1,12 +1,24 @@
 ---
 name: git-finalize-pr
-description: "Drives an open pull request through rounds of fix, verification and review until every success factor holds on one commit. Opening it is git-open-pr; recording the outcome is git-complete-pr."
+description: "Drives an open pull request through rounds of fix, verification and review until every success factor holds on one commit, and ends only at an outcome label. Opening it is git-open-pr; recording the outcome is git-complete-pr."
 argument-hint: "[pr number]"
 ---
 
 # Finalize the PR
 
 Orchestrate an open PR to accept-ready: CI green, the PR's own verification steps passed, the diff reviewed - all on the **same** head commit. This skill is the only actor here that pushes; the stages it calls only judge. It writes no outcome and never merges. Runs autonomously across CI rounds; wait reactively, never busy-poll.
+
+## The state this run leaves behind
+
+`ai:processing` says an agent holds this pull request right now, and this skill is what puts it there. So the run has one expected final state: that claim gone, replaced by the single outcome label `git-complete-pr` wrote. Which outcome it is belongs to `git-complete-pr`, which holds the escalation criteria once instead of every stage that hits a wall deciding for itself.
+
+Three middles read like an ending, and each continues the run instead:
+
+- **A check still running.** Waiting is a step of the round, sized to the job.
+- **A stop rule.** Each below ends the fix loop; the run carries on into `git-complete-pr` and ends there.
+- **A stage that cannot run at all** - no environment for it, a capability the forge lacks. That is a finding, and it reaches the owner in the outcome's list rather than as a run that went quiet.
+
+A run that reports progress and waits to be invoked again leaves the pull request claimed by an agent that is no longer working on it, which is the one state no later reader can tell from a live one - the owner's triage view and the merge gate both read it as work in flight. Pre-flight step 4 is where an abandoned claim is repaired: taking the PR is what makes it this run's.
 
 ## Pre-flight
 
@@ -44,6 +56,7 @@ Isolation covers the workspace too. A stage judges the location it is given, and
 ## Verify
 
 - Every declared factor fresh at HEAD_SHA and CI green there, or the run ended through `git-complete-pr` with a named reason.
+- `gh pr view <pr> --json labels` shows one outcome label and no `ai:processing`.
 
 ## Scope / hand-off
 
