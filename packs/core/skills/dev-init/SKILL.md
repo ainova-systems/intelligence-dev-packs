@@ -19,6 +19,8 @@ A missing `intelligence.yaml` is not a blocker: that is the copy install, and st
 
 2. **Labels.** Create each `ai:*` label `git-workflow` names, via profile `cli` (`gh label create` on GitHub). Skip names that already exist. A forge that cannot create labels is a capability gap in the report, not a workaround.
 
+   **Report every other `ai:*` label the forge already carries, and delete none.** Each is either dead or a second vocabulary, and a second vocabulary fails in the one way nobody can see from either side: the gates read one set of names while the project's own skills write the other, so a pull request ends on a label that is finished to whoever wrote it and invisible to whatever merges - green, reviewed, and outside the queue. Name each extra with what would end it: retire it, or declare it in profile `pr_success_factors`, which is where a factor an external agent, worker or pipeline applies is legitimately declared. The choice is the owner's; the report is what makes it one.
+
 3. **PR template.** Profile `pr_template: none` - skip. A repo template already at `.github/PULL_REQUEST_TEMPLATE.md` or `.github/pull_request_template.md` stays. No repo template - copy the pack default `git-open-pr` ships at `assets/pr-template.md` to `.github/PULL_REQUEST_TEMPLATE.md`. In either case that keeps a template, pin profile `verify_section` to that file's verification heading (`Manual Verification` on the pack default), including when the profile already held a different explicit value.
 
 4. **Harness permission rules.** Merge the same templates directory's `claude-settings.json` into `.claude/settings.json` additively: keep the project's entries, add missing values under every `permissions` list it carries - `deny` for what is never allowed, `ask` for the irreversible acts the owner approves at the command. The mapping of invariants to machinery is `docs/enforcement.md`; further hooks on that page are owner options, not this step.
@@ -35,7 +37,7 @@ A missing `intelligence.yaml` is not a blocker: that is the copy install, and st
 
 ## Verify
 
-- A `dev-project-profile.md` exists in `intelligence/rules/`; every `ai:*` label `git-workflow` names exists on the forge or the report names the capability gap; the PR template outcome is stated (copied / left / skipped); `verify_section` matches the template heading in play when a template is in play; `.claude/settings.json` contains the template's `deny` and `ask` entries when that file was in play; every branch the profile names has its protection state reported against what the profile claims, or the report names the capability gap; when `intelligence.yaml` was present, `intelligence status --check` passed after the sync.
+- A `dev-project-profile.md` exists in `intelligence/rules/`; every `ai:*` label `git-workflow` names exists on the forge or the report names the capability gap; every other `ai:*` label on the forge is listed with what would end it; the PR template outcome is stated (copied / left / skipped); `verify_section` matches the template heading in play when a template is in play; `.claude/settings.json` contains the template's `deny` and `ask` entries when that file was in play; every branch the profile names has its protection state reported against what the profile claims, or the report names the capability gap; when `intelligence.yaml` was present, `intelligence status --check` passed after the sync.
 
 ## Scope / hand-off
 

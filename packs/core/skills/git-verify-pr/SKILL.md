@@ -28,6 +28,8 @@ Be the manual QA engineer the PR body asks for: run the steps it declares agains
    **Who asks depends on where this runs, and the stage does not guess.** Invoked directly by a person, it asks and records. Inside a run it is an isolated subagent with no one to ask, so it returns `blocked (project)` naming both keys and the question travels out with the escalation - `git-finalize-pr` stops retrying it, `git-complete-pr` puts it to the owner. Either way the answer lands in the profile once; an escalation that repeats identically on every PR without saying how to end it is noise.
 
 3. **Execute each step in order, exactly as written**, driving the interface it names with whatever the host provides (browser automation, an HTTP client, the CLI). Record for each: the action taken, the observed result verbatim, and the expected result the step states.
+
+   **A capability this host lacks is replaced before it is escalated.** A repository that exercises an interface in CI already ships a way to drive it - an end-to-end project with its own browser, a client with the project's auth, a preview whose sign-in offers seeded accounts - and reaching for one of those is this stage's work. `blocked (step)` is for a capability nothing in the repository provides, and its report says what was looked for. Handing the look to the owner because the host's own tool would not connect is not a verdict; it makes them the stage, and what they find then, they find in public.
 4. **One verdict per step**, and there are four - a bare `blocked` is not one of them, because the two kinds route differently and a generic verdict strands the router:
    - **`pass`** - observed matches expected.
    - **`fail`** - observed contradicts expected.
