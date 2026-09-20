@@ -25,9 +25,12 @@ is the least reliable form of a rule.
 ## Entries
 
 Each entry is an area glob, the check, and the reason it exists. The reason is not decoration: it is
-what lets a future reader decide the entry has stopped earning its place.
+what lets a future reader decide the entry has stopped earning its place. `git-verify-pr` executes
+these alongside a pull request's declared steps, so each carries what `git-open-pr` requires of one:
+the state it starts from, and an expected result the change under test cannot falsify.
 
-- **`<glob>`** - <the check, as an action with an observable expected result>
+- **`<glob>`** - <the check, as an action from a named starting state, with an observable expected
+  result the change under test cannot falsify>
   - *Why*: <the failure this catches, ideally the one that shipped>
 
 ### Example shape
