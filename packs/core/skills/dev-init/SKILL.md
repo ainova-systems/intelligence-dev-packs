@@ -33,7 +33,7 @@ A missing `intelligence.yaml` is not a blocker: that is the copy install, and st
 
 8. **Overlap.** List every project rule that overlaps or contradicts a package rule. Project wins; recommend keep / drop / scope. Do not edit project rules.
 
-9. **Report.** Profile values filled vs left; labels created; template copied or skipped; permission rules merged; protection mismatches and what each would take to close; the overlap list; the owner's remaining items. If the spec pack is installed, the next step is `spec-init`. Do not commit or push.
+9. **Report.** Profile values filled vs left; labels created, and every other `ai:*` label with what would end it; template copied or skipped; permission rules merged; protection mismatches and what each would take to close; the overlap list; the owner's remaining items. If the spec pack is installed, the next step is `spec-init`. Do not commit or push.
 
 ## Verify
 
