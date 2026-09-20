@@ -110,7 +110,7 @@ A second task arriving while a branch is occupied never enters that worktree. `g
 
 ## Verify
 
-- Every Phase A criterion appears in the merged pull request's verification section and carries a `pass` in the report that earned `ai:verified` at the merged head; the closing report maps each criterion to the result observed for it and names any that never reached an observation.
+- Every Phase A criterion carries what `git-open-pr` requires of a declared step - the state it starts from, and an expected result the change itself cannot falsify - before Phase B copies it into the section. Every one appears in the merged pull request's verification section and carries a `pass` in the report that earned `ai:verified` at the merged head; the closing report maps each criterion to the result observed for it and names any that never reached an observation.
 - Re-reading the pre-flight ladder at the end reports the phase the run actually reached.
 - Every instance that took its pull request ends with one outcome label on it and no `ai:processing`; one refused the claim ends with its `Finalize - HELD` comment and no label of its own.
 
