@@ -106,7 +106,11 @@ Its own context because the stages that judge this pull request must not inherit
 
 ## Parallel tasks
 
-A second task arriving while a branch is occupied never enters that worktree. `git worktree add <root>/<slug> -b <prefix>/<slug> <base>`, where `<root>` is profile `worktree_root` (default `auto` - a sibling directory of the repository root), and it becomes its own instance: its own branch, pull request and position on the ladder, its Phase A still here with the owner, its B and C subagents working in that directory. Instances share only you and the owner's attention, so the gates serialize - one question at a time, each naming its instance. Remove the worktree once `git-merge-pr` confirms the merge landed. Every worktree a run needs is yours to create and to remove, including one a stage needs: a stage works where it was told and never makes its own, so creation and cleanup keep a single owner.
+A run works in the checkout it was invoked in, and one task never makes a worktree at all: a second directory is a cost the owner pays in attention, and nothing buys one for a run that already has somewhere to work. A task arriving while the branch it needs is occupied is the one with nowhere, and it never enters the occupied worktree. Whether it gets its own is profile `worktree_policy` (default `auto` - one here; `never` makes it wait for that branch instead; `always` gives every parallel task one, which is the setting for a project that routinely runs them in batches).
+
+Making one is `git worktree add <root>/<slug> -b <prefix>/<slug> <base>`, `<root>` from profile `worktree_root` (default `auto` - a sibling directory of the repository root); removing it is `git worktree remove`, once `git-merge-pr` confirms the merge landed. A repository where git alone does not leave a directory ready to work in - dependencies to install, env files to link - says so in `worktree_create` and `worktree_remove`, and those commands replace both: where a project states how its worktrees are made, that is how they are made.
+
+A worktree is its own instance: its own branch, pull request and position on the ladder, its Phase A still here with the owner, its B and C subagents working in that directory. Instances share only you and the owner's attention, so the gates serialize - one question at a time, each naming its instance. Every worktree a run needs is yours to create and to remove, including one a stage needs: a stage works where it was told and never makes its own judging location, so creation and cleanup keep a single owner. The throwaway repository a stage probes in is not one of these and is the stage's own (`git-finalize-pr` > Isolation).
 
 ## Verify
 
@@ -125,7 +129,7 @@ A second task arriving while a branch is occupied never enters that worktree. `g
 - The acceptance criteria are authored in Phase A and by nobody else; one appearing later is a changed contract and goes back to the owner.
 - Both gates are the owner's words in this run - never inferred from a label, a green pipeline, or an earlier session.
 - A phase the project already ships a skill for is handed to that skill; this run finishes what that skill left and never redoes what it did.
-- One instance, one branch, one worktree, one pull request.
+- One instance, one branch, one pull request - and never more than one worktree, which profile `worktree_policy` decides an instance gets at all.
 - Resumption never re-enters a phase the forge already shows as past.
 - A question inside a phase ends that phase; it never pauses inside one.
 - Subagent prompts are pointers - the phase's goal, what to read, which skills to invoke, the scope fence, and any claim this run holds on the pull request. A judging stage never receives this run's reasoning about the code; a claim is not reasoning, it is the operational fact without which the phase cannot act on its own pull request.

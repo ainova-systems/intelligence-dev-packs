@@ -37,11 +37,13 @@ Be the manual QA engineer the PR body asks for: run the steps it declares agains
    - **`blocked (step)`** - this step alone cannot run: a credential the others did not need, a capability nothing in the repository provides once step 3's search came back empty, or an expected result stated too vaguely to judge. Where the step itself is the cause - it asks for a branch or a commit on the workspace this stage holds still - the report says so, because that is the one kind the PR body can fix. It belongs to this PR, and it is never grounds to drop the factor project-wide - that would disable verification for everything because one step needed a login.
 
    Neither blocked kind becomes a `pass` because everything around it passed.
+
+   A fifth belongs to the report rather than to any step: **`blocked (workspace)`** - the location this stage was given moved under it, so nothing it read is known to be one commit. No step carries it, because the finding is that no step's result can be trusted. It is the only verdict its caller can clear, by holding the location still and running the stage again (`git-finalize-pr` > Isolation) - which is what separates it from the two above, one waiting on a profile answer and the other on this PR.
 5. **Probe the negative each passing step implies**: empty input, an unauthorized caller, the boundary value it names. The defect the happy path hides is exactly the one the diff does not show.
 6. **Record.** Post one PR comment (`gh pr comment`) in the report envelope `git-workflow` defines - each run against a new head is a new entry in the log. Name the head SHA **and** a short digest of what was executed (the declared section plus the matched standing checks, in order). The code is not this stage's only input: a PR body can be edited and a standing check added without the head moving, and a factor earned against the old steps is not a claim about the new ones. The digest is what makes that visible instead of assumed:
 
 ```
-## Verification - PASS | FAIL | BLOCKED (PROJECT) | BLOCKED (STEP)
+## Verification - PASS | FAIL | BLOCKED (PROJECT) | BLOCKED (STEP) | BLOCKED (WORKSPACE)
 head: <sha> - steps: <digest> - env: <preview <url> | local | none>
 
 | # | Step | Source | Verdict | Observed |
@@ -53,7 +55,7 @@ head: <sha> - steps: <digest> - env: <preview <url> | local | none>
 - Step 2 - expected <x>, observed <y>. Repro: <the exact actions>. Suspect: `path/file:line`.
 ```
 
-7. **Label.** Every step `pass` - add `ai:verified`. Otherwise write no label at all and return the failures and blocked steps to the caller: the outcome is `git-complete-pr`'s to write.
+7. **Label.** Every step `pass` and no `blocked (workspace)` on the report - add `ai:verified`. A workspace block is not a step's to carry, so rows that all read `pass` do not answer it, and a factor earned from a location nobody could pin is the one this stage must never write. Otherwise write no label at all and return the failures, the blocked steps and any workspace block to the caller: the outcome is `git-complete-pr`'s to write.
 
 ## Delegation
 
@@ -61,7 +63,7 @@ One pass by default. Fan out by surface (the UI steps, the API steps, the CLI st
 
 ## Verify
 
-- One comment naming the head SHA and the steps digest; every step - declared and standing alike - carries its source, a verdict and an observed result, and every `blocked (step)` reached for a missing capability says what was looked for; `ai:verified` present only when all of them passed.
+- One comment naming the head SHA and the steps digest; every step - declared and standing alike - carries its source, a verdict and an observed result, and every `blocked (step)` reached for a missing capability says what was looked for; `ai:verified` present only when all of them passed and the report carries no `blocked (workspace)`.
 
 ## Scope / hand-off
 
@@ -72,5 +74,5 @@ One pass by default. Fan out by surface (the UI steps, the API steps, the CLI st
 - Never mark a step passed from reading the code - only from an observed result.
 - Never fix what it finds: a QA engineer who patches the build is no longer reporting on it.
 - Never widen the steps into a test plan the PR did not declare. The only additions are the project's standing checks, which are area-keyed and written in advance - not judgment invented for this PR - and they never fill in for steps the PR failed to declare. Never drop a step because it looks unnecessary.
-- Judge the location you were given and never make your own. If it is not at the head under judgement, or it moves mid-run, write no factor and report that instead - a verdict drawn from a workspace nobody could pin must not end up looking green (`git-finalize-pr` > Isolation).
+- Judge the location you were given and never make your own to judge in; a throwaway repository to probe in is not one. If it is not at the head under judgement, or it moves mid-run, write no factor and report `blocked (workspace)` - a verdict drawn from a workspace nobody could pin must not end up looking green (`git-finalize-pr` > Isolation).
 - No credentials in the report or in the profile - test accounts come from the project's documented secret source.

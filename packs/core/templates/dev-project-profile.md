@@ -53,7 +53,10 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 - flow_intake: auto                  <!-- the skill dev-deliver's interview phase hands to: auto = the project's own intake skill when one is installed, which with the spec pack means spec-pull when the task names a tracker item and spec-create then spec-plan when it does not; else the built-in interview | <skill name> -->
 - flow_implement: auto               <!-- the skill dev-deliver's implement phase hands to: auto = the project's own execution skill when one is installed (spec-execute with the spec pack), else one subagent working to the phase's criteria | <skill name> -->
 - flow_approvals: per-gate           <!-- WHEN the owner's two gates are taken, never whether: per-gate (each asked at the boundary it governs) | upfront (both asked once at the end of the interview) -->
+- worktree_policy: auto              <!-- when a parallel task gets its own git worktree: auto = only when the branch it needs is already occupied | never = it waits for the occupied branch instead | always = every parallel task gets one -->
 - worktree_root: auto                <!-- where a parallel task's git worktree is created: auto = a sibling directory of the repository root | <path> -->
+- worktree_create: none              <!-- command that creates a ready-to-work worktree, given its path and branch, in place of the plain git worktree add - e.g. one that also installs dependencies or links env files; none -->
+- worktree_remove: none              <!-- command that removes one, given its path, in place of the plain git worktree remove - e.g. one that also tears down what the create command set up; none -->
 
 ## Pull requests
 
