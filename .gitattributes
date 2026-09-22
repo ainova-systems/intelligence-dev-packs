@@ -1,4 +1,6 @@
-# Shell scripts must stay LF on every platform (bash rejects CRLF).
-*.sh text eol=lf
-*.md text
-*.yml text
+# Every text file is LF in the index and in the working tree, so one tree never
+# holds two endings at once: the Intelligence CLI writes its generated output LF
+# on every platform, and a checkout that converted the rest to CRLF makes every
+# regenerated file read as a diff nobody wrote. bash also rejects a CRLF script.
+# The last matching pattern wins: any rule added below this line overrides it.
+* text=auto eol=lf
