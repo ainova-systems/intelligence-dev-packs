@@ -36,7 +36,7 @@ sets that section's ceiling - a change that needs less says less.
      the reader, and which role it runs as where behaviour differs by one. State
      an expected result the change itself cannot falsify - the filter whose
      output must be empty, not a count the next commit moves. The stage holds
-     the checkout still for as long as it judges, so a step needing a branch or
+     the workspace still for as long as it judges, so a step needing a branch or
      a commit makes them in a throwaway repository. This is the section
      git-verify-pr executes. -->
 -
