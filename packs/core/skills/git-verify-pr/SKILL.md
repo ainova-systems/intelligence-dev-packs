@@ -37,11 +37,13 @@ Be the manual QA engineer the PR body asks for: run the steps it declares agains
    - **`blocked (step)`** - this step alone cannot run: a credential the others did not need, a capability nothing in the repository provides once step 3's search came back empty, or an expected result stated too vaguely to judge. Where the step itself is the cause - it asks for a branch or a commit on the workspace this stage holds still - the report says so, because that is the one kind the PR body can fix. It belongs to this PR, and it is never grounds to drop the factor project-wide - that would disable verification for everything because one step needed a login.
 
    Neither blocked kind becomes a `pass` because everything around it passed.
+
+   A fifth belongs to the report rather than to any step: **`blocked (workspace)`** - the location this stage was given moved under it, so nothing it read is known to be one commit. No step carries it, because the finding is that no step's result can be trusted. It is the only verdict its caller can clear, by holding the location still and running the stage again (`git-finalize-pr` > Isolation) - which is what separates it from the two above, one waiting on a profile answer and the other on this PR.
 5. **Probe the negative each passing step implies**: empty input, an unauthorized caller, the boundary value it names. The defect the happy path hides is exactly the one the diff does not show.
 6. **Record.** Post one PR comment (`gh pr comment`) in the report envelope `git-workflow` defines - each run against a new head is a new entry in the log. Name the head SHA **and** a short digest of what was executed (the declared section plus the matched standing checks, in order). The code is not this stage's only input: a PR body can be edited and a standing check added without the head moving, and a factor earned against the old steps is not a claim about the new ones. The digest is what makes that visible instead of assumed:
 
 ```
-## Verification - PASS | FAIL | BLOCKED (PROJECT) | BLOCKED (STEP)
+## Verification - PASS | FAIL | BLOCKED (PROJECT) | BLOCKED (STEP) | BLOCKED (WORKSPACE)
 head: <sha> - steps: <digest> - env: <preview <url> | local | none>
 
 | # | Step | Source | Verdict | Observed |
