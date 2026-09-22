@@ -25,20 +25,24 @@ is the least reliable form of a rule.
 ## Entries
 
 Each entry is an area glob, the check, and the reason it exists. The reason is not decoration: it is
-what lets a future reader decide the entry has stopped earning its place.
+what lets a future reader decide the entry has stopped earning its place. `git-verify-pr` executes
+these alongside a pull request's declared steps, so each carries what `git-open-pr` requires of one:
+the state it starts from, and an expected result the change under test cannot falsify.
 
-- **`<glob>`** - <the check, as an action with an observable expected result>
+- **`<glob>`** - <the check, as an action from a named starting state, with an observable expected
+  result the change under test cannot falsify>
   - *Why*: <the failure this catches, ideally the one that shipped>
 
 ### Example shape
 
-- **`**/auth/**`, `**/*Permission*`** - call one changed endpoint as an unauthenticated caller and as a
-  caller lacking the required role; both are rejected, and the rejection does not leak whether the
-  resource exists.
+- **`**/auth/**`, `**/*Permission*`** - starting from a signed-out client, and then from one holding a
+  role the endpoint does not grant, call one changed endpoint; both calls are rejected, and neither
+  rejection differs according to whether the resource exists.
   - *Why*: authorization is enforced per call site, so a change that adds a call site can bypass it
     while every existing test stays green.
 
-- **`**/migrations/**`** - run the migration against a copy of production-shaped data, then run the
-  previous release's code against the migrated schema.
+- **`**/migrations/**`** - starting from a copy of production-shaped data at the previous release's
+  schema, run the migration, then run the previous release's code against the migrated schema; the
+  migration completes, and that older code serves its read paths without a schema error.
   - *Why*: a migration that only passes forward strands a rollback, and rollback is the one path never
     exercised until it is needed.

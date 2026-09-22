@@ -78,7 +78,7 @@ It talks to the owner, so it stays where the owner is; it is never a subagent.
 1. Read first: the profile, the rules, the area the task touches. A question the repository answers is answered there, never asked.
 2. The phase's owner per the resolution above runs it, and this step ends when nothing about the goal is still open. Nothing installed covers the phase - interview here, one question at a time, dependencies first.
 3. **Exit condition**: the goal in one sentence, what the owner will see when it is done, and what is out of scope - all three stated without hedging.
-4. **The acceptance criteria** are the phase's product: each an action plus the result the owner expects to observe. Every one must be executable read-only against a running change; one needing a live pull request, a credential only a person holds, or state only the author can create is rewritten now. Left as written it returns in Phase C as `blocked (step)`, after the code exists.
+4. **The acceptance criteria** are the phase's product: each an action plus the result the owner expects to observe, carrying what `git-open-pr` requires of a declared step - the state it starts from, including what the environment does by default where that is not where the step wants the reader and which role it runs as where behaviour differs by one, and an expected result the change itself cannot falsify. Phase B fills the verification section with these verbatim, so a criterion missing either half is a pull request that cannot satisfy `git-open-pr`'s own gate. Every one must be executable read-only against a running change; one needing a live pull request, a credential only a person holds, or state only the author can create is rewritten now. Left as written it returns in Phase C as `blocked (step)`, after the code exists.
 5. `flow_approvals: upfront` - take both gates now.
 
 ## Phase B - Implement (one subagent)
@@ -110,7 +110,7 @@ A second task arriving while a branch is occupied never enters that worktree. `g
 
 ## Verify
 
-- Every Phase A criterion appears in the merged pull request's verification section and carries a `pass` in the report that earned `ai:verified` at the merged head; the closing report maps each criterion to the result observed for it and names any that never reached an observation.
+- Every Phase A criterion carries what `git-open-pr` requires of a declared step - the state it starts from, and an expected result the change itself cannot falsify - before Phase B copies it into the section. Every one appears in the merged pull request's verification section and carries a `pass` in the report that earned `ai:verified` at the merged head; the closing report maps each criterion to the result observed for it and names any that never reached an observation.
 - Re-reading the pre-flight ladder at the end reports the phase the run actually reached.
 - Every instance that took its pull request ends with one outcome label on it and no `ai:processing`; one refused the claim ends with its `Finalize - HELD` comment and no label of its own.
 
