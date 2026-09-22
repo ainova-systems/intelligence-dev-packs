@@ -74,5 +74,5 @@ One pass by default. Fan out by surface (the UI steps, the API steps, the CLI st
 - Never mark a step passed from reading the code - only from an observed result.
 - Never fix what it finds: a QA engineer who patches the build is no longer reporting on it.
 - Never widen the steps into a test plan the PR did not declare. The only additions are the project's standing checks, which are area-keyed and written in advance - not judgment invented for this PR - and they never fill in for steps the PR failed to declare. Never drop a step because it looks unnecessary.
-- Judge the location you were given and never make your own. If it is not at the head under judgement, or it moves mid-run, write no factor and report that instead - a verdict drawn from a workspace nobody could pin must not end up looking green (`git-finalize-pr` > Isolation).
+- Judge the location you were given and never make your own to judge in; a throwaway repository to probe in is not one. If it is not at the head under judgement, or it moves mid-run, write no factor and report `blocked (workspace)` - a verdict drawn from a workspace nobody could pin must not end up looking green (`git-finalize-pr` > Isolation).
 - No credentials in the report or in the profile - test accounts come from the project's documented secret source.
