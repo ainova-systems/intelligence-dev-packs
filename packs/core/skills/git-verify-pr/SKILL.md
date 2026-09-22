@@ -55,7 +55,7 @@ head: <sha> - steps: <digest> - env: <preview <url> | local | none>
 - Step 2 - expected <x>, observed <y>. Repro: <the exact actions>. Suspect: `path/file:line`.
 ```
 
-7. **Label.** Every step `pass` - add `ai:verified`. Otherwise write no label at all and return the failures and blocked steps to the caller: the outcome is `git-complete-pr`'s to write.
+7. **Label.** Every step `pass` and no `blocked (workspace)` on the report - add `ai:verified`. A workspace block is not a step's to carry, so rows that all read `pass` do not answer it, and a factor earned from a location nobody could pin is the one this stage must never write. Otherwise write no label at all and return the failures, the blocked steps and any workspace block to the caller: the outcome is `git-complete-pr`'s to write.
 
 ## Delegation
 
