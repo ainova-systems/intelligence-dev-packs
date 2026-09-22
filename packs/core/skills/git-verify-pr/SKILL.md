@@ -34,7 +34,7 @@ Be the manual QA engineer the PR body asks for: run the steps it declares agains
    - **`pass`** - observed matches expected.
    - **`fail`** - observed contradicts expected.
    - **`blocked (project)`** - no environment at all, from step 2. One standing gap, one profile answer, and it ends for every future PR at once.
-   - **`blocked (step)`** - this step alone cannot run: a credential the others did not need, a capability nothing in the repository provides once step 3's search came back empty, or an expected result stated too vaguely to judge. It belongs to this PR, and it is never grounds to drop the factor project-wide - that would disable verification for everything because one step needed a login.
+   - **`blocked (step)`** - this step alone cannot run: a credential the others did not need, a capability nothing in the repository provides once step 3's search came back empty, or an expected result stated too vaguely to judge. Where the step itself is the cause - it asks for a branch or a commit on the workspace this stage holds still - the report says so, because that is the one kind the PR body can fix. It belongs to this PR, and it is never grounds to drop the factor project-wide - that would disable verification for everything because one step needed a login.
 
    Neither blocked kind becomes a `pass` because everything around it passed.
 5. **Probe the negative each passing step implies**: empty input, an unauthorized caller, the boundary value it names. The defect the happy path hides is exactly the one the diff does not show.
