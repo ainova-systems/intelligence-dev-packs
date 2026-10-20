@@ -46,6 +46,7 @@ One pass by default. Fan out by review dimension only when the diff exceeds what
 
 ## Verify
 
+- What it published holds nothing `git-commit-conventions` forbids in a published artifact.
 - One comment naming the head SHA; every finding carries `file:line` plus evidence, or a body heading for a body-audience finding; a verdict is stated; `ai:reviewed` present only when no Critical finding stands.
 
 ## Scope / hand-off

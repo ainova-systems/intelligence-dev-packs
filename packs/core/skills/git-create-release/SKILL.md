@@ -55,6 +55,7 @@ State the resolved policy in one line before acting.
 
 ## Verify
 
+- What it published holds nothing `git-commit-conventions` forbids in a published artifact.
 - `git describe --tags` on the release commit prints the new tag; the changelog section matches the shipped diff; CI/deploy is green; any release object is visible at its URL (Latest, or Draft pending publish); every step-2 item is marked done or accepted-and-applied.
 
 ## Scope / hand-off
