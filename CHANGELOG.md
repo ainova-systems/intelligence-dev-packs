@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The repository's own Intelligence project moved to Intelligence 0.22.1.
+
 ## [0.9.4] - 2026-10-20
 
 Published artifacts stay focused on the change and its verification.
