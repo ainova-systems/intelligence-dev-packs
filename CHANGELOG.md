@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.4] - 2026-10-20
+
+Published artifacts stay focused on the change and its verification.
+
 ### Changed
 
 - `git-commit-conventions` limits every published artifact - commits, PR bodies, stage reports, review replies, issues, changelog entries, release notes - to the change, how to confirm it and what was observed: no other project's details, local machine paths, investigation, internal discussion or decision reasoning. The pack PR template is shorter, and every skill that publishes checks its text against the rule.
