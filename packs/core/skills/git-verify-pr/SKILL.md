@@ -63,6 +63,7 @@ One pass by default. Fan out by surface (the UI steps, the API steps, the CLI st
 
 ## Verify
 
+- What it published holds nothing `git-commit-conventions` forbids in a published artifact.
 - One comment naming the head SHA and the steps digest; every step - declared and standing alike - carries its source, a verdict and an observed result, and every `blocked (step)` reached for a missing capability says what was looked for; `ai:verified` present only when all of them passed and the report carries no `blocked (workspace)`.
 
 ## Scope / hand-off

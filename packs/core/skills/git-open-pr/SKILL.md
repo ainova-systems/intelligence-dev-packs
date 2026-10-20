@@ -36,6 +36,7 @@ State one value each, e.g. `Risk: low | Size: small`.
 
 ## Verify
 
+- What it published holds nothing `git-commit-conventions` forbids in a published artifact.
 - Exactly one open PR for the branch; it targets the resolved base; the body has real content (no template hint comments left); every step in the verification section states the state it starts from and an expected result the change itself cannot falsify. When the pack default was used, Why and What each answer within the ceiling their comments set, and neither restates Changes.
 
 ## Scope / hand-off

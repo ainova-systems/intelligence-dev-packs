@@ -1,8 +1,9 @@
 <!--
 Pack default PR template. Used by git-open-pr when the project has no
 .github/PULL_REQUEST_TEMPLATE.md (or platform equivalent). Fill every section;
-delete a section only if it is genuinely not applicable. Each section's comment
-sets that section's ceiling - a change that needs less says less.
+delete a section only if it is genuinely not applicable. Each comment sets that
+section's ceiling. The body is public: git-commit-conventions says what it may
+contain.
 -->
 
 ## Risk & Size
@@ -13,38 +14,29 @@ sets that section's ceiling - a change that needs less says less.
   <!-- Small: a few lines or files. Medium: several files / one feature. Large: broad or cross-cutting change. -->
 
 ## Why
-<!-- One or two sentences: the problem or request this change answers, in plain
-     language a reader who does not remember the task, ticket, or chat can
-     recover it from. The smallest statement that makes the change make sense -
-     investigation notes and root-cause mechanics belong in Changes. -->
+<!-- One or two sentences: the problem this change answers, readable without the
+     task, ticket or chat. -->
 
 ## What
-<!-- One or two sentences: what this change does about that problem, in the same
-     plain language as Why. Not how the code is wired - that is Changes. -->
+<!-- One or two sentences: what the change does about it. -->
 
 ## Changes
-<!-- The shape of the work: what moved, in which area, and why that is the
-     approach. Core explanation only - not a file list, line-level mechanics,
-     or a restatement of the diff. -->
+<!-- Up to five short bullets: what moved and in which area. Not a file list or
+     a restatement of the diff. -->
 -
 
 ## Manual Verification
-<!-- Concrete steps a reviewer or QA runs to validate the RESULT, not that CI
-     passed. UI: which page to open and the observable result. API: the call and
-     the expected field/value. Name the state each step starts from, including
-     what the environment does by default when that is not where the step wants
-     the reader, and which role it runs as where behaviour differs by one. State
-     an expected result the change itself cannot falsify - the filter whose
-     output must be empty, not a count the next commit moves. The stage holds
-     the workspace still for as long as it judges, so a step needing a branch or
-     a commit makes them in a throwaway repository. This is the section
-     git-verify-pr executes. -->
+<!-- Steps that validate the RESULT, not that CI passed; git-verify-pr executes
+     them. Each names its starting state (the environment's default included,
+     when the step needs another; the role, where behaviour differs by one) and
+     an expected result the change cannot falsify - the filter whose
+     output must be empty, not a count. A step needing a branch or a commit
+     makes them in a throwaway repository. -->
 -
 
 ## Automated Gates
-<!-- Tests added or updated that cover this change: what they assert, and which
-     command runs them. Name existing tests that already cover it when no new
-     ones were needed. "None" only when there is no automated coverage. -->
+<!-- One line per test file or suite: what it asserts and the command that runs
+     it. "None" only when there is no automated coverage. -->
 -
 
 ## Deployment notes

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `git-commit-conventions` limits every published artifact - commits, PR bodies, stage reports, review replies, issues, changelog entries, release notes - to the change, how to confirm it and what was observed: no other project's details, local machine paths, investigation, internal discussion or decision reasoning. The pack PR template is shorter, and every skill that publishes checks its text against the rule.
+
 ## [0.9.3] - 2026-09-22
 
 A declared verification step is one the stage can actually run, and a commit message reaches git instead of an editor.

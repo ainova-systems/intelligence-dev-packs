@@ -36,6 +36,7 @@ A PR carrying no `ai:*` label is human-driven: drain its threads and write no la
 
 ## Verify
 
+- What it published holds nothing `git-commit-conventions` forbids in a published artifact.
 - Zero unanswered threads; every handled thread replied AND resolved; exactly one state label, and it matches what the PR actually shows.
 
 ## Scope / hand-off

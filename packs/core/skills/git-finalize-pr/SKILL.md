@@ -59,6 +59,7 @@ A stage that needs room to probe in makes a throwaway repository elsewhere, neve
 
 ## Verify
 
+- What it published holds nothing `git-commit-conventions` forbids in a published artifact.
 - Every declared factor fresh at HEAD_SHA and CI green there, or the run ended through `git-complete-pr` with a named reason.
 - `gh pr view <pr> --json labels` shows one outcome label and no `ai:processing`.
 

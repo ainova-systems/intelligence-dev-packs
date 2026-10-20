@@ -19,6 +19,7 @@ Land the pending work as one verified, cleanly described commit. Invoke at miles
 
 ## Verify
 
+- What it published holds nothing `git-commit-conventions` forbids in a published artifact.
 - `git log --oneline -1` shows the message; `git status` reports up to date with origin; gates were green on the pushed tree.
 
 ## Scope / hand-off
