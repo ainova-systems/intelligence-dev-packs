@@ -11,6 +11,8 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 |---|---|---|---|
 | **core** | `dev-`, `git-` | Universal - engineering discipline, session hygiene, git/PR/release. Install everywhere. | - |
 | **spec** | `spec-` | Opt-in - spec-driven development (plan, execute, docs). | core |
+| **operator** | `operator-` | Opt-in - the phase skills the Operator runtime runs, and the forge contract. | core, one platform pack |
+| **forge-github** | `forge-` | The forge contract on GitHub. | operator |
 
 ## Catalog
 
@@ -30,6 +32,7 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 | `dev-run-tests` | skill | Typecheck, lint, tests with scope detection and failure analysis |
 | `dev-review-changes` | skill | Read-only diff review with severity verdict |
 | `dev-handoff` | skill | Self-contained continuation prompt for a fresh session |
+| `dev-deliver-next` | skill | The next non-conflicting queue item (or the next N in parallel worktrees), reserved as a draft PR, then `dev-deliver` |
 
 ### core - `git-` domain (git / PR / release)
 
@@ -47,6 +50,26 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 | `git-merge-pr` | skill | After owner accept: guard-checked squash-merge, base sync, cleanup; the merge command itself prompts the owner |
 | `git-create-release` | skill | Pending-step review, owner gate, version, changelog, tag per the project's release flow; the tag push and the release object prompt the owner |
 | `git-scan-secrets` | skill | Credential scan over diff, tree, or history |
+| `git-sync-base` | skill | Return to the integration branch and clean away merged local branches and worktrees |
+
+### operator - `operator-` domain (depends on core and a platform pack)
+
+| Artifact | Kind | Role |
+|---|---|---|
+| `operator-contract` | skill | The run contract every phase skill loads first: input, result, claims, owner labels and questions, markers; `references/forge-contract.md` and its contract test |
+| `operator-intake` | skill | The next queue item into a draft PR, or close a rejected/cancelled attempt |
+| `operator-plan` | skill | Acceptance criteria and the plan, then the development milestone |
+| `operator-implement` | skill | One implementation round, then review; a complete, reviewed, green head to verification |
+| `operator-review` | skill | Posts the runtime's review unchanged and writes `ai:reviewed` when it passes |
+| `operator-verify` | skill | QA admission, `git-verify-pr`, feedback triage, then Human Review or back to development |
+| `operator-merge` | skill | Merges an owner-accepted PR while every gate still holds on the accepted head |
+| `operator-clarify` | skill | Settles a queue item waiting on an owner decision in a documentation PR, one question at a time, and merges it |
+
+### forge-github - `forge-` domain (depends on operator)
+
+| Artifact | Kind | Role |
+|---|---|---|
+| `forge-github` | skill | The forge contract on GitHub through `gh`; the readers a discovery script imports |
 
 The pack also ships two templates besides the profile schema. `dev-init` merges `packs/core/templates/claude-settings.json` into the project's committed `.claude/settings.json` so the invariants the rules state in prose are machinery too: no force-push, no blanket-stage and no `--no-verify` are denied outright, and the merge, the tag push and the release object prompt the owner at the command rather than relying on who invoked the skill. `packs/core/templates/dev-qa-checks.md` is the schema for the optional standing-checks file the profile's `qa_checks` points at - what `git-verify-pr` adds for any change touching an area, whatever that change says about itself.
 

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- The `operator` pack (the Operator runtime's phase skills and the forge contract with its contract test) and the `forge-github` platform pack; `dev-deliver-next` and `git-sync-base` in core, with the profile keys they and the operator pack read.
+
 ### Changed
 
 - The repository's own Intelligence project moved to Intelligence 0.22.1.
