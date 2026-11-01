@@ -50,13 +50,39 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 > Its four phases resolve their owner in the pack's usual order - these keys, then the
 > installed skill catalog, then its own built-in behavior.
 
-- flow_intake: auto                  <!-- the skill dev-deliver's interview phase hands to: auto = the project's own intake skill when one is installed, which with the spec pack means spec-pull when the task names a tracker item and spec-create then spec-plan when it does not; else the built-in interview | <skill name> -->
+- flow_intake: auto                  <!-- the skill dev-deliver's interview phase hands to: auto = the project's own intake skill when one is installed, which with the spec pack means spec-pull when the task names a tracker item and spec-create then spec-plan when it does not; else the built-in interview | <skill name>; operator-plan runs only its capture -->
 - flow_implement: auto               <!-- the skill dev-deliver's implement phase hands to: auto = the project's own execution skill when one is installed (spec-execute with the spec pack), else one subagent working to the phase's criteria | <skill name> -->
 - flow_approvals: per-gate           <!-- WHEN the owner's two gates are taken, never whether: per-gate (each asked at the boundary it governs) | upfront (both asked once at the end of the interview) -->
 - worktree_policy: auto              <!-- when a parallel task gets its own git worktree: auto = only when the branch it needs is already occupied | never = it waits for the occupied branch instead | always = every parallel task gets one -->
 - worktree_root: auto                <!-- where a parallel task's git worktree is created: auto = a sibling directory of the repository root | <path> -->
 - worktree_create: none              <!-- command that creates a ready-to-work worktree, given its path and branch, in place of the plain git worktree add - e.g. one that also installs dependencies or links env files; none -->
 - worktree_remove: none              <!-- command that removes one, given its path, in place of the plain git worktree remove - e.g. one that also tears down what the create command set up; none -->
+- flow_queue: none                   <!-- where the work queue's pick order, eligibility, grouping and leave-the-queue rules are written, read by dev-deliver-next and operator-intake; none = dev-deliver-next asks for a task -->
+- flow_plan: none                    <!-- the skill that writes a feature-sized plan; none = the plan goes on the queue item -->
+- judge_runner: none                 <!-- how git-review-pr and git-verify-pr run: none = in the session | <skill> that runs them in another engine -->
+- sync_base_command: none            <!-- a project command that performs git-sync-base's steps and reports <NAME>_STATUS; none = the skill's own git steps -->
+
+## Operator
+
+> Read by the operator pack's phase skills, which the Operator runtime runs (or a session runs by hand).
+
+- operator_config: none              <!-- the operator configuration JSON; required keys milestones, labels, allowedAuthors, slots - schema and defaults: operator pack, operator-contract/references/operator-config.md -->
+- operator_discover: none            <!-- the discovery command; --standalone names the next skill per PR, --request <n> the request for one PR, --steps-digest <n>, --owner-input <n> -->
+- forge_cli: none                    <!-- the forge contract command every code-host call goes through, e.g. OPERATOR_CONFIG=<operator_config> node <operator pack>/skills/operator-contract/scripts/forge-github.mjs -->
+- qa_status: none                    <!-- how to read whether a QA deployment serves a head, and its address; none = no QA environment -->
+- qa_feedback: none                  <!-- command listing QA tickets for a PR; none = no tickets -->
+- qa_feedback_status: none           <!-- command moving one QA ticket to in progress or completed with a note for its submitter; none = tickets stay as their submitter left them -->
+- merge_gates: none                  <!-- project rules that block a merge besides checks and factors -->
+- clarify_priority: none             <!-- the business priority operator-clarify weighs among discovery's top candidates -->
+- clarify_branch_prefix: docs/       <!-- branch prefix for a clarification pull request, which changes documents only -->
+- commit_skill: none                 <!-- the skill the operator phases commit and push through; none = git-commit-push -->
+- open_pr_skill: none                <!-- the skill operator-intake and operator-clarify open a pull request with; none = git-open-pr -->
+- review_skill: none                 <!-- the review stage; none = git-review-pr -->
+- verify_skill: none                 <!-- the verification stage; none = git-verify-pr -->
+- threads_skill: none                <!-- how review threads are answered and resolved; none = the Threads procedure of git-complete-pr -->
+- outcome_skill: none                <!-- the skill that writes a run's terminal state label; none = git-complete-pr -->
+- merge_skill: none                  <!-- the merge behind its guards; none = git-merge-pr -->
+- sync_base_skill: none              <!-- returns a slot to the integration branch; none = git-sync-base -->
 
 ## Pull requests
 

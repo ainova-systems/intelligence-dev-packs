@@ -23,3 +23,7 @@ packages:
     url: "https://github.com/ainova-systems/intelligence-dev-packs.git"
     path: "packs/spec"
     description: "Opt-in spec-driven lifecycle: intake, plan, adversarial validation, parallel execution, docs upkeep, decision records. Depends on core."
+  "@ainova-systems/operator":
+    url: "https://github.com/ainova-systems/intelligence-dev-packs.git"
+    path: "packs/operator"
+    description: "Phase skills the Operator runtime runs: intake, plan, implement, review, verify, merge and clarify, each also runnable by hand, plus the forge contract and its GitHub implementation. Core recommended, optional via profile keys."

@@ -29,6 +29,7 @@ Source of truth: `intelligence/` | Sync: `intelligence sync`
 | [intelligence-update-context](.intelligence/packages/@ainova-systems/sync/skills/intelligence-update-context/SKILL.md) | Create, revise, or remove project rules, agents, and skills |
 | [intelligence-upgrade](.intelligence/packages/@ainova-systems/sync/skills/intelligence-upgrade/SKILL.md) | Upgrade Intelligence and installed packages with migration checks |
 | [dev-deliver](packs/core/skills/dev-deliver/SKILL.md) | Runs one task from the owner's first sentence to a released change through whichever skills the project ships for each phase, pausing only at phase boundaries. Executing an already-planned spec, and stopping at the pull request, is spec-execute. |
+| [dev-deliver-next](packs/core/skills/dev-deliver-next/SKILL.md) | Picks the next non-conflicting item from the project's work queue - or the next N, each in its own worktree - and runs dev-deliver on it, then returns the checkout to the integration branch. The session counterpart of operator-intake. |
 | [dev-handoff](packs/core/skills/dev-handoff/SKILL.md) | Writes a self-contained prompt a fresh session pastes to continue this work, for when context runs short or a session ends. |
 | [dev-init](packs/core/skills/dev-init/SKILL.md) | Sets up a repository to follow the core pack after install: project profile, PR labels, PR template, and harness permission rules. Docs substrate is `spec-init`. |
 | [dev-review-changes](packs/core/skills/dev-review-changes/SKILL.md) | Reviews pending changes against the project's rules and reports findings with a severity verdict. Read-only - never edits, stages, or commits. |
@@ -42,6 +43,7 @@ Source of truth: `intelligence/` | Sync: `intelligence sync`
 | [git-resolve-conflicts](packs/core/skills/git-resolve-conflicts/SKILL.md) | Resolves merge or rebase conflicts by what each side intended, never by picking a hunk, then re-runs the full gates. |
 | [git-review-pr](packs/core/skills/git-review-pr/SKILL.md) | Reviews an open pull request's diff against the project rules and against what the PR claims about itself, and records the verdict on the PR. Answering other people's review threads is git-complete-pr. |
 | [git-scan-secrets](packs/core/skills/git-scan-secrets/SKILL.md) | Scans a diff, the working tree, or branch history for credentials before they reach a remote, and classifies every hit. |
+| [git-sync-base](packs/core/skills/git-sync-base/SKILL.md) | Returns the checkout to the integration branch, fast-forwards it, and removes the local branches and worktrees whose pull request was merged, leaving everything else as it is. The routine reset between tasks. |
 | [git-verify-pr](packs/core/skills/git-verify-pr/SKILL.md) | Executes a pull request's own verification steps against the running change and records what was observed. Behavioral QA - CI and the fix rounds are git-finalize-pr. |
 
 ### Rules

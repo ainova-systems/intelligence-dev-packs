@@ -1,0 +1,31 @@
+{
+  "milestones": {
+    "queue": "In Queue",
+    "development": "Development",
+    "verification": "Verification",
+    "humanReview": "Human Review",
+    "mergeQueue": "Merge Queue",
+    "clarification": "Clarification"
+  },
+  "labels": {
+    "processing": "ai:processing",
+    "accepted": "owner:accepted",
+    "onhold": "owner:onhold",
+    "revalidate": "owner:revalidate",
+    "rejected": "owner:rejected",
+    "cancelled": "owner:cancelled",
+    "question": "owner:question"
+  },
+  "allowedAuthors": ["OWNER", "MEMBER", "COLLABORATOR"],
+  "slots": ["d1", "d2", "d3"],
+  "clarifySlots": ["d4"],
+  "clarifyCandidates": 5,
+  "readyLimit": 6,
+  "quotas": { "Defects": 1 },
+  "ciWorkflows": ["Build"],
+  "questionMarker": "operator:question",
+  "pipelineMarkers": ["<!-- operator:"],
+  "digestExclude": [{ "start": "<!-- ci-status:start -->", "end": "<!-- ci-status:end -->" }],
+  "sendBack": [{ "label": "<check-label>", "operation": "<project-operation>" }],
+  "workflow": "development"
+}

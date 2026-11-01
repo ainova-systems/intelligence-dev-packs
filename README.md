@@ -25,7 +25,8 @@ Then run **`dev-init`** so the agent pins the project profile, creates the `ai:*
 
 | Pack | Install when | Contents |
 |---|---|---|
-| **core** (`dev-`, `git-`)<br>`@ainova-systems/core` | Always - it is universal | 6 always-on rules (skill-first, context engineering, verification gates, rollback safety, commit conventions, git workflow), 3 agents (code reviewer, QA verifier, test engineer), 15 skills: init, deliver a task end to end, tests, diff review, handoff, commit+push, open PR, drive the PR rounds, verify the PR's own steps, review the PR diff, complete the PR, resolve conflicts, merge, release, secret scan |
+| **core** (`dev-`, `git-`)<br>`@ainova-systems/core` | Always - it is universal | 6 always-on rules (skill-first, context engineering, verification gates, rollback safety, commit conventions, git workflow), 3 agents (code reviewer, QA verifier, test engineer), 17 skills: init, deliver a task end to end, deliver the next queue item, return to the integration branch, tests, diff review, handoff, commit+push, open PR, drive the PR rounds, verify the PR's own steps, review the PR diff, complete the PR, resolve conflicts, merge, release, secret scan |
+| **operator** (`operator-`)<br>`@ainova-systems/operator` | With the Operator runtime; core recommended, optional via profile keys | 8 skills: the run contract and the phase skills the runtime runs (intake, plan, implement, review, verify, merge, clarify), each also runnable by hand; the forge contract, its contract test and its GitHub implementation (`forge-github.mjs`, a script, not a skill) |
 | **spec** (`spec-`)<br>`@ainova-systems/spec` | Opt-in, depends on core | The spec-driven lifecycle: 2 rules (spec discipline, multi-agent orchestration), 2 agents (architect, docs writer), 15 skills from tracker intake through plan, adversarial validation, execution, and docs upkeep |
 
 Artifact-by-artifact catalog: [`packs/README.md`](packs/README.md).
