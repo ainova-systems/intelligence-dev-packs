@@ -20,7 +20,12 @@ and `operator trigger` that delivers an answer, are the runtime's operation cont
 A request is `{ operation, subject: pr-<n> | queue | clarify-queue, key, member: <slot>, input }`.
 The key is `<route>:<head>` followed by every value that changes the answer (CI state and run
 attempts, QA state, the latest owner input id, the steps digest, the latest owner-label change,
-`stale-<job>`), so an unchanged state asks once and a changed one asks again.
+`stale-<job>`), so an unchanged state asks once and a changed one asks again. The development route
+also carries the id of the latest stage report (`none` when there is none) - the same report
+`--owner-input` returns as its cutoff, of any stage, `HELD` included: the runtime keeps one job per key,
+so without it a review or verification handing a head back to implementation on unchanged CI and
+owner input would repeat the key of the run before it and be dropped. Each new report asks once; an
+implementation run that finds nothing left after a route back ends `noop`.
 
 ## Routing a pull request
 
@@ -41,7 +46,7 @@ already covers is skipped.
 | 8 | owner QA feedback (owner input or a QA ticket) newer than the last stage report, in `humanReview`/`mergeQueue` | `verify` | `feedback:<head>:…` |
 | 9 | `accepted`, in `humanReview`/`mergeQueue` | `merge` | `merge:<head>:…` |
 | 10 | `queue` | `plan` | `plan:<head>:<owner input>` |
-| 11 | `development`; skip while CI runs after a `CLEAN` review of this head with no newer owner input and no unresolved thread | `implement` | `implement:<head>:<ci>:<owner input>` |
+| 11 | `development`; skip while CI runs after a `CLEAN` review of this head with no newer owner input and no unresolved thread | `implement` | `implement:<head>:<ci>:<owner input>:<latest stage report id>` |
 | 12 | `verification`, draft: only the oldest draft, only while fewer than `readyLimit` PRs are ready | `verify` (it promotes) | `admit:<head>:<ready count>` |
 | 13 | `verification`, ready: skip while CI runs and QA does not serve this head yet | `verify` | `verify:<head>:<ci>:qa-<state>:…` |
 | 14 | `humanReview` or `mergeQueue` otherwise | skip (waiting for the owner) | - |
