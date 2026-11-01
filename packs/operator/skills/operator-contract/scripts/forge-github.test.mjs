@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  FLAGS, authorRole, checkOperatorConfig, checks, ciFromRuns, claim, comment, createPr, editPr, events, execute, factor, listPrs, merge, normalizePr, notes, prBody, prFiles, readInlineReviews, readUnresolvedThreads, readyPr, resolveThread, threads, viewPr,
+  FLAGS, authorRole, checkOperatorConfig, checks, ciFromRuns, claim, comment, createPr, editPr, events, execute, factor, listPrs, merge, normalizePr, notes, prBody, prFiles, readInlineReviews, readPullRequests, readUnresolvedThreads, readyPr, resolveThread, threads, viewPr,
 } from './forge-github.mjs';
 import { assertShape } from './forge-contract.mjs';
 
@@ -347,4 +347,17 @@ test('the example configuration is complete, and a missing required key is refus
   const cli = spawnSync('node', [SCRIPT, 'claim', 'take', '7'], { encoding: 'utf8', env: { ...process.env, OPERATOR_CONFIG: path } });
   assert.equal(cli.status, 2);
   assert.match(cli.stderr, /missing required key allowedAuthors/);
+});
+
+test('a pull request at the list cap has its whole conversation read, others keep the list answer', () => {
+  const at = (n) => Array.from({ length: n }, (_, i) => ({ body: `c${i}`, createdAt: `2026-10-30T08:${String(i % 60).padStart(2, '0')}:00Z` }));
+  const { run, calls } = fake({
+    'pr list': JSON.stringify([{ number: 7, comments: at(100), reviews: [] }, { number: 8, comments: at(3), reviews: [] }]),
+    'pr view 7': JSON.stringify({ comments: at(106), reviews: [{ body: 'r' }] }),
+  });
+  const prs = readPullRequests(run);
+  assert.equal(prs[0].comments.length, 106);
+  assert.equal(prs[0].reviews.length, 1);
+  assert.equal(prs[1].comments.length, 3);
+  assert.deepEqual(calls.filter((args) => args[1] === 'view').map((args) => args[2]), ['7']);
 });

@@ -291,8 +291,21 @@ export function events(number, run = gh) {
 
 // Discovery readers: GitHub's own shapes, for a discovery implementation.
 
+/**
+ * The list returns at most the first 100 comments and reviews of each pull request, so a long PR would
+ * read as if its newest reports never happened; a PR at that cap has its whole conversation read again.
+ */
+export const LIST_CONVERSATION_CAP = 100;
+
 export function readPullRequests(run = gh) {
-  return JSON.parse(run(['pr', 'list', '--state', 'open', '--limit', '200', '--json', 'number,isDraft,milestone,labels,headRefOid,headRefName,createdAt,body,comments,reviews,mergeable']));
+  const prs = JSON.parse(run(['pr', 'list', '--state', 'open', '--limit', '200', '--json', 'number,isDraft,milestone,labels,headRefOid,headRefName,createdAt,body,comments,reviews,mergeable']));
+  for (const pr of prs) {
+    if ((pr.comments ?? []).length < LIST_CONVERSATION_CAP && (pr.reviews ?? []).length < LIST_CONVERSATION_CAP) continue;
+    const full = JSON.parse(run(['pr', 'view', String(pr.number), '--json', 'comments,reviews']));
+    pr.comments = full.comments ?? [];
+    pr.reviews = full.reviews ?? [];
+  }
+  return prs;
 }
 
 /** Workflow runs on one commit; Actions keeps every attempt, discovery's `ciFromRuns` takes the latest. */
