@@ -41,7 +41,7 @@ already covers is skipped.
 | 8 | owner QA feedback (owner input or a QA ticket) newer than the last stage report, in `humanReview`/`mergeQueue` | `verify` | `feedback:<head>:…` |
 | 9 | `accepted`, in `humanReview`/`mergeQueue` | `merge` | `merge:<head>:…` |
 | 10 | `queue` | `plan` | `plan:<head>:<owner input>` |
-| 11 | `development`; skip while CI runs after a `CLEAN` review of this head with no newer owner input and no unresolved thread | `implement` | `implement:<head>:<ci>:<owner input>` |
+| 11 | `development`; skip while CI runs after a `CLEAN` review of this head with no newer owner input and no unresolved thread | `implement` | `implement:<head>:<ci>:<owner input>:<latest stage report>` - the report moves it, or a review handing back on an unchanged head repeats the earlier key and the runtime drops it |
 | 12 | `verification`, draft: only the oldest draft, only while fewer than `readyLimit` PRs are ready | `verify` (it promotes) | `admit:<head>:<ready count>` |
 | 13 | `verification`, ready: skip while CI runs and QA does not serve this head yet | `verify` | `verify:<head>:<ci>:qa-<state>:…` |
 | 14 | `humanReview` or `mergeQueue` otherwise | skip (waiting for the owner) | - |
