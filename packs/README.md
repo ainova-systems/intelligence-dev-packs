@@ -11,7 +11,7 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 |---|---|---|---|
 | **core** | `dev-`, `git-` | Universal - engineering discipline, session hygiene, git/PR/release. Install everywhere. | - |
 | **spec** | `spec-` | Opt-in - spec-driven development (plan, execute, docs). | core |
-| **operator** | `operator-` | Opt-in - the phase skills the Operator runtime runs, and the forge contract with its GitHub implementation. | core |
+| **operator** | `operator-` | Opt-in - the phase skills the Operator runtime runs, and the forge contract with its GitHub implementation. | core (recommended, optional via profile keys) |
 
 ## Catalog
 
@@ -51,7 +51,7 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 | `git-scan-secrets` | skill | Credential scan over diff, tree, or history |
 | `git-sync-base` | skill | Return to the integration branch and clean away merged local branches and worktrees |
 
-### operator - `operator-` domain (depends on core)
+### operator - `operator-` domain (core recommended, optional via profile keys)
 
 | Artifact | Kind | Role |
 |---|---|---|

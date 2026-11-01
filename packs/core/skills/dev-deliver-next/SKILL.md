@@ -19,7 +19,7 @@ is eligible, and when related items ship together are profile `flow_queue`'s.
    (the same page, record or feature) are one task.
 3. **Apply the conflict gate.** Skip a candidate already represented by an open pull request,
    including a manual or failed attempt; one whose files or feature overlap an open PR's - the same
-   aggregate, UI feature folder, shared migration, translation or route; and one waiting on a
+   shared module, schema or route; and one waiting on a
    decision or on work not yet shipped. A different filename does not prove independence: read the
    likely scope.
 4. **Choose.** Take the top `count` eligible tasks, each disjoint from the others by the same gate.

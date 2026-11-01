@@ -66,7 +66,7 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 
 > Read by the operator pack's phase skills, which the Operator runtime runs (or a session runs by hand).
 
-- operator_config: none              <!-- JSON file: milestone and label names, owner author associations, slots, clarification slots and candidates, readyLimit, verifySection, ciWorkflows, question and pipeline markers -->
+- operator_config: none              <!-- the operator configuration JSON; required keys milestones, labels, allowedAuthors, slots - schema and defaults: operator pack, operator-contract/references/operator-config.md -->
 - operator_discover: none            <!-- the discovery command; --standalone names the next skill per PR, --request <n> the request for one PR, --steps-digest <n>, --owner-input <n> -->
 - forge_cli: none                    <!-- the forge contract command every code-host call goes through, e.g. OPERATOR_CONFIG=<operator_config> node <operator pack>/skills/operator-contract/scripts/forge-github.mjs -->
 - qa_status: none                    <!-- how to read whether a QA deployment serves a head, and its address; none = no QA environment -->

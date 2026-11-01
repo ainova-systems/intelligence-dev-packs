@@ -179,8 +179,8 @@ export function ciRunsMark(runs, config = operatorConfig()) {
 
 /**
  * The head's CI state from its workflow runs, the latest attempt of each workflow. The host's token
- * cannot read check runs, but it reads Actions runs, and they cover every workflow, the required
- * Deployment Guard Tests included.
+ * cannot read check runs, but it reads Actions runs, and they cover every workflow, including the
+ * required checks.
  */
 export function ciFromRuns(runs, config = operatorConfig()) {
   // Only the workflows carrying the required checks decide; a helper workflow a label event cancelled

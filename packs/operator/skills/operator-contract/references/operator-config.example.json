@@ -23,9 +23,8 @@
   "readyLimit": 6,
   "quotas": { "Defects": 1 },
   "ciWorkflows": ["Build"],
-  "verifySection": "Manual Verification",
   "questionMarker": "operator:question",
   "pipelineMarkers": ["<!-- operator:"],
-  "sendBack": [{ "label": "db:blocked", "operation": "recreate-migration" }],
+  "sendBack": [{ "label": "<check-label>", "operation": "<project-operation>" }],
   "workflow": "development"
 }

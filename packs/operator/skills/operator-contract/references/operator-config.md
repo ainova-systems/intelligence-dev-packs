@@ -28,8 +28,21 @@ Default label names: `processing` `ai:processing`, `accepted` `owner:accepted`, 
 | `readyLimit` | unset (no QA admission: pull requests open ready) | How many ready pull requests may hold a QA environment at once; intake then opens drafts and `operator-verify` promotes the oldest |
 | `quotas` | `{}` | Open pipeline pull requests allowed per queue source, `{ "<source>": <n> }` |
 | `ciWorkflows` | every workflow run on the head | The workflow names whose runs decide CI for a head |
-| `verifySection` | `Manual Verification` | The pull request body heading whose steps verification executes |
 | `questionMarker` | `operator:question` | The marker an owner question carries (`operator-contract` > Asking the owner) |
 | `pipelineMarkers` | `["<!-- operator:"]` | Substrings that mark a comment as the pipeline's own, never owner input; add the markers your CI comments carry, and keep `<!-- operator:` |
-| `sendBack` | `[]` | `[{ "label": "<label>", "operation": "<operation>" }]`: a label an automated check sets sends the pull request to that operation, one at a time per label, oldest first; the merge waits while it stands |
+| `sendBack` | `[]` | `[{ "label": "<label>", "operation": "<project-operation>" }]`: a label an automated check sets sends the pull request to that operation, one at a time per label, oldest first (`discovery-contract.md`); the merge waits while it stands. See below |
 | `workflow` | `development` | The runtime workflow name in `operator.yaml` that discovery triggers |
+
+The verification heading is profile `verify_section`, not a key here.
+
+## A send-back operation
+
+`sendBack` names an operation the project defines in `operator.yaml`, with a skill of its own. It
+follows `operator-contract` like a phase skill:
+
+| Step | Must |
+|---|---|
+| Take | re-check that the pull request still carries `input.label` at `input.head`; claim it (`forge_cli claim take`, or the takeover for `input.staleClaim`) |
+| Work | do the work the label stands for in the pull request's slot, and push |
+| Hand back | in one edit: move to `development` and remove `processing` and every factor the push made stale; the label stays for the check that set it to clear on the new head |
+| End | the contract result: `done` with the pushed SHA as evidence; `failed` when the work cannot be done, leaving no claim behind |

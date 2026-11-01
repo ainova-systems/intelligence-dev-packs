@@ -20,7 +20,7 @@ operation of `operator.yaml`. Load the `operator-contract` skill first.
 ## Steps
 
 1. **Re-check the head.** The PR must be open, in the development milestone, without
-   `owner:onhold` or another run's `ai:processing`, and its head must equal `input.head` and the
+   `owner:onhold` or another run's `ai:processing` (a HELD report, `operator-contract`), and its head must equal `input.head` and the
    findings file's `head`. Anything else ends `noop`: a moved head has its own review coming.
 2. **Claim the PR in its slot**, which stands on the PR branch at that head.
 3. **Record.** The findings file holds `verdict`, `findings` and `report`, the complete

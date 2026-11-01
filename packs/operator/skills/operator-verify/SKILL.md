@@ -19,7 +19,7 @@ of `operator.yaml`. Load the `operator-contract` skill first.
 ## Steps
 
 1. **Re-check the PR.** A moved `input.head`, a changed milestone, a closed PR, `owner:onhold`, or
-   another run's `ai:processing` ends `noop`. Require the verification milestone, new owner input, edited
+   another run's `ai:processing` (a HELD report, `operator-contract`) ends `noop`. Require the verification milestone, new owner input, edited
    verification steps or a head no verification report stands at (a push the pipeline did not make,
    such as a merge of the integration branch) on `humanReview` or `mergeQueue`, or a current `owner:revalidate`. Rejected and cancelled attempts go
    to intake.

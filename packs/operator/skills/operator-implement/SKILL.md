@@ -22,7 +22,7 @@ round runs, the claim, the hand-off to review and the move to `verification`. Lo
 
 1. **Re-check the PR.** Require OPEN and the development milestone, or `input.reason: conflict` with
    the live PR still conflicting with the integration branch (profile `forge_cli pr view <n>`: `mergeable` reads `conflicting`), in
-   any later milestone. A moved `input.head`, `owner:onhold`, or another run's `ai:processing` ends
+   any later milestone. A moved `input.head`, `owner:onhold`, or another run's `ai:processing` (a HELD report, `operator-contract`) ends
    `noop` (a stopped run's claim is taken over, `operator-contract`); rejected and cancelled attempts
    belong to intake.
 2. **Claim the PR in its slot.** A conflicting PR from a later milestone moves back to the

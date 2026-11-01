@@ -47,7 +47,8 @@ lets a run take over its own earlier claim or a stale one.
 The script reads the operator configuration from `OPERATOR_CONFIG` (the file profile
 `operator_config` names): the processing label, `ciWorkflows` (the workflows whose runs decide a
 commit) and `allowedAuthors` (the author associations that speak for the project). A project sets the
-variable in its `forge_cli` value.
+variable in its `forge_cli` value. The schema, its required keys and their defaults are
+`operator-config.md`; a file missing a required key is refused with exit 2, naming the key.
 
 ## Contract test
 

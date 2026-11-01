@@ -19,7 +19,7 @@ Merge applies the owner's acceptance to one verified head; it is the `merge` ope
 ## Steps
 
 1. **Re-check the PR.** Require OPEN, `humanReview` or `mergeQueue`, and `owner:accepted`. A moved
-   `input.head`, changed milestone, `owner:onhold`, or another run's `ai:processing` ends `noop`.
+   `input.head`, changed milestone, `owner:onhold`, or another run's `ai:processing` (a HELD report, `operator-contract`) ends `noop`.
    Rejection, cancellation, a requested revalidation or a send-back label (`operator_config`
    `sendBack`) blocks the merge.
 2. **Check out the accepted head** in a clean slot; local HEAD, upstream and the live PR head must

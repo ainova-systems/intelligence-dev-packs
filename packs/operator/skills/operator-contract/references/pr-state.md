@@ -7,8 +7,10 @@ The state, factor and report conventions every operator run reads and writes.
 the same vocabulary for core's own skills; where the two ever differ, an operator run follows this
 page. A project without core needs only this page.
 
-Label names here are roles with their default names; `operator_config` `labels` sets the actual
-names (`operator-config.md`). The success-factor labels are named in profile `pr_success_factors`.
+The claim is a role: `operator_config` `labels.processing` sets its name (`operator-config.md`).
+The terminal labels `ai:completed`, `ai:manual` and `ai:failed` are fixed names on purpose, so every
+gate and every human reads one vocabulary; the success-factor labels are named in profile
+`pr_success_factors`.
 
 ## State labels
 
@@ -29,8 +31,9 @@ Exactly one at a time, written by the actor doing the work:
 - A pull request carrying no `ai:*` label is human-driven, and every gate skips label checks for it.
 
 **Claims.** A claim is not a lock: a run takes a pull request only while no `ai:processing` stands
-on it, or when the claim is its own. A run that finds another run's claim takes nothing and posts
-one refusal report: `## <Stage> - HELD`, `head: <sha>`, what it was asked to do and that it took
+on it, or when the claim is its own - for an operator run, only through its `claims` record or
+`input.staleClaim` (`operator-contract` > Holding a pull request); a handoff note is not recognised.
+A run that finds another run's claim takes nothing and posts one refusal report: `## <Stage> - HELD`, `head: <sha>`, what it was asked to do and that it took
 nothing. **Operator extension:** a claim whose runtime job has stopped may be taken over as
 `operator-contract` > Holding a pull request describes; core has no takeover.
 

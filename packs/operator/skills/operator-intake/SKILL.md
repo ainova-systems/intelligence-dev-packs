@@ -21,7 +21,7 @@ the `operator-contract` skill first: input, result, claim and markers follow it.
 1. **Read the live state.** Work in the runtime's current checkout; `<slot>` is `input.member`, or
    the checkout's own name when run by hand. Read `operator_config`. For `pr-<n>`, re-read the PR first: compare head and milestone with
    the input, require OPEN, and check owner labels and claims. A moved head, changed milestone,
-   `owner:onhold`, or another run's `ai:processing` ends `noop` with its reason. Cancellation
+   `owner:onhold`, or another run's `ai:processing` (a HELD report, `operator-contract`) ends `noop` with its reason. Cancellation
    outranks rejection; without either label, `noop`. Require a clean slot; preserve foreign work.
 2. **Read the queue.** For `queue`, run profile `sync_base_skill` (default `git-sync-base`), then re-read all open PRs, their queue
    references and changed files (profile `forge_cli pr list` and `pr files <n>`). Check that `<slot>` is free: no open PR in a pipeline milestone has a branch naming it
@@ -32,8 +32,8 @@ the `operator-contract` skill first: input, result, claim and markers follow it.
    linked queue items and skip every candidate of a source already at its limit. A pull request a clarification slot holds
    (`operator_config` `clarifySlots`) is not delivery and counts against no quota.
 3. **Apply the conflict gate.** Skip a candidate already represented by any open PR, including
-   manual or failed attempts. Skip overlap with any open PR's files or feature: the same aggregate,
-   UI feature folder, shared migration, translation or route. Skip items waiting on a decision or
+   manual or failed attempts. Skip overlap with any open PR's files or feature: the same shared
+   module, schema or route. Skip items waiting on a decision or
    on work not yet shipped. Read the likely implementation scope; a different filename does not
    prove independence. Nothing pickable → put every candidate's skip reason in the result message
    and end `noop`. Every candidate needing the owner → the contract's "intake itself cannot choose".

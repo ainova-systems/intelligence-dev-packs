@@ -8,7 +8,7 @@ moves and *who* holds it, and hands the work of each step to the skill a profile
 review, verification, review threads, the outcome, merging and returning a slot to the integration
 branch, plus profile `flow_implement` for the implementation itself.
 
-## Core is recommended, not required
+## Core: recommended, optional via profile keys
 
 For a clean start install the core pack beside this one: every delegated-step key defaults to a
 core skill, and core's `git-workflow` rule states the same label, factor and report vocabulary.
@@ -66,7 +66,7 @@ profile, or the default applies:
 | `branch_prefixes` | `feature/, bugfix/, hotfix/` | the prefix of a pipeline branch, which also names its slot |
 | `update_strategy` | `merge` | bringing the integration branch into a pull request's branch |
 | `conflict_skill` | `git-resolve-conflicts` | resolving a conflict with the integration branch |
-| `verify_section` | `Manual Verification` | the verification heading; keep `operator_config` `verifySection` the same |
+| `verify_section` | `Manual Verification` | the verification heading, and the section the steps digest covers |
 | `pr_risk_size` | `off` | whether the body carries a Risk/Size line to recompute |
 | `pr_success_factors` | `ai:verified, ai:reviewed` | the factors accept-ready requires fresh at head |
 | `merge_method` | `squash` | how `merge_skill` merges |

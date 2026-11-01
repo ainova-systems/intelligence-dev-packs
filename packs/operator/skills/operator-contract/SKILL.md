@@ -49,9 +49,10 @@ The prompt names the input file and the result path; the same paths are in `$OPE
 - `member` — the slot the run works in: the one the pull request's branch names, or a free one
   for intake and clarification (absent when run by hand: the checkout's own name gives it);
 - `subject` — `pr-<n>`, `queue` for intake, or `clarify-queue` for selecting an item to clarify;
-- `input` — pointers only: `pr`, `head`, `ci`, `milestone`; a review verdict also gets `output`
-  (the findings file); a fix sent back by verification gets `evidence`; a resumed question gets
-  `question` and `reply` (a comment URL);
+- `input` — pointers only: `pr`, `head`, `ci`, `milestone`; a review gets `checkout` (the slot it
+  judges) and `body` (a file holding the PR body), and its verdict also `output` (the findings file);
+  a fix sent back by verification gets `evidence`; a resumed question gets `question` and `reply` (a
+  comment URL). Every field, its type and its producer: `references/discovery-contract.md` > The input;
 - `trigger` — what started the job (`kind` is `timer`, `next`, `resume` or `manual`).
 
 **The input is a pointer, never the state.** Re-read the live pull request
@@ -128,7 +129,11 @@ sends it to the operation named there, which returns it to `development`.
   only then reset it to its remote head - and post one note naming that branch; then take it with
   profile `forge_cli claim take <n> --takeover` (or `pr edit <n> --claim --takeover ...` when the step
   moves the milestone in the same edit), record the claim as this run's - its `claims` record adds
-  `"takeover": {"from": "<the previous holder's job>"}` - and go on. `--takeover` is used nowhere else. Any other claim stops the run where it stands.
+  `"takeover": {"from": "<the previous holder's job>"}` - and go on. `--takeover` is used nowhere else. A run recognises a claim as its own only through its
+  `claims` record or `input.staleClaim`; a handoff note (core's `dev-handoff`) is not recognised.
+  **Any other claim stops the run where it stands:** it posts one `## <Stage> - HELD` report
+  (`references/pr-state.md` > Claims; `<Stage>` is the skill's phase), takes and changes nothing
+  else, and ends `noop`. Every skill's re-check step that meets another run's claim does this.
 - **A handoff ends the run.** Moving to the next phase is one call:
   profile `forge_cli pr edit <n> --milestone "<next milestone's title>" --remove-label ai:processing`. No state label plus
   milestone X means: waiting for phase X's operation.
@@ -205,11 +210,20 @@ them in this session; a skill name runs them through that skill in another engin
 read-only, and the operator skill posts the report unchanged and writes the factor its verdict earns.
 An engine that is unavailable ends the run `failed` with `retryable: true`; nothing stands in for it.
 
+The runtime's review job writes its findings file (`input.output`) as JSON:
+
+| Field | Type |
+|---|---|
+| `head` | the sha it judged |
+| `verdict` | `CLEAN` \| `PASS-WITH-WARNINGS` \| `BLOCK` |
+| `findings` | `[{ severity: critical\|major\|minor, file, line (0 = whole file), rule, sibling, summary }]` (`rule`, `sibling` may be empty) |
+| `report` | the complete `## Code review - <VERDICT>` comment, posted unchanged |
+
 ## State
 
 `operator state` and `operator jobs` exist only under the runtime; a run by hand uses neither.
 `operator state get|put|list|delete <collection> <key>` reads and writes project state under the
-runtime's namespace: the PR registry (`pr`) and recorded answers (`answers`). `jobs`, `waits`,
+runtime's namespace: run claims (`claims`, keyed `pr-<n>`) and recorded answers (`answers`). `jobs`, `waits`,
 `threads`, `deliveries` and `tabs` belong to the runtime and are read-only.
 
 ## Run by hand
