@@ -25,6 +25,7 @@
   "ciWorkflows": ["Build"],
   "questionMarker": "operator:question",
   "pipelineMarkers": ["<!-- operator:"],
+  "digestExclude": [{ "start": "<!-- ci-status:start -->", "end": "<!-- ci-status:end -->" }],
   "sendBack": [{ "label": "<check-label>", "operation": "<project-operation>" }],
   "workflow": "development"
 }

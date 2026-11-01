@@ -106,10 +106,12 @@ puts it in `input.qa` (`passed`, `pending`, `failed`, `none`), and asks for rows
 
 ## The steps digest
 
-1. In the pull request body, find the line that is exactly `## <profile verify_section>`; none →
-   the digest is `none`.
-2. Take the lines after it up to the next line starting `## `, or the end; join with `\n`; trim.
-3. The digest is the first 12 hexadecimal characters of that text's SHA-256 (UTF-8).
+1. From the pull request body remove every block `operator_config` `digestExclude` names: each
+   `start` through the next `end`, both markers included, every occurrence. A status block CI
+   rewrites inside the body would otherwise change the digest after every CI run.
+2. Find the line that is exactly `## <profile verify_section>`; none → the digest is `none`.
+3. Take the lines after it up to the next line starting `## `, or the end; join with `\n`; trim.
+4. The digest is the first 12 hexadecimal characters of that text's SHA-256 (UTF-8).
 
 ## Owner input
 

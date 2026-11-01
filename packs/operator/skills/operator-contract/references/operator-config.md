@@ -31,6 +31,7 @@ Default label names: `processing` `ai:processing`, `accepted` `owner:accepted`, 
 | `questionMarker` | `operator:question` | The marker an owner question carries (`operator-contract` > Asking the owner) |
 | `pipelineMarkers` | `["<!-- operator:"]` | Substrings that mark a comment as the pipeline's own, never owner input; add the markers your CI comments carry, and keep `<!-- operator:` |
 | `sendBack` | `[]` | `[{ "label": "<label>", "operation": "<project-operation>" }]`: a label an automated check sets sends the pull request to that operation, one at a time per label, oldest first (`discovery-contract.md`); the merge waits while it stands. See below |
+| `digestExclude` | `[]` | `[{ "start": "<marker>", "end": "<marker>" }]`: blocks removed from the pull request body, markers included, before the steps digest is computed (`discovery-contract.md` > The steps digest); list any block your CI rewrites in the body |
 | `workflow` | `development` | The runtime workflow name in `operator.yaml` that discovery triggers |
 
 The verification heading is profile `verify_section`, not a key here.
