@@ -12,7 +12,7 @@ Merge applies the owner's acceptance to one verified head; it is the `merge` ope
 | Contract | |
 |---|---|
 | Trigger | `owner:accepted` on a `humanReview` or `mergeQueue` PR |
-| Work | validate the acceptance and the live evidence; `git-merge-pr`; `git-sync-base` |
+| Work | validate the acceptance and the live evidence; profile `merge_skill` (default `git-merge-pr`); profile `sync_base_skill` (default `git-sync-base`) |
 | Evidence | confirmed merge commit SHA and PR URL |
 | Next | merged → `done`; stale or blocked → one marked refusal comment, `noop` |
 
@@ -20,16 +20,17 @@ Merge applies the owner's acceptance to one verified head; it is the `merge` ope
 
 1. **Re-check the PR.** Require OPEN, `humanReview` or `mergeQueue`, and `owner:accepted`. A moved
    `input.head`, changed milestone, `owner:onhold`, or another run's `ai:processing` ends `noop`.
-   Rejection, cancellation or a requested revalidation blocks the merge.
+   Rejection, cancellation, a requested revalidation or a send-back label (`operator_config`
+   `sendBack`) blocks the merge.
 2. **Check out the accepted head** in a clean slot; local HEAD, upstream and the live PR head must
    agree. Read the live body and files (profile `forge_cli pr view <n>` and `pr files <n>`), every
    stage report, owner comment and review (`forge_cli notes <n>`), and every unresolved thread
    (`forge_cli threads <n> --unresolved`).
 3. **Validate the evidence.** Require `ai:completed`, the acceptance label, and every factor profile
-   `pr_success_factors` declares fresh under `git-workflow` (verification's steps digest and any QA
+   `pr_success_factors` declares fresh (`operator-contract` > `references/pr-state.md`: verification's steps digest and any QA
    invalidation included). Every
    required check green on this head, no unresolved thread, no outstanding change request, and
-   `git-merge-pr`'s guards. Discovery's input and an aggregate status do not prove a required check
+   profile `merge_skill`'s guards. Discovery's input and an aggregate status do not prove a required check
    passed; unreadable, missing, cancelled or pending evidence cannot pass, and a token that cannot
    read a check never leads to a new login or a bypass.
 4. **Validate the business gates** profile `merge_gates` names, against the diff, the plan and the
@@ -37,12 +38,12 @@ Merge applies the owner's acceptance to one verified head; it is the `merge` ope
    accept a listed manual step. Confirm no newer owner input awaits triage. Where QA serves the PR,
    read its tickets (profile `qa_feedback`): an open ticket created or changed after the last verification report,
    or a read that fails, refuses the merge. This is the last read before the merge.
-5. **Hand the PR to the merger.** No `ai:processing` claim: `git-merge-pr` requires `ai:completed`
+5. **Hand the PR to the merger.** No `ai:processing` claim: profile `merge_skill` requires `ai:completed`
    as the state, and the runtime runs one operation per PR at a time. Move `humanReview` to `mergeQueue`
-   when needed, re-read acceptance, head, milestone and claims, then invoke `git-merge-pr`
+   when needed, re-read acceptance, head, milestone and claims, then invoke profile `merge_skill`
    with `owner:accepted` as the owner's standing authorization. Record its confirmed merge SHA;
-   a command that exited zero is not a confirmation. `git-merge-pr` deletes the local branch, so the
-   slot then returns with `git-sync-base` unscoped.
+   a command that exited zero is not a confirmation. Profile `merge_skill` deletes the local branch, so the
+   slot then returns with profile `sync_base_skill` unscoped.
 6. **Report a refusal.** Stale evidence or an unmet gate → one comment naming exactly what is stale
    and which stage must refresh it, ending with the note marker, then `noop`. Reuse an identical
    standing refusal instead of repeating it. A command or cleanup failure is `failed` with its
@@ -50,7 +51,7 @@ Merge applies the owner's acceptance to one verified head; it is the `merge` ope
 
 ## Run by hand
 
-`/operator-merge <n>` on an owner-accepted PR; outside the pipeline, `/git-merge-pr` is the
+`/operator-merge <n>` on an owner-accepted PR; outside the pipeline, profile `merge_skill` is the
 owner's own merge.
 
 ## Verify
@@ -60,7 +61,7 @@ owner's own merge.
 
 ## Scope / hand-off
 
-- The merge itself is `git-merge-pr`; the reset is `git-sync-base`; anything that changed after
+- The merge itself is profile `merge_skill`; the reset is profile `sync_base_skill`; anything that changed after
   the acceptance goes back to `operator-verify`.
 
 ## Constraints

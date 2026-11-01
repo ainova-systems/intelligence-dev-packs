@@ -1,12 +1,12 @@
 ---
 name: operator-review
-description: "Post a finished runtime review of one pull request head as its git-review-pr report, write ai:reviewed when it passes, then hand the PR back to implementation. Runs as the runtime's review-verdict operation."
-argument-hint: "(runtime only; by hand run git-review-pr instead)"
+description: "Post a finished runtime review of one pull request head as its review report, write ai:reviewed when it passes, then hand the PR back to implementation. Runs as the runtime's review-verdict operation."
+argument-hint: "(runtime only; by hand run profile review_skill instead)"
 ---
 
 # Operator review verdict
 
-The runtime runs `git-review-pr`'s procedure every round, read-only and in another engine, so it
+The runtime runs profile `review_skill` (default `git-review-pr`) every round, read-only and in another engine, so it
 cannot post; this run records its verdict without judging again. It is the `review-verdict`
 operation of `operator.yaml`. Load the `operator-contract` skill first.
 
@@ -24,8 +24,8 @@ operation of `operator.yaml`. Load the `operator-contract` skill first.
    findings file's `head`. Anything else ends `noop`: a moved head has its own review coming.
 2. **Claim the PR in its slot**, which stands on the PR branch at that head.
 3. **Record.** The findings file holds `verdict`, `findings` and `report`, the complete
-   `## Code review - …` comment of `git-review-pr`'s step 4. Post `report` unchanged; then, as
-   `git-review-pr`'s step 5, add `ai:reviewed` when the verdict is `CLEAN` or `PASS-WITH-WARNINGS`
+   `## Code review - …` comment the review stage posts (`operator-contract` > `references/pr-state.md`).
+   Post `report` unchanged; then, as the review stage does, add `ai:reviewed` when the verdict is `CLEAN` or `PASS-WITH-WARNINGS`
    and no finding is `critical`. A report naming another head, or outside the envelope, ends
    `failed`.
 4. **Hand back to implementation** whatever the verdict: drop `ai:processing` and end `done` with
@@ -38,7 +38,7 @@ operation of `operator.yaml`. Load the `operator-contract` skill first.
 
 ## Run by hand
 
-Nothing to post without a runtime review: run `git-review-pr` through profile `judge_runner`, then
+Nothing to post without a runtime review: run profile `review_skill` through profile `judge_runner`, then
 `/operator-implement <n>`.
 
 ## Verify
@@ -49,7 +49,7 @@ Nothing to post without a runtime review: run `git-review-pr` through profile `j
 ## Scope / hand-off
 
 - Fixes and the move to verification belong to `operator-implement`; the review procedure itself
-  is `git-review-pr`.
+  is profile `review_skill`.
 
 ## Constraints
 

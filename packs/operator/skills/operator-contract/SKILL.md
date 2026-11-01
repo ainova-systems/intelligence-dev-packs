@@ -14,7 +14,27 @@ commenting, merging - goes through profile `forge_cli`, never a platform CLI wri
 `references/forge-contract.md`). The
 conversation (stage reports, comments, reviews) is `forge_cli notes <n>`; the owner's input is what
 profile `operator_discover --owner-input <n>` lists - discovery's own filter, newer than the last stage
-report - so a skill and discovery never disagree on what the owner said.
+report - so a skill and discovery never disagree on what the owner said. The state labels, success
+factors, their freshness and the stage report envelope are `references/pr-state.md`.
+
+## Delegated steps
+
+A phase skill owns when a pull request moves and who holds it; the work of each step is a skill the
+profile names, so a project with its own equivalents points the key at them. Unset, each key is the
+core pack's skill (`none` in the profile means the same). Every replacement honours
+`references/pr-state.md`.
+
+| Profile key | Default (core) | A replacement must |
+|---|---|---|
+| `capture_skill` | `dev-deliver` Phase A | capture the business goal, observable acceptance criteria and scope exclusions for one item, and nothing further |
+| `commit_skill` | `git-commit-push` | run the project's gates, commit the pending work as one change and push it |
+| `open_pr_skill` | `git-open-pr` | open one pull request for the branch against its target, filling the project's template and verification section |
+| `review_skill` | `git-review-pr` | judge the diff at one head and post one `## Code review - <VERDICT>` report naming that head; write `ai:reviewed` only on `CLEAN` or `PASS-WITH-WARNINGS` |
+| `verify_skill` | `git-verify-pr` | execute the pull request's declared verification steps against the running change and post one `## Verification - <VERDICT>` report naming the head and the steps digest; write `ai:verified` only on `PASS` |
+| `threads_skill` | the Threads procedure of `git-complete-pr` | answer every unresolved review thread with the outcome and resolve it |
+| `outcome_skill` | `git-complete-pr` | write exactly one terminal state label, removing `ai:processing` in the same edit, with an outcome comment for `ai:manual` and `ai:failed` |
+| `merge_skill` | `git-merge-pr` | merge an accept-ready pull request behind its guards and confirm the merge landed |
+| `sync_base_skill` | `git-sync-base` | return a slot to the integration branch, fast-forward it, and remove only merged local branches |
 
 ## The input
 
@@ -74,17 +94,19 @@ End by writing exactly one JSON file at the result path:
 A pull request's milestone names the phase that may take it. Skills name the milestones by
 their role in `operator_config` `milestones` - `queue`, `development`, `verification`,
 `humanReview`, `mergeQueue`, and `clarification` for a clarification slot's pull request - and read the project's title for each role there before comparing or
-setting one; a title is never written into a skill.
+setting one; a title is never written into a skill. A conflict with the integration branch returns a
+pull request in any later milestone to `development`; a `sendBack` label from `operator_config`
+sends it to the operation named there, which returns it to `development`.
 
 ## Holding a pull request
 
 - A skill takes a pull request only in its own milestone and only while no `ai:processing` stands
-  on it (`git-workflow`). It adds `ai:processing` before its first write (profile `forge_cli claim take <n>`). A **claim
+  on it (`references/pr-state.md`). It adds `ai:processing` before its first write (profile `forge_cli claim take <n>`). A **claim
   edit** - the claim together with a milestone move or a label removal - is one profile
   `forge_cli pr edit <n> --claim [--milestone "<title>"] [--remove-label <l>]`, never a hand-added
   `ai:processing`. Either answers `held` (exit 3) when the label already stood: another run's claim,
   taken over only as the bullets below allow, otherwise the run stops. `operator-merge` and
-  `operator-clarify`'s merge step are the exceptions: `git-merge-pr` reads the state label, so a
+  `operator-clarify`'s merge step are the exceptions: profile `merge_skill` reads the state label, so a
   merge takes no claim.
 - **One claim per shell call.** A chain that claims two pull requests can lose the record of the
   first when the second fails.
@@ -107,7 +129,7 @@ setting one; a title is never written into a skill.
   profile `forge_cli pr edit <n> --milestone "<next milestone's title>" --remove-label ai:processing`. No state label plus
   milestone X means: waiting for phase X's operation.
 - Any other end removes `ai:processing` in the same call that writes the terminal label, through
-  `git-complete-pr` where the phase says so. A run never ends with its claim left behind.
+  profile `outcome_skill` where the phase says so. A run never ends with its claim left behind.
 - **Owner labels are re-read before every write, and between the steps of a long round.**
   `owner:onhold`, `owner:rejected` or `owner:cancelled` appearing stops the run where it stands:
   commit and push nothing more, drop `ai:processing`, result `noop` - a closed attempt belongs to
@@ -116,8 +138,8 @@ setting one; a title is never written into a skill.
   (`<prefix><slot>-<slug>`) from intake until it merges or closes: every run of it works there,
   the review included, and leaves the slot on the PR branch at the head it pushed, with nothing
   uncommitted, so the next run and the owner find the task where it stands. Only the end of the
-  pull request returns the slot to the integration branch with `git-sync-base`: after a confirmed
-  merge unscoped (`git-merge-pr` has deleted the branch), after a closed attempt scoped to its
+  pull request returns the slot to the integration branch with profile `sync_base_skill`: after a confirmed
+  merge unscoped (profile `merge_skill` has deleted the branch), after a closed attempt scoped to its
   branch. Work a run cannot commit is never left behind and never discarded: the run ends `failed`
   naming it.
 
@@ -166,7 +188,7 @@ A host token may act as the owner, so a comment's author cannot tell the owner f
 Discovery therefore reads every unmarked comment from an owner account as owner input, and new
 input starts the phase operation again.
 
-- Stage reports keep the `git-workflow` envelope (`## <Stage> - <VERDICT>`, then `head: <sha>`).
+- Stage reports keep the envelope `references/pr-state.md` states (`## <Stage> - <VERDICT>`, then `head: <sha>`).
 - Comments CI posts carry the project's markers (`operator_config` `pipelineMarkers`).
 - Every other comment a skill posts ends with `<!-- operator:note -->`, a reply in a review thread
   included: its review has no body of its own, so discovery reads the thread comment. A passing
@@ -174,7 +196,7 @@ input starts the phase operation again.
 
 ## Judging stages
 
-`git-review-pr` and `git-verify-pr` run where profile `judge_runner` says: `none` (or unset) runs
+Profiles `review_skill` and `verify_skill` run where profile `judge_runner` says: `none` (or unset) runs
 them in this session; a skill name runs them through that skill in another engine,
 read-only, and the operator skill posts the report unchanged and writes the factor its verdict earns.
 An engine that is unavailable ends the run `failed` with `retryable: true`; nothing stands in for it.
@@ -200,7 +222,7 @@ that skill (`/operator-plan 2045`).
   reply after that marker, and records the answer it acts on in one note comment
   (`Answer to <question id>: <decision>`, ending with the note marker) instead of `operator state`.
 - Where a step hands work to the runtime, the skill names what to run instead: the review is
-  `git-review-pr` through profile `judge_runner`.
+  profile `review_skill` through profile `judge_runner`.
 
 ## Verify
 

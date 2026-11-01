@@ -23,7 +23,7 @@ factors: the owner's answers are its review, and the owner does not read it agai
 
 1. **Read the live state.** `<slot>` is `input.member`, or the checkout's own name when run by
    hand. Require a clean slot no open pipeline PR holds (its branch names the slot), then run
-   `git-sync-base`.
+   profile `sync_base_skill` (default `git-sync-base`).
 2. **Pick one item.** Re-read each of `input.candidates` (by hand: profile `operator_discover
    --standalone` lists none, so rank the queue's items waiting on a decision the way profile
    `flow_queue` orders them) on the freshly fetched integration branch. Drop one no longer waiting
@@ -35,7 +35,7 @@ factors: the owner's answers are its review, and the owner does not read it agai
 3. **Open the attempt.** Create `<clarify_branch_prefix><slot>-clarify-<slug>` from the freshly
    fetched integration branch with `git checkout --no-track -b`, verify HEAD equals it, then do
    step 4's planning before the first commit, so the pull request opens with substance. Push with
-   `-u origin <branch>` and call `git-open-pr` as a draft with this skill's `assets/pr-template.md`
+   `-u origin <branch>` and call profile `open_pr_skill` (default `git-open-pr`) as a draft with this skill's `assets/pr-template.md`
    as the template, never the implementation one: a clarification PR declares no verification steps
    or automated gates, only Task, Approach and Open questions, so a reader is into the problem in
    seconds. Say in Task which candidates were weighed and why this one. Claim the new PR, set the
@@ -48,7 +48,7 @@ factors: the owner's answers are its review, and the owner does not read it agai
    claims against the shipped code and the feature documentation; settle from the repository
    everything it already answers. Write the proposed resolution on the item - what changes, the
    options weighed, the recommendation and why - and update the feature document it concerns.
-   Commit through `git-commit-push`. A resumed run first records the owner's answer (contract),
+   Commit through profile `commit_skill` (default `git-commit-push`). A resumed run first records the owner's answer (contract),
    writes it into the item and the feature document, and commits that. Keep the PR body's Approach
    and Open questions current with every commit (`Decided: <answer>` on an answered question).
 5. **Ask what only the owner can decide, one question at a time.** Each question names its context
@@ -70,7 +70,7 @@ factors: the owner's answers are its review, and the owner does not read it agai
    attempt starts from that reason; cancelled → the reason and `clarifySkip: true`, so it is not
    offered again. A missing reason is an owner question (`resume: clarify`). Then post one note
    naming the outcome, close the PR without deleting its remote branch, drop the claim, and run
-   `git-sync-base` for the branch.
+   profile `sync_base_skill` for the branch.
 
 ## Merge (`step: merge`)
 
@@ -79,11 +79,11 @@ factors: the owner's answers are its review, and the owner does not read it agai
    rejection or cancellation. Every changed path is within the profile's direct lane for documentation and queue
    documents: anything else refuses the merge with one note. Every required check green on this
    head, no unresolved thread, no standing change request.
-9. **Merge.** Take no claim; the PR carries no `ai:*` label, so `git-merge-pr` judges it on checks,
+9. **Merge.** Take no claim; the PR carries no `ai:*` label, so profile `merge_skill` (default `git-merge-pr`) judges it on checks,
    threads and its guards. Check out the head, move it to `mergeQueue`, profile `forge_cli pr ready <n>`, then
-   invoke `git-merge-pr`: the owner's answers recorded in the READY report are the authorization, as
+   invoke profile `merge_skill`: the owner's answers recorded in the READY report are the authorization, as
    the owner set for clarification pull requests (or `owner:accepted`). Record its confirmed merge
-   SHA and run `git-sync-base`. Stale evidence → one note naming it, `noop`.
+   SHA and run profile `sync_base_skill`. Stale evidence → one note naming it, `noop`.
 
 ## Run by hand
 
@@ -99,7 +99,7 @@ clarification PR by its state.
 ## Scope / hand-off
 
 - Delivery of the settled item is `operator-intake` on a later pick; the merge itself is
-  `git-merge-pr`.
+  profile `merge_skill`.
 
 ## Constraints
 

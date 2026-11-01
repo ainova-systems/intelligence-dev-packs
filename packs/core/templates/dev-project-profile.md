@@ -75,6 +75,15 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 - merge_gates: none                  <!-- project rules that block a merge besides checks and factors -->
 - clarify_priority: none             <!-- the business priority operator-clarify weighs among discovery's top candidates -->
 - clarify_branch_prefix: docs/       <!-- branch prefix for a clarification pull request, which changes documents only -->
+- capture_skill: none                <!-- the skill operator-plan runs to capture the acceptance criteria; none = dev-deliver Phase A -->
+- commit_skill: none                 <!-- the skill the operator phases commit and push through; none = git-commit-push -->
+- open_pr_skill: none                <!-- the skill operator-intake and operator-clarify open a pull request with; none = git-open-pr -->
+- review_skill: none                 <!-- the review stage; none = git-review-pr -->
+- verify_skill: none                 <!-- the verification stage; none = git-verify-pr -->
+- threads_skill: none                <!-- how review threads are answered and resolved; none = the Threads procedure of git-complete-pr -->
+- outcome_skill: none                <!-- the skill that writes a run's terminal state label; none = git-complete-pr -->
+- merge_skill: none                  <!-- the merge behind its guards; none = git-merge-pr -->
+- sync_base_skill: none              <!-- returns a slot to the integration branch; none = git-sync-base -->
 
 ## Pull requests
 

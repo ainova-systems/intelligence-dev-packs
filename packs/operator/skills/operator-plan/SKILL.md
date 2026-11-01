@@ -12,7 +12,7 @@ Plan captures the intended result before any implementation; it is the `plan` op
 | Contract | |
 |---|---|
 | Trigger | A PR in the queue milestone, including a resumed planning question |
-| Work | `dev-deliver` Phase A; the plan on the queue item, or profile `flow_plan` for feature-sized work; the PR's verification section; `git-commit-push` |
+| Work | Profile `capture_skill` (default `dev-deliver` Phase A); the plan on the queue item, or profile `flow_plan` for feature-sized work; the PR's verification section; profile `commit_skill` (default `git-commit-push`) |
 | Evidence | plan commit SHA, queue item path and PR URL |
 | Next | complete → development milestone, `implement`; open question → `needs-input`, resume `plan` |
 
@@ -23,7 +23,7 @@ Plan captures the intended result before any implementation; it is the `plan` op
 2. **Claim and check out** the PR branch at its live head. Read the linked queue item, its feature
    documentation and any plan commits; reuse a completed capture on retry. The intake reservation is
    not a planning commit.
-3. **Capture the outcome.** Run only `dev-deliver`'s Phase A against the item and the repository,
+3. **Capture the outcome.** Run only profile `capture_skill` against the item and the repository,
    answering from them what they already settle. Capture the business goal, observable acceptance
    criteria and scope exclusions. Address every recorded rejection reason. Validate the proposed
    patterns against shipped siblings and the project rules.
@@ -33,9 +33,10 @@ Plan captures the intended result before any implementation; it is the `plan` op
    it. A real open question goes to the owner (`resume: plan`); commit settled planning first and
    keep the milestone.
 5. **Publish the acceptance contract.** Fill the PR body's verification section (profile
-   `verify_section`) with the Phase A criteria verbatim, as `git-open-pr` requires a step. Edit the
-   live body, keeping every other section and block intact. Commit and push the plan through
-   `git-commit-push`; an identical capture already published is reused, never committed empty.
+   `verify_section`) with the captured criteria verbatim, one observable step per criterion
+   (`git-open-pr` sets the same rule when core is installed). Edit the live body, keeping every
+   other section and block intact. Commit and push the plan through
+   profile `commit_skill`; an identical capture already published is reused, never committed empty.
 6. **Hand off.** All in-scope questions settled → re-check live state, then one call moves the PR
    to the development milestone and drops `ai:processing`. Result `done` with the hand-off request
    (`operator-contract`).
@@ -55,6 +56,6 @@ Plan captures the intended result before any implementation; it is the `plan` op
 
 ## Constraints
 
-- No implementation, judging stage, merge or release. Phase A runs without continuing into
-  `dev-deliver`'s other phases.
+- No implementation, judging stage, merge or release. The capture runs without continuing into
+  the rest of the delivery (core's `dev-deliver` when installed).
 - In-scope unresolved behaviour is an owner question, never a deferred enhancement.

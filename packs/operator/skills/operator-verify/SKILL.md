@@ -12,7 +12,7 @@ of `operator.yaml`. Load the `operator-contract` skill first.
 | Contract | |
 |---|---|
 | Trigger | the verification milestone; new owner input, a QA ticket, or verification steps edited since the last verification on `humanReview` or `mergeQueue`; or `owner:revalidate` |
-| Work | oldest-first QA admission; `git-verify-pr` through profile `judge_runner`; feedback triage; `git-complete-pr` |
+| Work | oldest-first QA admission; profile `verify_skill` (default `git-verify-pr`) through profile `judge_runner`; feedback triage; profile `outcome_skill` (default `git-complete-pr`) |
 | Evidence | verification report at the head with the current steps digest; completion labels and PR URL |
 | Next | fix → `development`, `implement`; passed → `humanReview`; QA, CI or a QA slot pending → `noop` |
 
@@ -29,7 +29,7 @@ of `operator.yaml`. Load the `operator-contract` skill first.
 3. **Triage input.** Read owner input (profile `operator_discover --owner-input <n>`) and every
    unresolved thread (profile `forge_cli threads <n> --unresolved`). Once QA serves the head (step 6), read its tickets with profile
    `qa_feedback` and reproduce what they report against the declared criteria; a reader that fails
-   is not an empty list. Reply through `git-complete-pr`'s Threads procedure; fixes belong to
+   is not an empty list. Reply through profile `threads_skill` (default: the Threads procedure of `git-complete-pr`); fixes belong to
    implementation. An owner question goes out with `resume: verify`.
 4. **Route required fixes.** A code defect, red CI needing a fix, an actionable review finding or a
    defective verification step → record the evidence, then one call moves the PR to the
@@ -50,9 +50,9 @@ of `operator.yaml`. Load the `operator-contract` skill first.
    change, read profile `qa_status` for this head: require a ready deployment serving it, otherwise
    release the claim and end `noop` naming what it waits for. Use the address it reports, never a
    constructed one. Finish step 3's ticket checks now; a required fix takes step 4 first.
-   On `owner:revalidate`, remove `ai:verified` and run `git-verify-pr` again even when a same-head
+   On `owner:revalidate`, remove `ai:verified` and run profile `verify_skill` again even when a same-head
    report stands; prior evidence is also invalid after the deployment was reset or the steps digest
-   changed. Run `git-verify-pr` through profile `judge_runner`, post the report unchanged, and write
+   changed. Run profile `verify_skill` through profile `judge_runner`, post the report unchanged, and write
    `ai:verified` only when its verdict passes. After a pass, post one note recording the steps it
    verified - `Verified steps: <digest>`, then `<!-- operator:verified <digest> -->` before the note
    marker, the digest from profile `operator_discover --steps-digest <n>` - so discovery asks again
@@ -65,7 +65,7 @@ of `operator.yaml`. Load the `operator-contract` skill first.
    `pr_success_factors` declares, and CI at the same head. New
    input is triaged first. A missing or stale review returns to `development` through step 4, so
    implementation requests one. CI pending → release the claim, `noop`. Every criterion passed, every
-   declared factor fresh, CI green, no unresolved thread and no owner decision → `git-complete-pr` writes
+   declared factor fresh, CI green, no unresolved thread and no owner decision → profile `outcome_skill` writes
    `ai:completed`, then the PR moves to `humanReview`. Result `done`, no next.
 
 ## Run by hand
@@ -80,8 +80,8 @@ of `operator.yaml`. Load the `operator-contract` skill first.
 
 ## Scope / hand-off
 
-- Fixes are `operator-implement`; the verification procedure is `git-verify-pr` through profile
-  `judge_runner`; the outcome is `git-complete-pr`; the merge is `operator-merge`.
+- Fixes are `operator-implement`; the verification procedure is profile `verify_skill` through profile
+  `judge_runner`; the outcome is profile `outcome_skill`; the merge is `operator-merge`.
 
 ## Constraints
 

@@ -2,15 +2,26 @@
 
 Phase skills for the operator runtime (`@ainova-systems/operator`). The runtime is generic: it runs
 the operations a project's `operator.yaml` declares, on timers and triggers, and holds pools, jobs
-and waits. This pack is what those operations run. Each phase skill is a thin layer over the core
-pack: it owns *when* a pull request moves and *who* holds it, and calls core and project skills for
-the work - `dev-deliver`'s Phase A, profile `flow_implement`, `git-review-pr`, `git-verify-pr`,
-`git-complete-pr`, `git-merge-pr`.
+and waits. This pack is what those operations run. Each phase skill owns *when* a pull request
+moves and *who* holds it, and hands the work of each step to the skill a profile key names
+(`operator-contract` > Delegated steps): capturing criteria, committing, opening the pull request,
+review, verification, review threads, the outcome, merging and returning a slot to the integration
+branch, plus profile `flow_implement` for the implementation itself.
+
+## Core is recommended, not required
+
+For a clean start install the core pack beside this one: every delegated-step key defaults to a
+core skill, and core's `git-workflow` rule states the same label, factor and report vocabulary.
+A project that already has its own equivalents points the keys at them instead. What a replacement
+must honour is the contract the operator pack owns - the state labels and their single writer, the
+success factors and their freshness at head (the verification steps digest included), the stage
+report envelope and the claim (`operator-contract` > `references/pr-state.md`) - and the duty each
+key's row in the Delegated steps table names.
 
 Without the runtime the same flow runs by hand, with neither `operator` nor herdr: profile
 `operator_discover --standalone` names the next skill for each PR, and each skill runs from a
-session (`operator-contract` > Run by hand). `dev-deliver-next` (core) delivers a queue item in one
-session instead of phase by phase.
+session (`operator-contract` > Run by hand). `dev-deliver-next` (core, when installed) delivers a
+queue item in one session instead of phase by phase.
 
 ## Skills
 
@@ -21,7 +32,7 @@ session instead of phase by phase.
 | `operator-plan` | `queue` (In Queue) | the plan and its verification steps are committed |
 | `operator-implement` | `development` (Development) | the plan is complete, the head is reviewed and CI is green |
 | `operator-review` | `development` (Development) | the runtime's review is posted (runtime only) |
-| `operator-verify` | `verification` (Verification) | `git-verify-pr` passed and `git-complete-pr` wrote `ai:completed` |
+| `operator-verify` | `verification` (Verification) | profile `verify_skill` passed and profile `outcome_skill` wrote `ai:completed` |
 | - (the owner) | `humanReview` (Human Review) | feedback returns it to Verification; `owner:accepted` sends it to merge |
 | `operator-merge` | `mergeQueue` (Merge Queue) | merged |
 | `operator-clarify` | a queue item waiting on an owner decision → `clarification` (Clarification) → `mergeQueue` → merged | the item is ready with every owner answer recorded |
@@ -30,13 +41,14 @@ session instead of phase by phase.
 
 | Key | Meaning |
 |---|---|
-| `operator_config` | JSON with milestone and label names, owner author associations, `slots` (the agent slot names; a PR holds the slot its branch names from intake to merge or close), `clarifySlots` (slots that only clarify) and `clarifyCandidates` (how many ranked items discovery offers), `readyLimit` (ready PRs in QA at once), `verifySection`, the question marker and `pipelineMarkers` |
+| `operator_config` | JSON with milestone and label names, owner author associations, `slots` (the agent slot names; a PR holds the slot its branch names from intake to merge or close), `clarifySlots` (slots that only clarify) and `clarifyCandidates` (how many ranked items discovery offers), `readyLimit` (ready PRs in QA at once), `verifySection`, the question marker, `pipelineMarkers`, and `sendBack` (labels an automated check sets, each with the operation that does its work and returns the PR to development; one PR per label at a time, oldest first) |
 | `operator_discover` | The discovery command; `--standalone` prints the next skill per PR, `--request <n>` the request discovery makes for one PR now (a phase's hand-off), `--steps-digest <n>` the digest of a PR's verification steps, `--owner-input <n>` the last stage report and the owner input after it |
 | `forge_cli` | The forge contract command every code-host call goes through: `pr` (list, view, create, ready, edit, body, files), `checks`, `threads`, `claim`, `factor`, `comment`, `notes`, `merge`, `events`, answering JSON. On GitHub it points at `skills/operator-contract/scripts/forge-github.mjs` with `OPERATOR_CONFIG` naming `operator_config`; another platform ships its own implementation of the contract later |
-| `flow_queue` | The work queue's order and rules (core) |
+| `capture_skill`, `commit_skill`, `open_pr_skill`, `review_skill`, `verify_skill`, `threads_skill`, `outcome_skill`, `merge_skill`, `sync_base_skill` | The skill each delegated step runs; unset = the core skill (`operator-contract` > Delegated steps lists the defaults and what a replacement must do) |
+| `flow_queue` | The work queue's order and rules |
 | `flow_plan` | The skill that writes a feature-sized plan; none → the plan goes on the queue item |
-| `flow_implement` | The implementation skill (core, `dev-deliver` Phase B) |
-| `judge_runner` | How `git-review-pr` and `git-verify-pr` run: `none` in the session, or a skill that runs them in another engine |
+| `flow_implement` | The implementation skill (with core installed, the one `dev-deliver` runs for its Phase B) |
+| `judge_runner` | How profiles `review_skill` and `verify_skill` run: `none` in the session, or a skill that runs them in another engine |
 | `qa_status` | How to read whether a QA deployment serves a head, and its address |
 | `qa_feedback` | Command listing QA tickets for a PR; none → no tickets |
 | `qa_feedback_status` | Command moving one QA ticket to in progress or completed with a comment for its submitter; none → tickets stay as the owner left them |
@@ -71,21 +83,21 @@ sequenceDiagram
     C->>GH: plan commit, verification steps, Development
 
     loop each round, until the plan is complete, reviewed and green
-        RT->>C: operator-implement (flow_implement, git-commit-push)
-        RT->>J: git-review-pr, read-only
+        RT->>C: operator-implement (flow_implement, commit_skill)
+        RT->>J: review_skill, read-only
         RT->>C: operator-review (report, ai:reviewed)
     end
     C->>GH: Verification
 
     RT->>C: operator-verify
-    C->>J: git-verify-pr on QA (judge_runner)
+    C->>J: verify_skill on QA (judge_runner)
     C->>GH: report, ai:verified, ai:completed, Human Review
 
     Owner->>GH: QA
     alt a comment or a QA ticket
         D-->>RT: verify (feedback)
     else owner:accepted
-        RT->>C: operator-merge (gates, git-merge-pr, git-sync-base)
+        RT->>C: operator-merge (gates, merge_skill, sync_base_skill)
     end
 ```
 

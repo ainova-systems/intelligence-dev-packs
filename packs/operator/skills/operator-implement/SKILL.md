@@ -7,14 +7,14 @@ argument-hint: "[PR number when run by hand; the runtime passes $OPERATOR_INPUT]
 # Operator implement
 
 The Development phase's wrapper, the `implement` operation of `operator.yaml`. The work itself is
-profile `flow_implement`, the same skill `dev-deliver` runs for its Phase B; this skill owns when a
+profile `flow_implement` (core's `dev-deliver` runs the same skill for its Phase B); this skill owns when a
 round runs, the claim, the hand-off to review and the move to `verification`. Load the
 `operator-contract` skill first.
 
 | Contract | |
 |---|---|
 | Trigger | A PR in the development milestone with implementation, CI, review, verification or owner work pending; a PR in any later milestone that conflicts with the integration branch |
-| Work | one `flow_implement` round ending at `git-commit-push`; `git-complete-pr`'s Threads procedure for review threads |
+| Work | one `flow_implement` round ending at profile `commit_skill` (default `git-commit-push`); profile `threads_skill` (default: the Threads procedure of `git-complete-pr`) for review threads |
 | Evidence | pushed head SHA and PR URL |
 | Next | pushed or unreviewed → `review`; complete, reviewed and green → `verification`, `verify`; CI pending → `noop` |
 
@@ -45,8 +45,8 @@ round runs, the claim, the hand-off to review and the move to `verification`. Lo
    conditions where it passes rewrites the expectation to fit the failure, which only the owner may
    decide, as a question with `resume: implement`.
 4. **Run one round.** Run `flow_implement` on this PR, naming the pending work; the round ends at one
-   `git-commit-push`, with no pre-commit review pass and no CI wait, which belong to this phase.
-   Reply to and resolve review threads through `git-complete-pr`'s Threads procedure. An owner
+   profile `commit_skill`, with no pre-commit review pass and no CI wait, which belong to this phase.
+   Reply to and resolve review threads through profile `threads_skill`. An owner
    decision is a question with `resume: implement`.
    Bring the integration branch in first (profile `update_strategy`, conflicts through profile
    `conflict_skill`) when the round will push anyway or the PR conflicts with it; never merge it
@@ -70,8 +70,8 @@ round runs, the claim, the hand-off to review and the move to `verification`. Lo
    included, as the project's rules require), a `## Code review` report at the head with no
    Critical, the review factor fresh when `pr_success_factors` declares it, and CI green → one call
    moves the PR to the verification milestone, drops `ai:processing`, and replaces the title intake
-   reserved with what the change does (`git-commit-conventions`' one-line commit style, since the
-   squash publishes it), recomputing the body's Risk/Size line from the final diff by `git-open-pr`'s
+   reserved with what the change does (the project's one-line commit style - core's `git-commit-conventions` when installed - since the
+   squash publishes it), recomputing the body's Risk/Size line from the final diff by profile `open_pr_skill`'s (default `git-open-pr`)
    rules when profile `pr_risk_size` is on (edit the live body, every other part intact); then the
    hand-off request (`operator-contract`). CI still running → release the claim, `noop` naming it.
 7. **Leave the slot on the PR branch** at the head this run pushed (`operator-contract`); keep the
@@ -79,7 +79,7 @@ round runs, the claim, the hand-off to review and the move to `verification`. Lo
 
 ## Run by hand
 
-`/operator-implement <n>`. Step 5 then runs `git-review-pr` itself, through profile `judge_runner`,
+`/operator-implement <n>`. Step 5 then runs profile `review_skill` (default `git-review-pr`) itself, through profile `judge_runner`,
 instead of handing the head to the runtime; repeat until step 6 moves the PR on.
 
 ## Verify

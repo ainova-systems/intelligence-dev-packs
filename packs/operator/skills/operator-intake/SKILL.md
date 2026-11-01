@@ -12,7 +12,7 @@ the `operator-contract` skill first: input, result, claim and markers follow it.
 | Contract | |
 |---|---|
 | Trigger | Subject `queue` with capacity, or `pr-<n>` carrying `owner:rejected` / `owner:cancelled` |
-| Work | Select one queue item and open its pull request; close abandoned attempts through `git-complete-pr` |
+| Work | Select one queue item and open its pull request; close abandoned attempts through profile `outcome_skill` (default `git-complete-pr`) |
 | Evidence | PR URL and queue item path; for maintenance, outcome comment URL and queue commit SHA |
 | Next | selected → `plan`; queue maintenance → `done`; no eligible item → `noop` |
 
@@ -23,7 +23,7 @@ the `operator-contract` skill first: input, result, claim and markers follow it.
    the input, require OPEN, and check owner labels and claims. A moved head, changed milestone,
    `owner:onhold`, or another run's `ai:processing` ends `noop` with its reason. Cancellation
    outranks rejection; without either label, `noop`. Require a clean slot; preserve foreign work.
-2. **Read the queue.** For `queue`, run `git-sync-base`, then re-read all open PRs, their queue
+2. **Read the queue.** For `queue`, run profile `sync_base_skill` (default `git-sync-base`), then re-read all open PRs, their queue
    references and changed files (profile `forge_cli pr list` and `pr files <n>`). Check that `<slot>` is free: no open PR in a pipeline milestone has a branch naming it
    (`operator_config` `slots` lists the slots; a PR holds its slot from intake until it merges or
    closes). Read candidates on the freshly fetched integration branch,
@@ -43,7 +43,7 @@ the `operator-contract` skill first: input, result, claim and markers follow it.
    it before the first commit. Make exactly one reservation commit,
    `git commit --allow-empty -m "Took <item title> into the development pipeline"`, and push with
    `-u origin <branch>`. On retry, recover the existing branch and PR; never duplicate them.
-   Call `git-open-pr` with the PR opened as a draft whenever `operator_config` sets `readyLimit`,
+   Call profile `open_pr_skill` (default `git-open-pr`) with the PR opened as a draft whenever `operator_config` sets `readyLimit`,
    whatever count the project's own opening policy reads: QA capacity goes only to drafts
    `operator-verify` admits oldest-first, never to an empty reservation. Link the queue item, take
    verification steps from it (plan refines them), state that implementation has not started, and
@@ -54,21 +54,21 @@ the `operator-contract` skill first: input, result, claim and markers follow it.
 5. **Record the queue change first.** For a PR subject, claim it. Read the linked item and the
    owner's reason; recover a deleted item from history. A missing reason is an owner question with
    `resume: intake`, never an invented reason. On the integration branch, through the profile's
-   direct lane for queue documents, record with `git-commit-push`:
+   direct lane for queue documents, record with profile `commit_skill` (default `git-commit-push`):
    - rejected: the reason and the failed PR on the item, which stays eligible; every recorded
      reason binds the next plan;
    - cancelled: the item leaves the queue the way `flow_queue` says items leave it.
    The queue change lands before the PR closes, because a closed PR is never taken again: a retry
    finds the record already there and goes straight to step 6.
-6. **Then close the attempt.** Check out its head. Call `git-complete-pr` to record `ai:failed`
+6. **Then close the attempt.** Check out its head. Call profile `outcome_skill` to record `ai:failed`
    naming the owner's reason. Close the PR without deleting its remote branch, confirm CLOSED,
-   record the local and remote SHAs, and run `git-sync-base` for the branch. A closed attempt's local
+   record the local and remote SHAs, and run profile `sync_base_skill` for the branch. A closed attempt's local
    slot branch is deleted once its commits are confirmed on the remote; result `done`, no next.
 
 ## Run by hand
 
 `/operator-intake` takes the next item; `/operator-intake <n>` closes a rejected or cancelled
-attempt. To deliver the next item in one session instead of phase by phase, run `/dev-deliver-next`.
+attempt. To deliver the next item in one session instead of phase by phase, run `/dev-deliver-next` (core, when installed).
 
 ## Verify
 
@@ -79,8 +79,8 @@ attempt. To deliver the next item in one session instead of phase by phase, run 
 
 ## Scope / hand-off
 
-- The plan is `operator-plan`; a closed attempt's outcome comes from `git-complete-pr`.
-- The same pick in one session, without the runtime, is `dev-deliver-next`.
+- The plan is `operator-plan`; a closed attempt's outcome comes from profile `outcome_skill`.
+- The same pick in one session, without the runtime, is `dev-deliver-next` (core, when installed).
 
 ## Constraints
 
