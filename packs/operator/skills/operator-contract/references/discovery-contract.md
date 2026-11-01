@@ -31,7 +31,8 @@ already covers is skipped.
 | # | When | Operation | Key route |
 |---|---|---|---|
 | 1 | not in a pipeline milestone; `onhold`; `processing` (unless stale, below) | skip | - |
-| 2 | `cancelled` or `rejected` | `intake` (`clarify`, step `close`, in a clarification slot) | `close:<label>:<head>` |
+| 2a | `cancelled` or `rejected`, in a delivery slot | `intake` | `close:<label>:<head>` |
+| 2b | `cancelled` or `rejected`, in a clarification slot | `clarify`, `step: close` | `close:<label>:<head>` |
 | 3 | conflicts with the integration branch, past `queue` | `implement`, `reason: conflict` | `conflict:<head>` |
 | 4 | carries a `sendBack` label, past `queue`, and is that label's oldest takeable PR | the label's operation, `reason: sendback`, `label` | `sendback:<label>:<head>` |
 | 5 | `revalidate`, not a draft in `verification` | `verify` | `revalidate:<head>:…` |
@@ -88,7 +89,7 @@ puts it in `input.qa` (`passed`, `pending`, `failed`, `none`), and asks for rows
 |---|---|---|---|
 | `pr` | number | discovery, every PR request | every phase skill |
 | `head` | sha | discovery; a hand-off `next` | every phase skill |
-| `ci` | `none\|pending\|success\|failure` | discovery | implement, verify, merge, clarify |
+| `ci` | `none\|pending\|success\|failure` | discovery: the latest attempt of each `ciWorkflows` run for the head; any failed or cancelled -> `failure`, else any queued or running -> `pending`, else all succeeded -> `success`; no run -> `none` | implement, verify, merge, clarify |
 | `qa` | QA state | discovery | verify |
 | `milestone` | title | discovery | every phase skill |
 | `reason` | `conflict` \| `sendback` | discovery, rows 3-4 | implement, the send-back operation |
@@ -101,14 +102,14 @@ puts it in `input.qa` (`passed`, `pending`, `failed`, `none`), and asks for rows
 | `body` | absolute path | `operator-implement`'s `review` request: the PR body for the review to read | review-verdict (removes it) |
 | `output` | absolute path | the review job: the findings file | review-verdict |
 | `question`, `reply` | id, URL | the runtime, resuming a wait | the asking skill |
-
-`member` (the slot) is a field of the request, not of `input`; the runtime passes it to the run.
+| `member` | slot name | the runtime, from the request's `member` (discovery sets it there, not in `input`) | intake, clarify, every slot-bound skill |
 
 ## The steps digest
 
 1. From the pull request body remove every block `operator_config` `digestExclude` names: each
-   `start` through the next `end`, both markers included, every occurrence. A status block CI
-   rewrites inside the body would otherwise change the digest after every CI run.
+   `start` through the next `end`, both markers included, every occurrence, scanning left to right
+   and resuming after each removed `end`; a `start` with no `end` after it removes nothing. A status
+   block CI rewrites inside the body would otherwise change the digest after every CI run.
 2. Find the line that is exactly `## <profile verify_section>`; none → the digest is `none`.
 3. Take the lines after it up to the next line starting `## `, or the end; join with `\n`; trim.
 4. The digest is the first 12 hexadecimal characters of that text's SHA-256 (UTF-8).
