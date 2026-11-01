@@ -68,7 +68,7 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 
 - operator_config: none              <!-- JSON file: milestone and label names, owner author associations, slots, clarification slots and candidates, readyLimit, verifySection, ciWorkflows, question and pipeline markers -->
 - operator_discover: none            <!-- the discovery command; --standalone names the next skill per PR, --request <n> the request for one PR, --steps-digest <n>, --owner-input <n> -->
-- forge_cli: none                    <!-- the forge contract command every code-host call goes through, e.g. OPERATOR_CONFIG=<operator_config> node <forge-github pack>/skills/forge-github/scripts/forge-github.mjs -->
+- forge_cli: none                    <!-- the forge contract command every code-host call goes through, e.g. OPERATOR_CONFIG=<operator_config> node <operator pack>/skills/operator-contract/scripts/forge-github.mjs -->
 - qa_status: none                    <!-- how to read whether a QA deployment serves a head, and its address; none = no QA environment -->
 - qa_feedback: none                  <!-- command listing QA tickets for a PR; none = no tickets -->
 - qa_feedback_status: none           <!-- command moving one QA ticket to in progress or completed with a note for its submitter; none = tickets stay as their submitter left them -->

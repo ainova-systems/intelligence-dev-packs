@@ -1,4 +1,4 @@
-// The forge contract's answer shapes (references/forge-contract.md), as checks a platform pack's tests
+// The forge contract's answer shapes (references/forge-contract.md), as checks an implementation's tests
 // apply to every answer its subcommands give. Each check throws naming the first field that differs.
 
 const isString = (value) => typeof value === 'string';

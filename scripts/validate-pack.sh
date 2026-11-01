@@ -20,7 +20,7 @@ PACK_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PACKS_DIR="$PACK_ROOT/packs"
 
 # Known domain prefixes. Add a row here when a new domain (e.g. react-, sec-) is introduced.
-KNOWN_PREFIXES="dev- git- spec- operator- forge-"
+KNOWN_PREFIXES="dev- git- spec- operator-"
 
 errors=0
 fail() { echo "FAIL: $1" >&2; errors=$((errors + 1)); }

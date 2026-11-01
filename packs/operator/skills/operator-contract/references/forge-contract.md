@@ -1,8 +1,9 @@
 # The forge contract
 
 Every code-host call a phase skill or a discovery script makes goes through one command, profile
-`forge_cli`, which names the installed platform pack's script (`forge-github` today). A platform
-pack implements every subcommand below and answers JSON in exactly these shapes; a subcommand the
+`forge_cli`. On GitHub a project points it at `scripts/forge-github.mjs` in this skill, the default
+implementation; another platform ships its own implementation of the same contract later. An implementation
+implements every subcommand below and answers JSON in exactly these shapes; a subcommand the
 platform cannot serve fails with a named capability gap, never an emulation.
 
 ## Subcommands
@@ -50,6 +51,6 @@ variable in its `forge_cli` value.
 
 ## Contract test
 
-`scripts/forge-contract.mjs` exports `assertShape(kind, value)` for every answer shape above. A
-platform pack's own tests run its subcommands against a stand-in for the platform and pass each
+`scripts/forge-contract.mjs` exports `assertShape(kind, value)` for every answer shape above. An
+implementation's own tests run its subcommands against a stand-in for the platform and pass each
 answer through it, so every implementation is held to the same shapes.

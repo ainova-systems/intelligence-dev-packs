@@ -26,8 +26,4 @@ packages:
   "@ainova-systems/operator":
     url: "https://github.com/ainova-systems/intelligence-dev-packs.git"
     path: "packs/operator"
-    description: "Phase skills the Operator runtime runs: intake, plan, implement, review, verify, merge and clarify, each also runnable by hand, plus the forge contract. Depends on core and one platform pack."
-  "@ainova-systems/forge-github":
-    url: "https://github.com/ainova-systems/intelligence-dev-packs.git"
-    path: "packs/forge-github"
-    description: "The forge contract on GitHub: the one script every code-host call of the operator pack goes through. Depends on operator."
+    description: "Phase skills the Operator runtime runs: intake, plan, implement, review, verify, merge and clarify, each also runnable by hand, plus the forge contract and its GitHub implementation. Depends on core."

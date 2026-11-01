@@ -32,7 +32,7 @@ session instead of phase by phase.
 |---|---|
 | `operator_config` | JSON with milestone and label names, owner author associations, `slots` (the agent slot names; a PR holds the slot its branch names from intake to merge or close), `clarifySlots` (slots that only clarify) and `clarifyCandidates` (how many ranked items discovery offers), `readyLimit` (ready PRs in QA at once), `verifySection`, the question marker and `pipelineMarkers` |
 | `operator_discover` | The discovery command; `--standalone` prints the next skill per PR, `--request <n>` the request discovery makes for one PR now (a phase's hand-off), `--steps-digest <n>` the digest of a PR's verification steps, `--owner-input <n>` the last stage report and the owner input after it |
-| `forge_cli` | The forge contract command every code-host call goes through: `pr` (list, view, create, ready, edit, body, files), `checks`, `threads`, `claim`, `factor`, `comment`, `notes`, `merge`, `events`, answering JSON. A platform's implementation is named `forge-<platform>` |
+| `forge_cli` | The forge contract command every code-host call goes through: `pr` (list, view, create, ready, edit, body, files), `checks`, `threads`, `claim`, `factor`, `comment`, `notes`, `merge`, `events`, answering JSON. On GitHub it points at `skills/operator-contract/scripts/forge-github.mjs` with `OPERATOR_CONFIG` naming `operator_config`; another platform ships its own implementation of the contract later |
 | `flow_queue` | The work queue's order and rules (core) |
 | `flow_plan` | The skill that writes a feature-sized plan; none → the plan goes on the queue item |
 | `flow_implement` | The implementation skill (core, `dev-deliver` Phase B) |

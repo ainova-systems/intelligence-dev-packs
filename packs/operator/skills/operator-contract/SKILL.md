@@ -212,7 +212,7 @@ that skill (`/operator-plan 2045`).
 
 - The phase skills (`operator-intake`, `operator-plan`, `operator-implement`, `operator-review`,
   `operator-verify`, `operator-merge`, `operator-clarify`) load this contract first; the code
-  host is reached only through profile `forge_cli` (`forge-github` on GitHub).
+  host is reached only through profile `forge_cli` (on GitHub, this skill's `scripts/forge-github.mjs`).
 
 ## Constraints
 

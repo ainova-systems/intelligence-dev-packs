@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import {
   FLAGS, authorRole, checks, ciFromRuns, claim, comment, createPr, editPr, events, execute, factor, listPrs, merge, normalizePr, notes, prBody, prFiles, readInlineReviews, readUnresolvedThreads, readyPr, resolveThread, threads, viewPr,
 } from './forge-github.mjs';
-import { assertShape } from '../../../../operator/skills/operator-contract/scripts/forge-contract.mjs';
+import { assertShape } from './forge-contract.mjs';
 
 const SCRIPT = join(dirname(fileURLToPath(import.meta.url)), 'forge-github.mjs');
 // The operator configuration every call that needs one reads; the CLI runs below inherit it.
