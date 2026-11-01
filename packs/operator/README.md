@@ -15,10 +15,11 @@ core skill, and core's `git-workflow` rule states the same label, factor and rep
 A project that already has its own equivalents points the keys at them instead. What a replacement
 must honour is the contract the operator pack owns - the state labels and their single writer, the
 success factors and their freshness at head (the verification steps digest included), the stage
-report envelope and the claim (`operator-contract` > `references/pr-state.md`) - and the duty each
-key's row in the Delegated steps table names.
+report envelope and the claim (`operator-contract` > `references/pr-state.md`, which wins for operator
+runs when both packs are installed) - and the duty each key's row in the Delegated steps table names.
 
-Without the runtime the same flow runs by hand, with neither `operator` nor herdr: profile
+Without the runtime the same flow runs by hand, with neither `operator` nor herdr (an optional
+terminal multiplexer the runtime can place its runs in): profile
 `operator_discover --standalone` names the next skill for each PR, and each skill runs from a
 session (`operator-contract` > Run by hand). `dev-deliver-next` (core, when installed) delivers a
 queue item in one session instead of phase by phase.
@@ -41,13 +42,13 @@ queue item in one session instead of phase by phase.
 
 | Key | Meaning |
 |---|---|
-| `operator_config` | JSON with milestone and label names, owner author associations, `slots` (the agent slot names; a PR holds the slot its branch names from intake to merge or close), `clarifySlots` (slots that only clarify) and `clarifyCandidates` (how many ranked items discovery offers), `readyLimit` (ready PRs in QA at once), `verifySection`, the question marker, `pipelineMarkers`, and `sendBack` (labels an automated check sets, each with the operation that does its work and returns the PR to development; one PR per label at a time, oldest first) |
-| `operator_discover` | The discovery command; `--standalone` prints the next skill per PR, `--request <n>` the request discovery makes for one PR now (a phase's hand-off), `--steps-digest <n>` the digest of a PR's verification steps, `--owner-input <n>` the last stage report and the owner input after it |
+| `operator_config` | The operator configuration JSON: milestone and label roles, owner author associations, slots, QA admission, CI workflows, markers and send-back routes. Schema: `operator-contract` > `references/operator-config.md`, example `references/operator-config.example.json` |
+| `operator_discover` | The project's discovery command: `--standalone`, `--request <n>`, `--steps-digest <n>`, `--owner-input <n>`, and its runtime pass. Contract: `operator-contract` > `references/discovery-contract.md` |
 | `forge_cli` | The forge contract command every code-host call goes through: `pr` (list, view, create, ready, edit, body, files), `checks`, `threads`, `claim`, `factor`, `comment`, `notes`, `merge`, `events`, answering JSON. On GitHub it points at `skills/operator-contract/scripts/forge-github.mjs` with `OPERATOR_CONFIG` naming `operator_config`; another platform ships its own implementation of the contract later |
-| `capture_skill`, `commit_skill`, `open_pr_skill`, `review_skill`, `verify_skill`, `threads_skill`, `outcome_skill`, `merge_skill`, `sync_base_skill` | The skill each delegated step runs; unset = the core skill (`operator-contract` > Delegated steps lists the defaults and what a replacement must do) |
+| `flow_intake`, `commit_skill`, `open_pr_skill`, `review_skill`, `verify_skill`, `threads_skill`, `outcome_skill`, `merge_skill`, `sync_base_skill` | The skill each delegated step runs; unset = the core skill (`operator-contract` > Delegated steps lists the defaults, inputs, outputs and what a replacement must do) |
 | `flow_queue` | The work queue's order and rules |
 | `flow_plan` | The skill that writes a feature-sized plan; none → the plan goes on the queue item |
-| `flow_implement` | The implementation skill (with core installed, the one `dev-deliver` runs for its Phase B) |
+| `flow_implement` | The implementation skill: `auto` = the project's execution skill, else one subagent working to the plan's slices; or a skill name |
 | `judge_runner` | How profiles `review_skill` and `verify_skill` run: `none` in the session, or a skill that runs them in another engine |
 | `qa_status` | How to read whether a QA deployment serves a head, and its address |
 | `qa_feedback` | Command listing QA tickets for a PR; none → no tickets |
@@ -55,6 +56,20 @@ queue item in one session instead of phase by phase.
 | `merge_gates` | Project rules that block a merge besides checks and factors |
 | `clarify_priority` | The project's current business priority, which `operator-clarify` weighs among discovery's top candidates |
 | `clarify_branch_prefix` | Branch prefix for a clarification pull request, which changes documents only |
+
+The skills also read these keys of the core profile; a project without core sets them in its own
+profile, or the default applies:
+
+| Key | Default | Read for |
+|---|---|---|
+| `integration_branch` | none (the default branch) | the base every pipeline branch starts from and returns to |
+| `branch_prefixes` | `feature/, bugfix/, hotfix/` | the prefix of a pipeline branch, which also names its slot |
+| `update_strategy` | `merge` | bringing the integration branch into a pull request's branch |
+| `conflict_skill` | `git-resolve-conflicts` | resolving a conflict with the integration branch |
+| `verify_section` | `Manual Verification` | the verification heading; keep `operator_config` `verifySection` the same |
+| `pr_risk_size` | `off` | whether the body carries a Risk/Size line to recompute |
+| `pr_success_factors` | `ai:verified, ai:reviewed` | the factors accept-ready requires fresh at head |
+| `merge_method` | `squash` | how `merge_skill` merges |
 
 ## The flow
 

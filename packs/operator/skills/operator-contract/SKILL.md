@@ -8,33 +8,37 @@ description: "The run contract every operator-* skill follows: input, result, cl
 Every `operator-*` skill runs as one operation of the operator runtime (`@ainova-systems/operator`,
 the project's `operator.yaml`), or by hand from a session (below). This page is how a skill reads its
 job, holds a pull request, asks the owner, and ends. Milestone and label names, and the slot limits,
-are the project's `operator_config` file (profile; the operator pack's README lists every key the skills read).
+are the project's `operator_config` file (profile; its schema is `references/operator-config.md`).
 Every code-host call - reading a pull request, its checks or threads, claiming it, moving it,
 commenting, merging - goes through profile `forge_cli`, never a platform CLI written into a skill (the subcommands, answers and exit codes are
 `references/forge-contract.md`). The
 conversation (stage reports, comments, reviews) is `forge_cli notes <n>`; the owner's input is what
 profile `operator_discover --owner-input <n>` lists - discovery's own filter, newer than the last stage
-report - so a skill and discovery never disagree on what the owner said. The state labels, success
+report (`references/discovery-contract.md`) - so a skill and discovery never disagree on what the owner said. The state labels, success
 factors, their freshness and the stage report envelope are `references/pr-state.md`.
 
 ## Delegated steps
 
 A phase skill owns when a pull request moves and who holds it; the work of each step is a skill the
-profile names, so a project with its own equivalents points the key at them. Unset, each key is the
-core pack's skill (`none` in the profile means the same). Every replacement honours
-`references/pr-state.md`.
+profile names, so a project with its own equivalents points the key at them. Unset (or `none`),
+each key is the core pack's skill. Every replacement honours `references/pr-state.md` and posts
+only through profile `forge_cli`.
 
-| Profile key | Default (core) | A replacement must |
-|---|---|---|
-| `capture_skill` | `dev-deliver` Phase A | capture the business goal, observable acceptance criteria and scope exclusions for one item, and nothing further |
-| `commit_skill` | `git-commit-push` | run the project's gates, commit the pending work as one change and push it |
-| `open_pr_skill` | `git-open-pr` | open one pull request for the branch against its target, filling the project's template and verification section |
-| `review_skill` | `git-review-pr` | judge the diff at one head and post one `## Code review - <VERDICT>` report naming that head; write `ai:reviewed` only on `CLEAN` or `PASS-WITH-WARNINGS` |
-| `verify_skill` | `git-verify-pr` | execute the pull request's declared verification steps against the running change and post one `## Verification - <VERDICT>` report naming the head and the steps digest; write `ai:verified` only on `PASS` |
-| `threads_skill` | the Threads procedure of `git-complete-pr` | answer every unresolved review thread with the outcome and resolve it |
-| `outcome_skill` | `git-complete-pr` | write exactly one terminal state label, removing `ai:processing` in the same edit, with an outcome comment for `ai:manual` and `ai:failed` |
-| `merge_skill` | `git-merge-pr` | merge an accept-ready pull request behind its guards and confirm the merge landed |
-| `sync_base_skill` | `git-sync-base` | return a slot to the integration branch, fast-forward it, and remove only merged local branches |
+| Profile key | Default (core) | Input | Posts, writes | A replacement must |
+|---|---|---|---|---|
+| `flow_intake` | `auto`: the project's intake skill, else `dev-deliver`'s Phase A interview | the queue item and the repository | nothing on the PR | capture the business goal, observable acceptance criteria and scope exclusions, answering from the item what it settles, and nothing further |
+| `commit_skill` | `git-commit-push` | the slot's pending work | a commit on the branch; no label | run the project's gates, commit the work as one change and push it |
+| `open_pr_skill` | `git-open-pr` | the pushed branch, its target, the title and body, draft or ready | the pull request; no label | open one pull request filling the project's template and its verification section with one observable step per criterion, prepend the Risk/Size line when profile `pr_risk_size` is on (and recompute it on request from the final diff), and open it as a draft when asked |
+| `review_skill` | `git-review-pr` | the pull request at one head | one `## Code review - <VERDICT>` report; `ai:reviewed` | judge the diff against the rules and what the pull request claims; write the label only on `CLEAN` or `PASS-WITH-WARNINGS` |
+| `verify_skill` | `git-verify-pr` | the pull request at one head and its declared steps | one `## Verification - <VERDICT>` report naming the head and the steps digest; `ai:verified` | execute every declared step against the running change; write the label only on `PASS` |
+| `threads_skill` | the Threads procedure of `git-complete-pr` | the unresolved review threads | one reply per thread, ending with the note marker; no label | answer each thread with its outcome (fixed: the commit; declined: the rule; deferred: the follow-up) and resolve it |
+| `outcome_skill` | `git-complete-pr` | the pull request and the outcome the phase reached | `ai:completed`, `ai:manual` or `ai:failed`, removing `ai:processing` in the same edit; a `## Outcome - MANUAL` / `## Outcome - FAILED` report with its `head:` line for the last two | write exactly one terminal label |
+| `merge_skill` | `git-merge-pr` | an accept-ready pull request | the merge; no label | refuse unless every required check is green on it, no review thread is unresolved, the pull request is mergeable, the state label is `ai:completed` (or there is no `ai:*` label) and every declared factor is fresh at head; then merge by profile `merge_method`, confirm the pull request reads merged and report the merge commit |
+| `sync_base_skill` | `git-sync-base` | the slot, optionally one branch | nothing on the PR | return the slot to the integration branch, fast-forward it, and remove only local branches whose pull request merged (or the named closed one) |
+
+Profile `flow_implement` is the implementation itself: `auto` resolves as core does (the project's
+own execution skill when one is installed, else one subagent working to the plan's slices); a skill
+name runs that skill.
 
 ## The input
 
@@ -203,6 +207,7 @@ An engine that is unavailable ends the run `failed` with `retryable: true`; noth
 
 ## State
 
+`operator state` and `operator jobs` exist only under the runtime; a run by hand uses neither.
 `operator state get|put|list|delete <collection> <key>` reads and writes project state under the
 runtime's namespace: the PR registry (`pr`) and recorded answers (`answers`). `jobs`, `waits`,
 `threads`, `deliveries` and `tabs` belong to the runtime and are read-only.
@@ -211,7 +216,7 @@ runtime's namespace: the PR registry (`pr`) and recorded answers (`answers`). `j
 
 Every `operator-*` skill also runs from a session without the runtime: neither `operator` nor herdr
 is needed. Profile `operator_discover` with `--standalone` says what each pipeline PR waits for; run
-that skill (`/operator-plan 2045`).
+that skill (`/operator-plan <n>`).
 
 - The argument names the subject: a PR number, or none for intake's queue. Without
   `$OPERATOR_INPUT` the skill reads the live state it re-reads anyway.

@@ -12,7 +12,7 @@ Plan captures the intended result before any implementation; it is the `plan` op
 | Contract | |
 |---|---|
 | Trigger | A PR in the queue milestone, including a resumed planning question |
-| Work | Profile `capture_skill` (default `dev-deliver` Phase A); the plan on the queue item, or profile `flow_plan` for feature-sized work; the PR's verification section; profile `commit_skill` (default `git-commit-push`) |
+| Work | Profile `flow_intake`, capture only (`operator-contract` > Delegated steps); the plan on the queue item, or profile `flow_plan` for feature-sized work; the PR's verification section; profile `commit_skill` (default `git-commit-push`) |
 | Evidence | plan commit SHA, queue item path and PR URL |
 | Next | complete → development milestone, `implement`; open question → `needs-input`, resume `plan` |
 
@@ -23,7 +23,7 @@ Plan captures the intended result before any implementation; it is the `plan` op
 2. **Claim and check out** the PR branch at its live head. Read the linked queue item, its feature
    documentation and any plan commits; reuse a completed capture on retry. The intake reservation is
    not a planning commit.
-3. **Capture the outcome.** Run only profile `capture_skill` against the item and the repository,
+3. **Capture the outcome.** Run only the capture of profile `flow_intake` against the item and the repository,
    answering from them what they already settle. Capture the business goal, observable acceptance
    criteria and scope exclusions. Address every recorded rejection reason. Validate the proposed
    patterns against shipped siblings and the project rules.

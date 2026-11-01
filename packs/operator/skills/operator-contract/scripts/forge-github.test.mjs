@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  FLAGS, authorRole, checks, ciFromRuns, claim, comment, createPr, editPr, events, execute, factor, listPrs, merge, normalizePr, notes, prBody, prFiles, readInlineReviews, readUnresolvedThreads, readyPr, resolveThread, threads, viewPr,
+  FLAGS, authorRole, checkOperatorConfig, checks, ciFromRuns, claim, comment, createPr, editPr, events, execute, factor, listPrs, merge, normalizePr, notes, prBody, prFiles, readInlineReviews, readUnresolvedThreads, readyPr, resolveThread, threads, viewPr,
 } from './forge-github.mjs';
 import { assertShape } from './forge-contract.mjs';
 
@@ -14,7 +14,9 @@ const SCRIPT = join(dirname(fileURLToPath(import.meta.url)), 'forge-github.mjs')
 // The operator configuration every call that needs one reads; the CLI runs below inherit it.
 const CONFIG_DIR = mkdtempSync(join(tmpdir(), 'forge-config-'));
 process.env.OPERATOR_CONFIG = join(CONFIG_DIR, 'operator.json');
-writeFileSync(process.env.OPERATOR_CONFIG, JSON.stringify({ labels: { processing: 'ai:processing' }, ciWorkflows: ['build', 'preview'], allowedAuthors: ['OWNER', 'MEMBER', 'COLLABORATOR'] }));
+// The pack's example configuration, with the CI workflows these tests read.
+const EXAMPLE = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../references/operator-config.example.json'), 'utf8'));
+writeFileSync(process.env.OPERATOR_CONFIG, JSON.stringify({ ...EXAMPLE, ciWorkflows: ['build', 'preview'] }));
 process.on('exit', () => rmSync(CONFIG_DIR, { recursive: true, force: true }));
 const RAW = {
   number: 7, url: 'https://github.com/o/r/pull/7', title: 'T', body: 'B', isDraft: true, state: 'OPEN', headRefName: 'feature/slot-a-x', headRefOid: 'abc1234def',
@@ -331,4 +333,18 @@ test('without an operator configuration the script refuses with a usage error', 
   const cli = spawnSync('node', [SCRIPT, 'claim', 'take', '7'], { encoding: 'utf8', env });
   assert.equal(cli.status, 2);
   assert.match(cli.stderr, /OPERATOR_CONFIG/);
+});
+
+test('the example configuration is complete, and a missing required key is refused by name', () => {
+  assert.equal(checkOperatorConfig(EXAMPLE), EXAMPLE);
+  const without = (mutate) => { const copy = structuredClone(EXAMPLE); mutate(copy); return copy; };
+  assert.throws(() => checkOperatorConfig(without((c) => delete c.labels.processing)), /missing required key labels\.processing/);
+  assert.throws(() => checkOperatorConfig(without((c) => delete c.milestones.mergeQueue)), /missing required key milestones\.mergeQueue/);
+  assert.throws(() => checkOperatorConfig(without((c) => delete c.milestones.clarification)), /missing required key milestones\.clarification/);
+  assert.throws(() => checkOperatorConfig(without((c) => { c.slots = []; })), /missing required key slots/);
+  const path = join(CONFIG_DIR, 'incomplete.json');
+  writeFileSync(path, JSON.stringify(without((c) => delete c.allowedAuthors)));
+  const cli = spawnSync('node', [SCRIPT, 'claim', 'take', '7'], { encoding: 'utf8', env: { ...process.env, OPERATOR_CONFIG: path } });
+  assert.equal(cli.status, 2);
+  assert.match(cli.stderr, /missing required key allowedAuthors/);
 });

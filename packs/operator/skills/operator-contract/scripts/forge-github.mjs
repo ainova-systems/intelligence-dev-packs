@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // The forge contract on GitHub: every code-host call the operator layer makes - discovery and the
 // operator-* skills - goes through this one script, which the skills reach through profile
-// `forge_cli` (the Operator design "Project boundaries", The forge contract). Every answer is JSON.
+// `forge_cli` (references/forge-contract.md). Every answer is JSON.
 //
 // Contract subcommands, normalized:
 //   pr list                       [pr]       open pull requests
@@ -26,7 +26,7 @@
 //   pr = { number, url, title, body, draft, state: open|merged|closed, head: { ref, sha },
 //          base: { ref }, mergeable: clean|conflicting|unknown, labels, milestone, createdAt, author }
 //
-// Extensions this project's callers need beyond the contract, part of it here:
+// Extensions the operator skills and discovery need beyond the core contract, part of it here:
 //   pr edit <n> [--claim [--takeover]] [--milestone <title>] [--add-label <l>]... [--remove-label <l>]...
 //                                 pr         a phase hand-off, or a claim with a milestone move, is one edit;
 //                                 --claim adds the processing label after the check `claim take` makes,
@@ -38,11 +38,11 @@
 //
 // Configuration: OPERATOR_CONFIG names the operator configuration file (profile `operator_config`);
 // it supplies the processing label, the deciding CI workflows (`ciWorkflows`) and the author
-// associations allowed to speak for the project (`allowedAuthors`). A project's session hooks may
-// recognize a claim by this script's name, which is why a platform's implementation is named
-// `forge-<platform>`.
+// associations allowed to speak for the project (`allowedAuthors`); references/operator-config.md
+// is its schema, and a file missing a required key is refused (exit 2). A platform's implementation
+// is named `forge-<platform>`, so a tool watching for claims can recognize it by name.
 //
-// Imported as a library, the discovery readers below return the shapes discovery has always read:
+// Imported as a library, the discovery readers below return GitHub's own shapes for discovery:
 // GitHub's own field names (number, isDraft, milestone.title, labels[].name, headRefOid, comments,
 // reviews, mergeable), workflow runs, label events and an unresolved-thread count.
 import { createHash } from 'node:crypto';
@@ -63,8 +63,24 @@ const configs = new Map();
 export function operatorConfig(path = process.env.OPERATOR_CONFIG) {
   if (!path) throw new UsageError('OPERATOR_CONFIG must name the operator configuration file (profile operator_config)');
   const absolute = resolve(path);
-  if (!configs.has(absolute)) configs.set(absolute, JSON.parse(readFileSync(absolute, 'utf8')));
+  if (!configs.has(absolute)) configs.set(absolute, checkOperatorConfig(JSON.parse(readFileSync(absolute, 'utf8')), absolute));
   return configs.get(absolute);
+}
+
+const REQUIRED_ROLES = {
+  milestones: ['queue', 'development', 'verification', 'humanReview', 'mergeQueue'],
+  labels: ['processing', 'accepted', 'onhold', 'revalidate', 'rejected', 'cancelled', 'question'],
+};
+
+/** The configuration as given, or a usage error naming the first required key it lacks (references/operator-config.md). */
+export function checkOperatorConfig(config, source = 'operator configuration') {
+  const missing = (key) => { throw new UsageError(`${source}: missing required key ${key} (references/operator-config.md)`); };
+  for (const [group, roles] of Object.entries(REQUIRED_ROLES)) {
+    for (const role of roles) if (typeof config?.[group]?.[role] !== 'string' || config[group][role] === '') missing(`${group}.${role}`);
+  }
+  if ((config.clarifySlots ?? []).length > 0 && !config.milestones.clarification) missing('milestones.clarification');
+  for (const key of ['allowedAuthors', 'slots']) if (!Array.isArray(config[key]) || config[key].length === 0) missing(key);
+  return config;
 }
 
 /** The one place this layer starts `gh`; every reader and command takes a runner so tests inject one. */
@@ -273,7 +289,7 @@ export function events(number, run = gh) {
   return readLabelEvents(number, run).map((event) => ({ id: event.id, event: event.event, label: event.label?.name ?? null, createdAt: event.created_at }));
 }
 
-// Discovery readers: the shapes discovery has always read.
+// Discovery readers: GitHub's own shapes, for a discovery implementation.
 
 export function readPullRequests(run = gh) {
   return JSON.parse(run(['pr', 'list', '--state', 'open', '--limit', '200', '--json', 'number,isDraft,milestone,labels,headRefOid,headRefName,createdAt,body,comments,reviews,mergeable']));

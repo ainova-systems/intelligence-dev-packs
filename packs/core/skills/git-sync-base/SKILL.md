@@ -38,8 +38,7 @@ A `sync_base_command` reports its outcome in a last block, `<NAME>_STATUS=<value
 | `<NAME>_STATUS=dirty-worktree` | uncommitted work in the main checkout; nothing was touched | show the files, ask the owner, re-run |
 | `<NAME>_STATUS=prereq-missing` | bad argument or a missing tool | fix a mistyped argument yourself; name the missing tool to the owner |
 | `<NAME>_STATUS=git-failed` | a git step failed, usually a diverged integration branch | surface the detail; hand a divergence to `conflict_skill` through the owner |
-| `<NAME>_STATUS=sync-dirty` | cleanup done, but a post-merge step regenerated tracked files | list them and ask where they land |
-| `<NAME>_STATUS=needs-update` | a tool reports pending migrations | run its update, then re-run once |
+| any other value | an outcome the command itself documents | surface it verbatim and follow the command's documentation; never treat it as `ok` |
 
 Re-run only after the cause is fixed, and at most once.
 
