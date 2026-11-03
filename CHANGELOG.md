@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-11-03
+
+The operator pack runs a pull-request pipeline under the Operator runtime, with core optional.
+
 ### Added
 
 - The `operator` pack (the Operator runtime's phase skills, the forge contract with its contract test, and its GitHub implementation as a script); `dev-deliver-next` and `git-sync-base` in core, with the profile keys they and the operator pack read.
