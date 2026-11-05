@@ -35,7 +35,7 @@ already covers is skipped.
 
 | # | When | Operation | Key route |
 |---|---|---|---|
-| 1 | not in a pipeline milestone; `onhold`; `processing` (unless stale, below) | skip | - |
+| 1 | not in a pipeline milestone; `onhold`; `processing` (unless stale, below); `handoff` (intake adopts it, Queues) | skip | - |
 | 2a | `cancelled` or `rejected`, in a delivery slot | `intake` | `close:<label>:<head>` |
 | 2b | `cancelled` or `rejected`, in a clarification slot | `clarify`, `step: close` | `close:<label>:<head>` |
 | 3 | conflicts with the integration branch, past `queue` | `implement`, `reason: conflict` | `conflict:<head>` |
@@ -62,8 +62,12 @@ review job's result (the manifest chains it); an owner answer resumes the asking
 
 | Subject | When | Request |
 |---|---|---|
+| `queue` | a free delivery slot and an open pull request carrying `labels.handoff`, without `processing`, `onhold`, `cancelled` or `rejected`, whose head is not on a fork and which no job or wait covers | `intake`, `input: { handoff: <n>, head }` for the oldest such pull request by creation, `member` the slot its branch names when that slot is free of other pull requests, else the first free slot; key `handoff:<n>:<head>`. Ahead of every queue item; `quotas` do not count it |
 | `queue` | a free delivery slot (`slots` none of whose open PRs' branches names it) and at least one queue item eligible under profile `flow_queue` | `intake`, `member` the first free slot, key `intake:<fingerprint of the candidates, open PRs and quotas>` |
 | `clarify-queue` | a free clarification slot (`clarifySlots`) and at least one item waiting on an owner decision | `clarify`, step `select`, `candidates`: the top `clarifyCandidates` ranked items, key `clarify-queue:<fingerprint>` |
+
+The adopting run removes `labels.handoff` in the edit that claims the pull request, so the next pass
+routes it by its milestone like any other.
 
 Clarification candidates rank by: the queue item field `clarifyFirst: true` first, then the
 `flow_queue` folder order, then the item's priority, then how many items wait on it.
@@ -97,6 +101,7 @@ puts it in `input.qa` (`passed`, `pending`, `failed`, `none`), and asks for rows
 | `ci` | `none\|pending\|success\|failure` | discovery: the latest attempt of each `ciWorkflows` run for the head; any failed or cancelled -> `failure`, else any queued or running -> `pending`, else all succeeded -> `success`; no run -> `none` | implement, verify, merge, clarify |
 | `qa` | QA state | discovery | verify |
 | `milestone` | title | discovery | every phase skill |
+| `handoff` | number | discovery, a hand-off adoption (Queues) | intake |
 | `reason` | `conflict` \| `sendback` | discovery, rows 3-4 | implement, the send-back operation |
 | `label` | label name | discovery, row 4 | the send-back operation |
 | `staleClaim` | job id | discovery, stale claims | every phase skill (takeover) |

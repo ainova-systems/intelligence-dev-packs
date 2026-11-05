@@ -14,7 +14,8 @@
     "revalidate": "owner:revalidate",
     "rejected": "owner:rejected",
     "cancelled": "owner:cancelled",
-    "question": "owner:question"
+    "question": "owner:question",
+    "handoff": "pipeline:handoff"
   },
   "allowedAuthors": ["OWNER", "MEMBER", "COLLABORATOR"],
   "slots": ["d1", "d2", "d3"],

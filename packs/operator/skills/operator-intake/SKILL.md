@@ -1,7 +1,7 @@
 ---
 name: operator-intake
-description: "Take the next non-conflicting item from the project's work queue into the development pipeline, or close an owner-rejected or cancelled attempt and maintain its queue item. Runs as the runtime's intake operation, or by hand."
-argument-hint: "[nothing to take the next item, or a rejected or cancelled PR number, when run by hand]"
+description: "Take the next non-conflicting item from the project's work queue into the development pipeline, adopt a pull request handed to the pipeline, or close an owner-rejected or cancelled attempt and maintain its queue item. Runs as the runtime's intake operation, or by hand."
+argument-hint: "[nothing to take the next item, or a handed-off, rejected or cancelled PR number, when run by hand]"
 ---
 
 # Operator intake
@@ -11,10 +11,10 @@ the `operator-contract` skill first: input, result, claim and markers follow it.
 
 | Contract | |
 |---|---|
-| Trigger | Subject `queue` with capacity, or `pr-<n>` carrying `owner:rejected` / `owner:cancelled` |
-| Work | Select one queue item and open its pull request; close abandoned attempts through profile `outcome_skill` (default `git-complete-pr`) |
-| Evidence | PR URL and queue item path; for maintenance, outcome comment URL and queue commit SHA |
-| Next | selected → `plan`; queue maintenance → `done`; no eligible item → `noop` |
+| Trigger | Subject `queue` with capacity (with `input.handoff` for a handed-off pull request), or `pr-<n>` carrying `owner:rejected` / `owner:cancelled` |
+| Work | Select one queue item and open its pull request, or adopt the handed-off one into the slot; close abandoned attempts through profile `outcome_skill` (default `git-complete-pr`) |
+| Evidence | PR URL and queue item path; for an adoption, the PR URL; for maintenance, outcome comment URL and queue commit SHA |
+| Next | selected or adopted → `plan`; queue maintenance → `done`; no eligible item → `noop` |
 
 ## Steps
 
@@ -23,6 +23,7 @@ the `operator-contract` skill first: input, result, claim and markers follow it.
    the input, require OPEN, and check owner labels and claims. A moved head, changed milestone,
    `owner:onhold`, or another run's `ai:processing` (a HELD report, `operator-contract`) ends `noop` with its reason. Cancellation
    outranks rejection; without either label, `noop`. Require a clean slot; preserve foreign work.
+   With `input.handoff`, adopt that pull request instead (step 7).
 2. **Read the queue.** For `queue`, run profile `sync_base_skill` (default `git-sync-base`), then re-read all open PRs, their queue
    references and changed files (profile `forge_cli pr list` and `pr files <n>`). Check that `<slot>` is free: no open PR in a pipeline milestone has a branch naming it
    (`operator_config` `slots` lists the slots; a PR holds its slot from intake until it merges or
@@ -64,11 +65,34 @@ the `operator-contract` skill first: input, result, claim and markers follow it.
    naming the owner's reason. Close the PR without deleting its remote branch, confirm CLOSED,
    record the local and remote SHAs, and run profile `sync_base_skill` for the branch. A closed attempt's local
    slot branch is deleted once its commits are confirmed on the remote; result `done`, no next.
+7. **Adopt a handed-off pull request.** The owner put `operator_config` `labels.handoff` on an open
+   pull request so the pipeline finishes it: work a manual session already clarified, or an attempt
+   another agent left short of its requirements. The adoption keeps every commit and decision it
+   carries and changes no code; plan revises its scope from what the pull request already settles.
+   - Re-read it (profile `forge_cli pr view <n>`): require OPEN, `input.head`, the hand-off label,
+     and none of `owner:onhold`, `owner:cancelled`, `owner:rejected`; anything else ends `noop` with
+     the reason. The adoption takes a pull request outside its own milestone, so the queue
+     milestone is not required; quotas and the conflict gate do not apply, because the owner chose
+     it. Check the slot is still free of other pull requests.
+   - In one claim edit (profile `forge_cli`) take it and drop the hand-off label: `forge_cli pr edit <n> --claim
+     --remove-label <handoff label>`; held (exit 3) is the contract's HELD report.
+   - When its branch names no slot of `slots`, `forge_cli branch rename <n> --to
+     <prefix><slot>-<slug>` (the branch's own prefix when it is one of profile `branch_prefixes`,
+     else the feature prefix; the slug from its old name). A branch naming a slot of `slots` keeps
+     its name. A head on a fork is refused: one edit puts the hand-off label back and removes
+     `ai:processing`; end `failed` (not retryable) naming it.
+   - Fetch and check out the renamed branch in the slot, tracking its remote, and require HEAD to
+     equal the pull request's head.
+   - When `operator_config` sets `readyLimit` and the pull request is ready, `forge_cli pr draft <n>`:
+     QA capacity comes only from `operator-verify`'s admission.
+   - Hand off: one edit sets the queue milestone and removes `ai:processing`, together with any
+     terminal state label an earlier run left (`operator-contract` > `references/pr-state.md`). Result `done` with the
+     hand-off request (`operator-contract`).
 
 ## Run by hand
 
-`/operator-intake` takes the next item; `/operator-intake <n>` closes a rejected or cancelled
-attempt. To deliver the next item in one session instead of phase by phase, run `/dev-deliver-next` (core, when installed).
+`/operator-intake` takes the next item; `/operator-intake <n>` adopts a pull request carrying the
+hand-off label, or closes a rejected or cancelled attempt. To deliver the next item in one session instead of phase by phase, run `/dev-deliver-next` (core, when installed).
 
 ## Verify
 
@@ -76,6 +100,8 @@ attempt. To deliver the next item in one session instead of phase by phase, run 
   the freshly fetched integration branch, and the result names `plan`.
 - Queue maintenance left the outcome comment on the closed pull request and the queue item's commit
   on the integration branch.
+- An adoption left the pull request in the queue milestone, without the hand-off label or a claim,
+  its branch naming the slot, and draft whenever `readyLimit` is set.
 
 ## Scope / hand-off
 
@@ -85,4 +111,5 @@ attempt. To deliver the next item in one session instead of phase by phase, run 
 ## Constraints
 
 - One item and one PR per queue run. No implementation, merge or release here.
-- Never write `owner:*` or delete a remote branch.
+- Never write `owner:*` or delete a remote branch; removing the hand-off label of the pull request
+  being adopted is this skill's, and a rename is not a deletion.

@@ -23,6 +23,7 @@ Default label names: `processing` `ai:processing`, `accepted` `owner:accepted`, 
 
 | Key | Default | Meaning |
 |---|---|---|
+| `labels.handoff` | unset (no hand-off) | The label that hands an open pull request to the pipeline: intake adopts it into a free slot ahead of every queue item and removes the label (`discovery-contract.md` > Queues) |
 | `clarifySlots` | `[]` (no clarification) | Slots that only clarify queue items waiting on an owner decision; requires `milestones.clarification` |
 | `clarifyCandidates` | `5` | How many ranked clarification candidates discovery offers |
 | `readyLimit` | unset (no QA admission: pull requests open ready) | How many ready pull requests may hold a QA environment at once; intake then opens drafts and `operator-verify` promotes the oldest |

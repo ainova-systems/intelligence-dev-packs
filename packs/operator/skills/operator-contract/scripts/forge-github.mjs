@@ -8,6 +8,9 @@
 //   pr view <n>                   pr
 //   pr create --base <b> --head <h> --title <t> --body-file <f> [--draft]   pr
 //   pr ready <n>                  pr
+//   pr draft <n>                  pr         back to draft: QA capacity goes only to the drafts admission promotes
+//   branch rename <n> --to <name> pr         renames the head branch; the open pull request follows it.
+//                                 A head on a fork is refused (exit 2): the pipeline cannot push to it
 //   checks <sha>                  { sha, state: none|pending|success|failure, runs: [{ name, state, url }] }
 //                                 the deciding workflows only (operator_config ciWorkflows), as discovery judges them
 //   threads <n> [--unresolved] [--resolve <id> --body <text>]
@@ -43,7 +46,7 @@
 // is named `forge-<platform>`, so a tool watching for claims can recognize it by name.
 //
 // Imported as a library, the discovery readers below return GitHub's own shapes for discovery:
-// GitHub's own field names (number, isDraft, milestone.title, labels[].name, headRefOid, comments,
+// GitHub's own field names (number, isDraft, isCrossRepository, milestone.title, labels[].name, headRefOid, comments,
 // reviews, mergeable), workflow runs, label events and an unresolved-thread count.
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
@@ -128,6 +131,28 @@ export function createPr({ base, head, title, bodyFile, draft = false }, run = g
 
 export function readyPr(number, run = gh) {
   run(['pr', 'ready', String(number)]);
+  return viewPr(number, run);
+}
+
+export function draftPr(number, run = gh) {
+  run(['pr', 'ready', String(number), '--undo']);
+  return viewPr(number, run);
+}
+
+/**
+ * Renames a pull request's head branch on the platform, so an adopted pull request's branch names the
+ * slot it lives in; the open pull request follows the rename. A retry finds the branch renamed and
+ * changes nothing. A head on a fork is refused: the pipeline cannot push to it.
+ */
+export function renameBranch(number, to, run = gh) {
+  if (!to) throw new UsageError('branch rename needs --to');
+  const head = JSON.parse(run(['pr', 'view', String(number), '--json', 'headRefName,isCrossRepository,state']));
+  if (head.isCrossRepository) throw new UsageError(`pull request ${number} has its head on a fork: its branch cannot be renamed or pushed to`);
+  if (String(head.state ?? '').toUpperCase() !== 'OPEN') throw new UsageError(`pull request ${number} is not open`);
+  if (head.headRefName !== to) {
+    const branch = head.headRefName.split('/').map(encodeURIComponent).join('/');
+    run(['api', '-X', 'POST', `repos/{owner}/{repo}/branches/${branch}/rename`, '-f', `new_name=${to}`]);
+  }
   return viewPr(number, run);
 }
 
@@ -298,7 +323,7 @@ export function events(number, run = gh) {
 export const LIST_CONVERSATION_CAP = 100;
 
 export function readPullRequests(run = gh) {
-  const prs = JSON.parse(run(['pr', 'list', '--state', 'open', '--limit', '200', '--json', 'number,isDraft,milestone,labels,headRefOid,headRefName,createdAt,body,comments,reviews,mergeable']));
+  const prs = JSON.parse(run(['pr', 'list', '--state', 'open', '--limit', '200', '--json', 'number,isDraft,isCrossRepository,milestone,labels,headRefOid,headRefName,createdAt,body,comments,reviews,mergeable']));
   for (const pr of prs) {
     if ((pr.comments ?? []).length < LIST_CONVERSATION_CAP && (pr.reviews ?? []).length < LIST_CONVERSATION_CAP) continue;
     const full = JSON.parse(run(['pr', 'view', String(pr.number), '--json', 'comments,reviews']));
@@ -375,7 +400,7 @@ export function notes(number, run = gh, config = operatorConfig()) {
 }
 
 /** The value after `name`; an option given without a real value is a usage error, never a silent default. */
-export const FLAGS = new Set(['--claim', '--takeover', '--milestone', '--add-label', '--remove-label', '--base', '--head', '--title', '--body-file', '--draft', '--unresolved', '--resolve', '--body', '--name', '--method']);
+export const FLAGS = new Set(['--claim', '--takeover', '--milestone', '--add-label', '--remove-label', '--base', '--head', '--title', '--body-file', '--draft', '--unresolved', '--resolve', '--body', '--name', '--method', '--to']);
 
 function valueAt(args, index, name) {
   const value = args[index + 1];
@@ -399,7 +424,7 @@ function number(value) {
   return parsed;
 }
 
-const USAGE = 'usage: forge-github.mjs pr list|view <n>|create ...|ready <n>|edit <n> [--claim] ...|body <n>|files <n> | checks <sha> | threads <n> [--unresolved] [--resolve <id> --body <text>] | claim take|release <n> | factor set|clear <n> --name <f> | comment <n> --body-file <f> | notes <n> | merge <n> --method <m> | events <n>';
+const USAGE = 'usage: forge-github.mjs pr list|view <n>|create ...|ready <n>|draft <n>|edit <n> [--claim] ...|body <n>|files <n> | branch rename <n> --to <name> | checks <sha> | threads <n> [--unresolved] [--resolve <id> --body <text>] | claim take|release <n> | factor set|clear <n> --name <f> | comment <n> --body-file <f> | notes <n> | merge <n> --method <m> | events <n>';
 
 /** Runs one subcommand and returns what it prints: JSON, or plain text for `pr body`. */
 export function execute(args, run = gh) {
@@ -409,10 +434,12 @@ export function execute(args, run = gh) {
     if (action === 'view') return viewPr(number(target), run);
     if (action === 'create') return createPr({ base: option(args, '--base'), head: option(args, '--head'), title: option(args, '--title'), bodyFile: option(args, '--body-file'), draft: args.includes('--draft') }, run);
     if (action === 'ready') return readyPr(number(target), run);
+    if (action === 'draft') return draftPr(number(target), run);
     if (action === 'edit') return editPr(number(target), { milestone: option(args, '--milestone'), add: options(args, '--add-label'), remove: options(args, '--remove-label'), claim: args.includes('--claim'), takeover: args.includes('--takeover') }, run);
     if (action === 'body') return { text: prBody(number(target), run) };
     if (action === 'files') return prFiles(number(target), run);
   }
+  if (command === 'branch' && action === 'rename') return renameBranch(number(target), option(args, '--to'), run);
   if (command === 'checks') return checks(action, run);
   if (command === 'threads') {
     if (args.includes('--resolve')) return resolveThread(option(args, '--resolve'), option(args, '--body'), run);
