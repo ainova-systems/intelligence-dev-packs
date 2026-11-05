@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-11-05
+
+An open pull request handed off with a label is finished by the next free pipeline slot.
+
 ### Added
 
 - An open pull request carrying the optional hand-off label (`labels.handoff`) is adopted by the next free slot ahead of every queue item and finished through the regular phases; the forge contract gains `pr draft` and `branch rename`.
