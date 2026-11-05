@@ -29,7 +29,7 @@ queue item in one session instead of phase by phase.
 | Skill | Milestone role (default title) | Leaves when |
 |---|---|---|
 | `operator-contract` | - | the run contract every phase skill loads first |
-| `operator-intake` | the work queue → `queue` (In Queue) | a queue item has its pull request |
+| `operator-intake` | the work queue, or a handed-off pull request → `queue` (In Queue) | a queue item has its pull request, or the handed-off one sits in a slot |
 | `operator-plan` | `queue` (In Queue) | the plan and its verification steps are committed |
 | `operator-implement` | `development` (Development) | the plan is complete, the head is reviewed and CI is green |
 | `operator-review` | `development` (Development) | the runtime's review is posted (runtime only) |
@@ -44,7 +44,7 @@ queue item in one session instead of phase by phase.
 |---|---|
 | `operator_config` | The operator configuration JSON: milestone and label roles, owner author associations, slots, QA admission, CI workflows, markers and send-back routes. Schema: `operator-contract` > `references/operator-config.md`, example `references/operator-config.example.json` |
 | `operator_discover` | The project's discovery command: `--standalone`, `--request <n>`, `--steps-digest <n>`, `--owner-input <n>`, and its runtime pass. Contract: `operator-contract` > `references/discovery-contract.md` |
-| `forge_cli` | The forge contract command every code-host call goes through: `pr` (list, view, create, ready, edit, body, files), `checks`, `threads`, `claim`, `factor`, `comment`, `notes`, `merge`, `events`, answering JSON. On GitHub it points at `skills/operator-contract/scripts/forge-github.mjs` with `OPERATOR_CONFIG` naming `operator_config`; another platform ships its own implementation of the contract later |
+| `forge_cli` | The forge contract command every code-host call goes through: `pr` (list, view, create, ready, draft, edit, body, files), `branch rename`, `checks`, `threads`, `claim`, `factor`, `comment`, `notes`, `merge`, `events`, answering JSON. On GitHub it points at `skills/operator-contract/scripts/forge-github.mjs` with `OPERATOR_CONFIG` naming `operator_config`; another platform ships its own implementation of the contract later |
 | `flow_intake`, `commit_skill`, `open_pr_skill`, `review_skill`, `verify_skill`, `threads_skill`, `outcome_skill`, `merge_skill`, `sync_base_skill` | The skill each delegated step runs; unset = the core skill (`operator-contract` > Delegated steps lists the defaults, inputs, outputs and what a replacement must do) |
 | `flow_queue` | The work queue's order and rules |
 | `flow_plan` | The skill that writes a feature-sized plan; none → the plan goes on the queue item |
@@ -130,6 +130,9 @@ delivery work, and delivery slots never clarify.
 
 ## What the owner does
 
+- **Hands a pull request to the pipeline** with the `operator_config` `labels.handoff` label: the
+  next free slot adopts it ahead of every queue item, plan revises its scope from what it already
+  carries, and it follows the regular flow from there.
 - **Answers questions** in the PR conversation; discovery resumes the asking skill.
 - **Tests on QA** in Human Review; a comment or a QA ticket sends the PR back.
 - **Steers with labels**: `owner:accepted`, `owner:onhold`, `owner:revalidate`, `owner:rejected`,
