@@ -39,6 +39,9 @@ round runs, the claim, the hand-off to review and the move to `verification`. Lo
    report at the head; a fix verification sent back (`input.evidence`: a failing `## Verification`
    report, an owner comment or a QA ticket); owner input newer than the last stage report;
    unresolved review threads; plan slices not yet shipped; a conflict with the integration branch.
+   The plan is on the queue item (or profile `flow_plan`'s file); a pull request without a queue item
+   keeps it in its body's `## Plan` section, and a handed-off one plans only the remaining work from
+   its current head, whose existing commits count as implementation.
    A verification step sent back as defective is corrected only where it names or describes
    something that does not exist. A step whose declared conditions - viewport, role, data, default
    state - show the promised behaviour missing reports a code defect: fix the code. Moving the step to

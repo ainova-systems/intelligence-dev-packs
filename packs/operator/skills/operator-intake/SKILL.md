@@ -69,25 +69,30 @@ the `operator-contract` skill first: input, result, claim and markers follow it.
    pull request so the pipeline finishes it: work a manual session already clarified, or an attempt
    another agent left short of its requirements. The adoption keeps every commit and decision it
    carries and changes no code; plan revises its scope from what the pull request already settles.
+   The label means the hand-over is done: nobody pushes to the old branch name after it.
    - Re-read it (profile `forge_cli pr view <n>`): require OPEN, `input.head`, the hand-off label,
      and none of `owner:onhold`, `owner:cancelled`, `owner:rejected`; anything else ends `noop` with
-     the reason. The adoption takes a pull request outside its own milestone, so the queue
-     milestone is not required; quotas and the conflict gate do not apply, because the owner chose
-     it. Check the slot is still free of other pull requests.
-   - In one claim edit (profile `forge_cli`) take it and drop the hand-off label: `forge_cli pr edit <n> --claim
-     --remove-label <handoff label>`; held (exit 3) is the contract's HELD report.
-   - When its branch names no slot of `slots`, `forge_cli branch rename <n> --to
-     <prefix><slot>-<slug>` (the branch's own prefix when it is one of profile `branch_prefixes`,
-     else the feature prefix; the slug from its old name). A branch naming a slot of `slots` keeps
-     its name. A head on a fork is refused: one edit puts the hand-off label back and removes
-     `ai:processing`; end `failed` (not retryable) naming it.
-   - Fetch and check out the renamed branch in the slot, tracking its remote, and require HEAD to
-     equal the pull request's head.
-   - When `operator_config` sets `readyLimit` and the pull request is ready, `forge_cli pr draft <n>`:
-     QA capacity comes only from `operator-verify`'s admission.
-   - Hand off: one edit sets the queue milestone and removes `ai:processing`, together with any
-     terminal state label an earlier run left (`operator-contract` > `references/pr-state.md`). Result `done` with the
-     hand-off request (`operator-contract`).
+     the reason. It may sit in any milestone, Merge Queue included: the owner handed it back on
+     purpose, and it returns to the queue milestone; its factors are left to the freshness rules.
+     Quotas and the conflict gate do not apply, because the owner chose it. Check the slot is still
+     free of other pull requests.
+   - Rename first, while nothing else has changed: when its branch does not name `<slot>`,
+     `forge_cli branch rename <n> --to <prefix><slot>-<slug>` (the branch's own prefix when it is one
+     of profile `branch_prefixes`, else the feature prefix; the slug is its old last segment without a
+     slot segment). The rename is idempotent; a failure (a fork head, missing rights) ends the run
+     `failed` with nothing else changed, and the owner hands it over again. Re-read the pull request
+     and require the head unchanged.
+   - Then one claim edit makes it an ordinary queue pull request: `forge_cli pr edit <n> --claim
+     --milestone "<queue title>" --remove-label <hand-off label>`, also removing any terminal state
+     label an earlier run left and `labels.accepted` (the owner handed it back, so no acceptance
+     stands); held (exit 3) is the contract's HELD report. From here a failure leaves a claimed queue
+     pull request that stale-claim recovery takes over.
+   - Fetch and check out the branch in the slot, tracking its remote, and require HEAD to equal the
+     pull request's head.
+   - Only when `operator_config` sets `readyLimit` and the pull request is ready,
+     `forge_cli pr draft <n>`: QA capacity comes only from `operator-verify`'s admission.
+   - Release the claim (`forge_cli claim release <n>`). Result `done` with the hand-off request
+     (`operator-contract`).
 
 ## Run by hand
 

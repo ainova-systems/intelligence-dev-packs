@@ -34,7 +34,8 @@ Plan captures the intended result before any implementation; it is the `plan` op
    the existing diff against them, capture the acceptance criteria for the whole scope, and plan the
    remaining gaps and adjustments, which implementation continues from the current head. Only what
    is still genuinely open goes to the owner. With no linked queue item and no feature-sized plan,
-   the plan goes in the pull request body under a `## Plan` heading instead of a commit.
+   the plan goes in the pull request body under a `## Plan` heading instead of a commit; a rerun
+   replaces that section, never appends to it.
 4. **Write the plan** on the queue item: capture, decisions, deviations and testable slices, each
    naming its files, siblings, skills, integration points and verification. Feature-sized work gets
    its plan from profile `flow_plan`, linked from the item and the PR, never a second plan beside

@@ -35,7 +35,7 @@ already covers is skipped.
 
 | # | When | Operation | Key route |
 |---|---|---|---|
-| 1 | not in a pipeline milestone; `onhold`; `processing` (unless stale, below); `handoff` (intake adopts it, Queues) | skip | - |
+| 1 | not in a pipeline milestone; `onhold`; `processing` (unless stale, below); `handoff` without `cancelled` or `rejected` (intake adopts it, Queues) | skip | - |
 | 2a | `cancelled` or `rejected`, in a delivery slot | `intake` | `close:<label>:<head>` |
 | 2b | `cancelled` or `rejected`, in a clarification slot | `clarify`, `step: close` | `close:<label>:<head>` |
 | 3 | conflicts with the integration branch, past `queue` | `implement`, `reason: conflict` | `conflict:<head>` |
@@ -62,12 +62,17 @@ review job's result (the manifest chains it); an owner answer resumes the asking
 
 | Subject | When | Request |
 |---|---|---|
-| `queue` | a free delivery slot and an open pull request carrying `labels.handoff`, without `processing`, `onhold`, `cancelled` or `rejected`, whose head is not on a fork and which no job or wait covers | `intake`, `input: { handoff: <n>, head }` for the oldest such pull request by creation, `member` the slot its branch names when that slot is free of other pull requests, else the first free slot; key `handoff:<n>:<head>`. Ahead of every queue item; `quotas` do not count it |
+| `queue` | a free delivery slot and an open pull request carrying `labels.handoff`, in any milestone, without `processing`, `onhold`, `cancelled` or `rejected`, whose head is not on a fork and which no job or wait covers | `intake`, `input: { handoff: <n>, head }` for the oldest such pull request by creation, `member` the slot its branch names when no other pull request holds it, else the first free slot; key `handoff:<n>:<head>:<member>:e-<id of the label's latest labeled event>`, so a label the owner applies again asks again. Ahead of every queue item; `quotas` do not count it |
 | `queue` | a free delivery slot (`slots` none of whose open PRs' branches names it) and at least one queue item eligible under profile `flow_queue` | `intake`, `member` the first free slot, key `intake:<fingerprint of the candidates, open PRs and quotas>` |
 | `clarify-queue` | a free clarification slot (`clarifySlots`) and at least one item waiting on an owner decision | `clarify`, step `select`, `candidates`: the top `clarifyCandidates` ranked items, key `clarify-queue:<fingerprint>` |
 
-The adopting run removes `labels.handoff` in the edit that claims the pull request, so the next pass
-routes it by its milestone like any other.
+The label means the hand-over is done: nobody pushes to the old branch name after it, because the
+adoption may rename the branch and the pull request follows the rename. A pull request already in a
+pipeline milestone, Merge Queue included, is adopted on purpose and returns to `queue`; its factors
+are left to the freshness rules (`pr-state.md`). The adopting run removes `labels.handoff` in the edit
+that claims it and moves it to `queue`, so from then on it is an ordinary queue pull request, stale
+claim recovery included. It is converted to a draft only when `readyLimit` is set. A cancelled or
+rejected pull request carrying the label takes its close route instead.
 
 Clarification candidates rank by: the queue item field `clarifyFirst: true` first, then the
 `flow_queue` folder order, then the item's priority, then how many items wait on it.
