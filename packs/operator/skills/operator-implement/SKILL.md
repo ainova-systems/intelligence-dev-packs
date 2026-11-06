@@ -27,9 +27,9 @@ round runs, the claim, the hand-off to review and the move to `verification`. Lo
    belong to intake.
 2. **Claim the PR in its slot.** A conflicting PR from a later milestone moves back to the
    development milestone in the claim edit, removing an obsolete `ai:completed`: the merged head is
-   reviewed and verified again on its way back. The slot is normally already on the PR branch at the
-   live head (`operator-contract`); check it out there when it is not. A slot on another branch with
-   uncommitted work ends `failed` naming it. Read CI from the head's checks
+   reviewed and verified again on its way back. Reconcile the slot with the live head
+   (`operator-contract` > The slot stays with its pull request): local commits ahead of it are this
+   round's work to bring up to date, gate and push. Read CI from the head's checks
    (profile `forge_cli checks <head>`, the latest attempt of each workflow), the latest `## Code review` and
    `## Verification` reports (profile `forge_cli notes <n>`), owner input newer than the last stage
    report (profile `operator_discover --owner-input <n>`) and every unresolved review thread
@@ -83,8 +83,8 @@ round runs, the claim, the hand-off to review and the move to `verification`. Lo
    reserved with what the change does (the project's one-line commit style - core's `git-commit-conventions` when installed - since the
    squash publishes it); the body stays as the review judged it (step 5). Then the
    hand-off request (`operator-contract`). CI still running → release the claim, `noop` naming it.
-7. **Leave the slot on the PR branch** at the head this run pushed (`operator-contract`); keep the
-   body file for the review.
+7. **Leave the slot on the PR branch** at the head this run pushed, or with what it could not push
+   committed on top (`operator-contract`); keep the body file for the review.
 
 ## Run by hand
 

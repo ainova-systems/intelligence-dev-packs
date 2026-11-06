@@ -63,8 +63,10 @@ the `operator-contract` skill first: input, result, claim and markers follow it.
    finds the record already there and goes straight to step 6.
 6. **Then close the attempt.** Check out its head. Call profile `outcome_skill` to record `ai:failed`
    naming the owner's reason. Close the PR without deleting its remote branch, confirm CLOSED,
-   record the local and remote SHAs, and run profile `sync_base_skill` for the branch. A closed attempt's local
-   slot branch is deleted once its commits are confirmed on the remote; result `done`, no next.
+   record the local and remote SHAs, and run profile `sync_base_skill` for the branch. The slot's local
+   PR branch is deleted even with unpushed commits - the owner ended the attempt; the report names
+   the dropped local SHA - together with the local `operator/leftover/*` branches the PR's notes
+   name (`operator-contract`), so the slot is free. Result `done`, no next.
 7. **Adopt a handed-off pull request.** The owner put `operator_config` `labels.handoff` on an open
    pull request so the pipeline finishes it: work a manual session already clarified, or an attempt
    another agent left short of its requirements. The adoption keeps every commit and decision it

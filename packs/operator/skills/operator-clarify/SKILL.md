@@ -43,7 +43,8 @@ factors: the owner's answers are its review, and the owner does not read it agai
 
 ## Clarify (`step: clarify`)
 
-4. **Plan by yourself first.** Re-check the PR (contract), claim it, check out its live head; a PR
+4. **Plan by yourself first.** Re-check the PR (contract), claim it, check out its live head, reconciling the slot
+   first (`operator-contract` > The slot stays with its pull request); a PR
    in `humanReview` or `mergeQueue` moves back to the clarification milestone in the claim edit. Verify the item's
    claims against the shipped code and the feature documentation; settle from the repository
    everything it already answers. Write the proposed resolution on the item - what changes, the

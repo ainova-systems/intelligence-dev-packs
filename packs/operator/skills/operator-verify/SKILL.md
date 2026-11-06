@@ -23,7 +23,7 @@ of `operator.yaml`. Load the `operator-contract` skill first.
    verification steps or a head no verification report stands at (a push the pipeline did not make,
    such as a merge of the integration branch) on `humanReview` or `mergeQueue`, or a current `owner:revalidate`. Rejected and cancelled attempts go
    to intake.
-2. **Claim and check out** the live head. Input, edited steps or a moved head on `humanReview` or `mergeQueue`, or revalidation
+2. **Claim and check out** the live head, reconciling the slot first (`operator-contract` > The slot stays with its pull request). Input, edited steps or a moved head on `humanReview` or `mergeQueue`, or revalidation
    from another milestone, moves the PR back to `verification` in the claim edit, removing an obsolete
    `ai:completed`; this is continued verification, not a hand-off.
 3. **Triage input.** Read owner input (profile `operator_discover --owner-input <n>`) and every
