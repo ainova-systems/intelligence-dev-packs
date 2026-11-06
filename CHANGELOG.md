@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The operator pack moved to https://github.com/ainova-systems/operator-packs; projects that installed it switch their package source there.
 
+**Updating:** a project that used the operator pack switches its source with `intelligence registry add https://github.com/ainova-systems/operator-packs.git`, then `intelligence package remove @ainova-systems/operator` (only when it was installed by that name from here) and `intelligence package add @ainova-systems/operator@^0.13.0`; in `intelligence.yaml` `sources.skills` it replaces the old operator skills path with `.intelligence/packages/@ainova-systems/operator/skills`, points profile `forge_cli` at `.intelligence/packages/@ainova-systems/operator/skills/operator-contract/scripts/forge-github.mjs`, and sets `direct_lane` to keep committing queue documents directly.
+
 **Updating:** a project whose `operator_config` sets `digestExclude` adds the same blocks as `digest_exclude` to its profile, or its verification reports go stale after each rewrite of those blocks.
 
 ## [0.12.1] - 2026-11-06
