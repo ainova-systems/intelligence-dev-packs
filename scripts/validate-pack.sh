@@ -186,7 +186,7 @@ else
             || fail "profile key '$key' is defined in the schema but no artifact reads it"
     done
     for key in $read_keys; do
-        printf '%s\n' "$schema_keys" | grep -qx "$key" \
+        grep -qx "$key" <<< "$schema_keys" \
             || fail "profile key '$key' is read by an artifact but the schema does not define it"
     done
 fi
