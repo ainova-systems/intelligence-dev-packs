@@ -129,19 +129,22 @@ definition, `git-verify-pr` > Digests, wherever both packs are installed.
    `start` through the next `end`, both markers included, every occurrence, scanning left to right
    and resuming after each removed `end`; a `start` with no `end` after it removes nothing. A status
    block CI rewrites inside the body would otherwise change the digest after every CI run.
-2. Find the line that is exactly `## <profile verify_section>`; none → the digest is `none`.
-3. Take the lines after it up to the next line starting `## `, or the end; join with `\n`; trim.
+2. The verification section runs from the line that is exactly `## <profile verify_section>` to
+   the line before the next line starting `## `, or the end. No such line: the steps digest is
+   `none`, and the body digest covers the whole body.
+3. Take the lines of that section after its heading; join with `\n`; trim.
 4. The digest is the first 12 hexadecimal characters of that text's SHA-256 (UTF-8).
 
 ## The body digest
 
-The steps digest's step 1, then the body without its verification section - the step 2 line through
-the line before the next line starting `## `, or the end - joined with `\n` and trimmed, digested as
-its step 4. A checked box in that section or a CI-written block therefore does not re-run the
-review. `--body <path>` digests that file instead of the live body (`operator-review`). A passing
+The steps digest's step 1, then the body without its verification section (step 2), heading
+included - the whole body when there is none - joined with `\n` and trimmed, digested as its
+step 4. A checked box in that section or a CI-written block therefore does not re-run the review. `--body <path>` digests that file instead of the live body (`operator-review`). A passing
 review's body digest is the one its `<!-- operator:reviewed <digest> -->` note names. A passing
 review at the head without that note is fresh by head alone, its body being unknown: that is review
-freshness for a project whose discovery does not answer `--body-digest` yet.
+freshness for a project whose discovery does not answer `--body-digest` yet. A body digest counts only
+when the call exits 0 and its stdout is exactly one 12-hexadecimal-character digest; anything else
+means not available.
 
 ## Owner input
 

@@ -65,8 +65,10 @@ The one definition of a digest of a pull request's text, for this stage, `git-re
 2. Take the text named below as lines, join them with `\n`, and trim it.
 3. The digest is the first 12 hexadecimal characters of that text's SHA-256 (UTF-8).
 
-- **Steps digest** (this stage): the declared section - the lines after the heading profile `verify_section` names, up to the next line starting `## ` - followed by the matched standing checks, in order.
-- **Body digest** (`git-review-pr`): the whole body without that section, heading included. The steps digest already covers it, so a box checked there does not send the diff back to review.
+The verification section runs from the line that is exactly `## <profile verify_section>` to the line before the next line starting `## `, or the end. No such line: the steps digest is `none`, and the body digest covers the whole body.
+
+- **Steps digest** (this stage): the lines of the verification section after its heading, followed by the matched standing checks, in order.
+- **Body digest** (`git-review-pr`): the whole body without the verification section, heading included. The steps digest already covers it, so a box checked there does not send the diff back to review.
 
 ## Delegation
 

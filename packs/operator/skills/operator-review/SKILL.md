@@ -30,9 +30,9 @@ operation of `operator.yaml`. Load the `operator-contract` skill first.
    `failed`. After a pass, post one note recording the body it judged - `Reviewed body: <digest>`,
    then `<!-- operator:reviewed <digest> -->` before the note marker, the digest of `input.body` from
    profile `operator_discover --body-digest <n> --body <input.body>` - so a body edited later, or
-   during the review, leaves it stale (`operator-contract` > `references/pr-state.md`). A discovery
-   command that does not answer that call gets no note and no failure: the result says so, and the
-   review stays fresh by head alone.
+   during the review, leaves it stale (`operator-contract` > `references/pr-state.md`). Unless that
+   call exits 0 with exactly one 12-hexadecimal-character digest on stdout, the digest is not
+   available: no note and no failure, the result says so, and the review stays fresh by head alone.
 4. **Hand back to implementation** whatever the verdict: drop `ai:processing` and end `done` with
    the hand-off request (`operator-contract`). Discovery asks implementation for a head with
    findings, owner input or CI that has decided, and for nothing while CI still runs after a clean
