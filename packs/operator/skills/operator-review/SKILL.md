@@ -22,7 +22,8 @@ operation of `operator.yaml`. Load the `operator-contract` skill first.
 1. **Re-check the head.** The PR must be open, in the development milestone, without
    `owner:onhold` or another run's `ai:processing` (a HELD report, `operator-contract`), and its head must equal `input.head` and the
    findings file's `head`. Anything else ends `noop`: a moved head has its own review coming.
-2. **Claim the PR in its slot**, which stands on the PR branch at that head.
+2. **Claim the PR in its slot**, which stands on the PR branch at that head once reconciled
+   (`operator-contract` > The slot stays with its pull request).
 3. **Record.** The findings file holds `verdict`, `findings` and `report`, the complete
    `## Code review - …` comment the review stage posts (`operator-contract` > `references/pr-state.md`).
    Post `report` unchanged; then, as the review stage does, add `ai:reviewed` when the verdict is `CLEAN` or `PASS-WITH-WARNINGS`

@@ -23,7 +23,9 @@ Merge applies the owner's acceptance to one verified head; it is the `merge` ope
    Rejection, cancellation, a requested revalidation or a send-back label (`operator_config`
    `sendBack`) blocks the merge.
 2. **Check out the accepted head** in a clean slot; local HEAD, upstream and the live PR head must
-   agree. Read the live body and files (profile `forge_cli pr view <n>` and `pr files <n>`), every
+   agree. Slot work ahead of or diverged from that head is set aside on a local leftover branch first
+   (`operator-contract` > The slot stays with its pull request), never pushed through
+   profile `commit_skill`: the merge takes only the accepted head. Read the live body and files (profile `forge_cli pr view <n>` and `pr files <n>`), every
    stage report, owner comment and review (`forge_cli notes <n>`), and every unresolved thread
    (`forge_cli threads <n> --unresolved`).
 3. **Validate the evidence.** Require `ai:completed`, the acceptance label, and every factor profile
@@ -43,7 +45,8 @@ Merge applies the owner's acceptance to one verified head; it is the `merge` ope
    when needed, re-read acceptance, head, milestone and claims, then invoke profile `merge_skill`
    with `owner:accepted` as the owner's standing authorization. Record its confirmed merge SHA;
    a command that exited zero is not a confirmation. Profile `merge_skill` deletes the local branch, so the
-   slot then returns with profile `sync_base_skill` unscoped.
+   slot then returns with profile `sync_base_skill` unscoped; then delete the local
+   `operator/leftover/*` branches the PR's notes name (`operator-contract`).
 6. **Report a refusal.** Stale evidence or an unmet gate → one comment naming exactly what is stale
    and which stage must refresh it, ending with the note marker, then `noop`. Reuse an identical
    standing refusal instead of repeating it. A command or cleanup failure is `failed` with its

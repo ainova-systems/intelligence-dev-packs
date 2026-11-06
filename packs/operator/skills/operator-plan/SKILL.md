@@ -20,7 +20,8 @@ Plan captures the intended result before any implementation; it is the `plan` op
 
 1. **Re-check the PR.** Require OPEN and the queue milestone. A head different from `input.head`,
    another milestone, `owner:onhold`, or another run's `ai:processing` (a HELD report, `operator-contract`) ends `noop`.
-2. **Claim and check out** the PR branch at its live head. Read the linked queue item, its feature
+2. **Claim and check out** the PR branch at its live head, reconciling the slot first
+   (`operator-contract` > The slot stays with its pull request). Read the linked queue item, its feature
    documentation and any plan commits; reuse a completed capture on retry. The intake reservation is
    not a planning commit.
 3. **Capture the outcome.** Run only the capture of profile `flow_intake` against the item and the repository,
