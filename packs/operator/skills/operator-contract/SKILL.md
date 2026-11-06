@@ -9,6 +9,8 @@ Every `operator-*` skill runs as one operation of the operator runtime (`@ainova
 the project's `operator.yaml`), or by hand from a session (below). This page is how a skill reads its
 job, holds a pull request, asks the owner, and ends. Milestone and label names, and the slot limits,
 are the project's `operator_config` file (profile; its schema is `references/operator-config.md`).
+Every profile key the operator skills read, with its default, is this pack's
+`templates/operator-project-profile.md`.
 Every code-host call - reading a pull request, its checks or threads, claiming it, moving it,
 commenting, merging - goes through profile `forge_cli`, never a platform CLI written into a skill (the subcommands, answers and exit codes are
 `references/forge-contract.md`). The

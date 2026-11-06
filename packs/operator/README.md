@@ -40,36 +40,11 @@ queue item in one session instead of phase by phase.
 
 ## Profile keys
 
-| Key | Meaning |
-|---|---|
-| `operator_config` | The operator configuration JSON: milestone and label roles, owner author associations, slots, QA admission, CI workflows, markers and send-back routes. Schema: `operator-contract` > `references/operator-config.md`, example `references/operator-config.example.json` |
-| `operator_discover` | The project's discovery command: `--standalone`, `--request <n>`, `--steps-digest <n>`, `--body-digest <n>`, `--owner-input <n>`, and its runtime pass. Contract: `operator-contract` > `references/discovery-contract.md` |
-| `forge_cli` | The forge contract command every code-host call goes through: `pr` (list, view, create, ready, draft, edit, body, files), `branch rename`, `checks`, `threads`, `claim`, `factor`, `comment`, `notes`, `merge`, `events`, answering JSON. On GitHub it points at `skills/operator-contract/scripts/forge-github.mjs` with `OPERATOR_CONFIG` naming `operator_config`; another platform ships its own implementation of the contract later |
-| `flow_intake`, `commit_skill`, `open_pr_skill`, `review_skill`, `verify_skill`, `threads_skill`, `outcome_skill`, `merge_skill`, `sync_base_skill` | The skill each delegated step runs; unset = the core skill (`operator-contract` > Delegated steps lists the defaults, inputs, outputs and what a replacement must do) |
-| `flow_queue` | The work queue's order and rules |
-| `flow_plan` | The skill that writes a feature-sized plan; none → the plan goes on the queue item |
-| `flow_implement` | The implementation skill: `auto` = the project's execution skill, else one subagent working to the plan's slices; or a skill name |
-| `judge_runner` | How profiles `review_skill` and `verify_skill` run: `none` in the session, or a skill that runs them in another engine |
-| `qa_status` | How to read whether a QA deployment serves a head, and its address |
-| `qa_feedback` | Command listing QA tickets for a PR; none → no tickets |
-| `qa_feedback_status` | Command moving one QA ticket to in progress or completed with a comment for its submitter; none → tickets stay as the owner left them |
-| `merge_gates` | Project rules that block a merge besides checks and factors |
-| `clarify_priority` | The project's current business priority, which `operator-clarify` weighs among discovery's top candidates |
-| `clarify_branch_prefix` | Branch prefix for a clarification pull request, which changes documents only |
-
-The skills also read these keys of the core profile; a project without core sets them in its own
-profile, or the default applies:
-
-| Key | Default | Read for |
-|---|---|---|
-| `integration_branch` | none (the default branch) | the base every pipeline branch starts from and returns to |
-| `branch_prefixes` | `feature/, bugfix/, hotfix/` | the prefix of a pipeline branch, which also names its slot |
-| `update_strategy` | `merge` | bringing the integration branch into a pull request's branch |
-| `conflict_skill` | `git-resolve-conflicts` | resolving a conflict with the integration branch |
-| `verify_section` | `Manual Verification` | the verification heading, and the section the steps digest covers |
-| `pr_risk_size` | `off` | whether the body carries a Risk/Size line to recompute |
-| `pr_success_factors` | `ai:verified, ai:reviewed` | the factors accept-ready requires fresh at head |
-| `merge_method` | `squash` | how `merge_skill` merges |
+Every profile key the skills read, its default and its meaning is defined once in
+[`templates/operator-project-profile.md`](templates/operator-project-profile.md): the operator's own
+keys, the delegated-step skills, and the keys it shares with the core pack's profile schema (same
+default and meaning, stated there so the pack runs without core). A project adds the keys it sets to
+its project profile; a key left out takes its default.
 
 ## The flow
 

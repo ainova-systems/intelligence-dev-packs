@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The operator profile keys moved from core's profile template to the operator pack (`packs/operator/templates/operator-project-profile.md`), together with `flow_plan` and `judge_runner`, which only the operator skills read; a project that already has them in its profile changes nothing. Core's artifacts no longer name the operator pack.
+- `git-verify-pr` > Digests reads the blocks to strip from a pull request body from the new core profile key `digest_exclude` instead of the operator configuration; a project whose CI rewrites a block in the body sets it to the same blocks as its operator `digestExclude`.
+- `scripts/validate-pack.sh` checks profile keys and `ai:*` labels per pack: a pack reads keys from its own schema or core's, core reads only its own, a key both schemas define must carry the same default, and the operator pack's labels are checked against its own `pr-state` page, so the operator pack validates without core.
+
 ## [0.12.1] - 2026-11-06
 
 The forge edit replaces a pull request's title and body in the hand-off call, and the pack validator no longer fails at random.

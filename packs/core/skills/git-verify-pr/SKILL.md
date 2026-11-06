@@ -61,7 +61,7 @@ head: <sha> - steps: <digest> - env: <preview <url> | local | none>
 
 The one definition of a digest of a pull request's text, for this stage, `git-review-pr` and every gate that compares one:
 
-1. Remove every block the project marks as machine-written (the operator pack's `digestExclude`): each start marker through the next end marker, both included, every occurrence, scanning left to right and resuming after each removed end; a start with no end after it removes nothing. A status block CI rewrites in the body would otherwise change the digest on every run.
+1. Remove every block profile `digest_exclude` names: each start marker through the next end marker, both included, every occurrence, scanning left to right and resuming after each removed end; a start with no end after it removes nothing. A status block CI rewrites in the body would otherwise change the digest on every run.
 2. Take the text named below as lines, join them with `\n`, and trim it.
 3. The digest is the first 12 hexadecimal characters of that text's SHA-256 (UTF-8).
 

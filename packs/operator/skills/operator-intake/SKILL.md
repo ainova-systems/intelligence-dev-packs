@@ -40,8 +40,8 @@ the `operator-contract` skill first: input, result, claim and markers follow it.
    and end `noop`. Every candidate needing the owner → the contract's "intake itself cannot choose".
 4. **Open the selected attempt.** Re-check that the slot is free, quotas and overlap immediately before branching.
    Create `<prefix><slot>-<slug>` (profile `branch_prefixes`: the bugfix prefix for a defect) from
-   the freshly fetched integration branch with `git checkout --no-track -b`, and verify HEAD equals
-   it before the first commit. Make exactly one reservation commit,
+   the freshly fetched integration branch (profile `integration_branch`) with `git checkout --no-track -b`,
+   and verify HEAD equals it before the first commit. Make exactly one reservation commit,
    `git commit --allow-empty -m "Took <item title> into the development pipeline"`, and push with
    `-u origin <branch>`. On retry, recover the existing branch and PR; never duplicate them.
    Call profile `open_pr_skill` (default `git-open-pr`) with the PR opened as a draft whenever `operator_config` sets `readyLimit`,

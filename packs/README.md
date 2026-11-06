@@ -63,6 +63,7 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 | `operator-verify` | skill | QA admission, `git-verify-pr`, feedback triage, then Human Review or back to development |
 | `operator-merge` | skill | Merges an owner-accepted PR while every gate still holds on the accepted head |
 | `operator-clarify` | skill | Settles a queue item waiting on an owner decision in a documentation PR, one question at a time, and merges it |
+| `operator-project-profile` | template | Every profile key the operator skills read, with its default; the keys it shares with core's schema are restated with core's defaults so the pack runs without core |
 
 The pack also ships two templates besides the profile schema. `dev-init` merges `packs/core/templates/claude-settings.json` into the project's committed `.claude/settings.json` so the invariants the rules state in prose are machinery too: no force-push, no blanket-stage and no `--no-verify` are denied outright, and the merge, the tag push and the release object prompt the owner at the command rather than relying on who invoked the skill. `packs/core/templates/dev-qa-checks.md` is the schema for the optional standing-checks file the profile's `qa_checks` points at - what `git-verify-pr` adds for any change touching an area, whatever that change says about itself.
 

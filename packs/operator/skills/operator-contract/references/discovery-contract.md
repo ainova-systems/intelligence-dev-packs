@@ -123,7 +123,8 @@ puts it in `input.qa` (`passed`, `pending`, `failed`, `none`), and asks for rows
 ## The steps digest
 
 Both digests are stated here in full because core is optional; their algorithm must match core's
-definition, `git-verify-pr` > Digests, wherever both packs are installed.
+definition, `git-verify-pr` > Digests, wherever both packs are installed - there `digestExclude`
+names the same blocks as core's `digest_exclude` profile key.
 
 1. From the pull request body remove every block `operator_config` `digestExclude` names: each
    `start` through the next `end`, both markers included, every occurrence, scanning left to right

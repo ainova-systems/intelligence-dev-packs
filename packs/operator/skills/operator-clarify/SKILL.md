@@ -32,8 +32,8 @@ factors: the owner's answers are its review, and the owner does not read it agai
    business the most today, by profile `clarify_priority`, keeping discovery's order on a tie. An
    item flagged `clarifyFirst` is taken first whatever today's priority says. Nothing left → `noop`
    naming why.
-3. **Open the attempt.** Create `<clarify_branch_prefix><slot>-clarify-<slug>` from the freshly
-   fetched integration branch with `git checkout --no-track -b`, verify HEAD equals it, then do
+3. **Open the attempt.** Create `<clarify_branch_prefix><slot>-clarify-<slug>` (profile
+   `clarify_branch_prefix`) from the freshly fetched integration branch with `git checkout --no-track -b`, verify HEAD equals it, then do
    step 4's planning before the first commit, so the pull request opens with substance. Push with
    `-u origin <branch>` and call profile `open_pr_skill` (default `git-open-pr`) as a draft with this skill's `assets/pr-template.md`
    as the template, never the implementation one: a clarification PR declares no verification steps
