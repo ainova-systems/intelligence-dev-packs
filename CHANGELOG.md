@@ -10,11 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - The judging stages (`git-review-pr`, `dev-review-changes`, `git-verify-pr`) never switch, commit, fetch or pull in the workspace they judge.
-- `ai:reviewed` goes stale when the pull request body changes: the review report names a body digest, and every gate that reads review freshness compares it.
+- `ai:reviewed` goes stale when the pull request body changes outside its verification section: the review report names a body digest, defined once with the steps digest in `git-verify-pr` > Digests, and every gate that reads review freshness compares it.
 
 ### Changed
 
-- The operator pack records a passing review's body digest in an `operator:reviewed` note, discovery gains `--body-digest <n>` and re-verifies a Human Review pull request whose body changed, and `operator-implement` recomputes the Risk/Size line before the review instead of after it.
+- Operator pack: a passing review records its body digest in an `operator:reviewed` note, and `operator-implement` recomputes the Risk/Size line before the review instead of after it. Consumer action: implement `--body-digest <n> [--body <path>]` in your discovery command (`operator_discover`) and the body branch of routing row 6 to get body staleness; without it reviews stay fresh by head alone.
 
 ## [0.11.0] - 2026-11-05
 

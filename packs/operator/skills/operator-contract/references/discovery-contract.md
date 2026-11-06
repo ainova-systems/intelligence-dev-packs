@@ -15,7 +15,7 @@ and `operator trigger` that delivers an answer, are the runtime's operation cont
 | `--standalone` | Text, one line per subject: `pr-<n>: /operator-<operation> <n>`, `#<n> waits: <reason>`, or `waits: <reason>`; `nothing to do` when empty. Reads only |
 | `--request <n>` | JSON `{ "next": [request] }` for pull request `<n>` now, or `{ "skip": "<reason>" }`. Reads only |
 | `--steps-digest <n>` | One line: the steps digest of pull request `<n>`, or `none` |
-| `--body-digest <n>` | One line: the body digest of pull request `<n>` |
+| `--body-digest <n> [--body <path>]` | One line: the body digest of pull request `<n>`, or of the body file `<path>` |
 | `--owner-input <n>` | JSON `{ "report": null \| { id, createdAt, url, title }, "input": [{ id, kind: comment\|review, createdAt, url, body, inline? }] }` |
 
 A request is `{ operation, subject: pr-<n> | queue | clarify-queue, key, member: <slot>, input }`.
@@ -122,20 +122,18 @@ puts it in `input.qa` (`passed`, `pending`, `failed`, `none`), and asks for rows
 
 ## The steps digest
 
-1. From the pull request body remove every block `operator_config` `digestExclude` names: each
-   `start` through the next `end`, both markers included, every occurrence, scanning left to right
-   and resuming after each removed `end`; a `start` with no `end` after it removes nothing. A status
-   block CI rewrites inside the body would otherwise change the digest after every CI run.
-2. Find the line that is exactly `## <profile verify_section>`; none → the digest is `none`.
-3. Take the lines after it up to the next line starting `## `, or the end; join with `\n`; trim.
-4. The digest is the first 12 hexadecimal characters of that text's SHA-256 (UTF-8).
+The steps digest `git-verify-pr` > Digests defines, with `operator_config` `digestExclude` as the
+machine-written blocks it removes, over the declared section alone: discovery matches no standing
+checks. No line exactly `## <profile verify_section>` → the digest is `none`.
 
 ## The body digest
 
-The steps digest's steps 1 and 4 over the whole remaining body, trimmed, instead of one section: the
-review judged every claim the body makes. A passing review's body digest is the one its
-`<!-- operator:reviewed <digest> -->` note names (`operator-review`); a passing review at the head
-without that note judged a body nobody recorded, and is stale.
+The body digest `git-verify-pr` > Digests defines, with the same `digestExclude`: the body without
+its verification section, so a checked box there or a CI-written block does not re-run the review.
+`--body <path>` digests that file instead of the live body (`operator-review`). A passing review's
+body digest is the one its `<!-- operator:reviewed <digest> -->` note names. A passing review at the
+head without that note is fresh by head alone, its body being unknown: that is review freshness for
+a project whose discovery does not answer `--body-digest` yet.
 
 ## Owner input
 

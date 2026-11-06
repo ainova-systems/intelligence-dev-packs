@@ -26,7 +26,7 @@ An independent read of the whole diff from a context that never watched it being
 
    Each finding cites `file:line` plus the body line it contradicts, except a body-audience finding, which cites the heading.
 3. **Verify every finding** by re-reading the code; drop what cannot be evidenced. A finding that restates a rule without a line of the diff is not a finding - except a body-audience finding, whose evidence is the body heading.
-4. **Record.** One PR comment (`gh pr comment`) in the report envelope `git-workflow` defines - never an inline review thread, because findings posted as threads come back through `git-complete-pr` and the run starts reviewing itself in a circle. Name the head SHA **and** a digest of the body it judged, taken the way `git-verify-pr` takes its steps digest but over the whole body: the claims axis judged the body, which can be edited without the head moving, and a review of the old claims is not a review of the new ones.
+4. **Record.** One PR comment (`gh pr comment`) in the report envelope `git-workflow` defines - never an inline review thread, because findings posted as threads come back through `git-complete-pr` and the run starts reviewing itself in a circle. Name the head SHA **and** the body digest of the body it judged (`git-verify-pr` > Digests): the claims axis judged the body, which can be edited without the head moving, and a review of the old claims is not a review of the new ones.
 
 ```
 ## Code review - CLEAN | PASS-WITH-WARNINGS | BLOCK

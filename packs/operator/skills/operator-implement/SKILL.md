@@ -68,9 +68,10 @@ round runs, the claim, the hand-off to review and the move to `verification`. Lo
    `{ pr, head, checkout: <slot root, absolute>, body: <absolute path> }`, and key `review:<head>:oe-<id>`,
    where `<id>` is the latest `owner:*` label event on the PR (profile `forge_cli events <n>`,
    `none` when there is none): a review that a
-   pause interrupted is then asked for again. When this round pushed nothing - no report stands at
-   the head because an earlier review's could not be posted, or the one standing judged an older
-   body - the key ends `:retry-<run.jobId>`,
+   pause interrupted is then asked for again. When this round pushed nothing because the review
+   standing at the head judged an older body, the key ends `:b-<body digest>` (profile
+   `operator_discover --body-digest <n>`), so each body version is reviewed once. When no report
+   stands at the head because an earlier review's could not be posted, the key ends `:retry-<run.jobId>`,
    because the plain key names the finished review and would match it instead of reviewing again.
    The runtime keeps the review in this slot.
 6. **Move a finished head on.** Nothing pending, the plan complete (documentation finalization
