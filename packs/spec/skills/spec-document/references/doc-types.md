@@ -41,7 +41,7 @@ The domain aggregate model and its invariants - the source of names and constrai
 - `architecture.md` - condensed arc42, one section per heading.
 - `dependency-map.md` - the allowed dependencies between modules; a human-readable source that compiles into a boundary check.
 - `golden-path.md` - names the reference module to copy.
-- `modules/<module>.md` - per-module shape.
+- `modules/<module-name>.md` - per-module shape.
 - `diagrams/` - C4 container / component level only; low-level diagrams add little for an agent that already reads code.
 
 ## Status badges (where the project uses them)

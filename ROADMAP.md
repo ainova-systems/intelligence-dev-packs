@@ -26,7 +26,7 @@ The reference comes first precisely so the pack's strongest new word is defined 
 
 **Problem.** The profile carries `verify` as "a single gate-runner command as the definition of done", and `dev-verification-gates` states that CI must run exactly what a developer runs. Nothing establishes that. The knob exists; whether the pipeline honours it is left to whoever wrote the pipeline, which is the drift the knob was invented to prevent.
 
-**Shape.** A skill that wires the profile's `verify` command into the project's pipeline and reports what it changed. When `verify` is unset - the common case - it composes one from the profile's `typecheck` / `lint` / `test` keys and records it, or stops with a named reason; it never writes a pipeline step that runs `none`.
+**Shape.** A skill that wires the profile's `verify` command into the project's pipeline and reports what it changed. When `verify` is unset - the common case - it writes a gate table for core's runner (`skills/dev-run-tests/scripts/verify-runner.mjs`) from the profile's `typecheck` / `lint` / `test` keys and records the command, or stops with a named reason; it never writes a pipeline step that runs `none`. A pipeline step that lacks a gate's runtime runs the runner with `--ci`, and the owner either sets the runtime variable or accepts that step's exit 3 in the CI file.
 
 ### Decomposing a brief into an approvable batch
 

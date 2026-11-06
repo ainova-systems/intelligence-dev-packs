@@ -7,14 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Core rule `dev-working-with-people`, always on: a report opens on the result in the reader's language, a question carries one decision explained from zero, consent is one yes per stage, and the work keeps to the scope that was asked.
+- Core reference `references/dev-external-writes.md`: a write into a system people own is a project script subcommand that dry-runs unless `--apply` comes last, is allow-listed by its exact form, and sends content the layer does not own back unchanged.
+- Core gate runner `skills/dev-run-tests/scripts/verify-runner.mjs`: it runs a gate table the project owns against the change, cheapest gate first, stops at the first failure and reports what it did not run or reach; with `--ci` a gate whose runtime is missing is reported as not run and the run exits 3.
+- `dev-init` > `references/windows-hosts.md`: Windows host facts, each with the failure it caused and what the layer does instead.
+- `dev-init` > `scripts/settings-patterns.test.mjs`: checks the settings template's rule shapes against a simulation of the documented Claude Code permission matcher.
+- `spec-validate` > `scripts/spec.mjs`: the spec's state, the plan's mechanical checks, the open questions in dependency order, the specs a change delivers, and two structural plan edits, run by every spec skill.
+- Spec template `spec-retired-conventions`: an optional project rule listing the conventions the code has deprecated, each with its replacement; `spec-init` drafts it when deprecation marks exist.
+- Core profile key `secrets_file` (default `.env.local`): the credentials file `dev-init` keeps out of the agent's file tools.
+- Profile keys `regenerate`, `approval`, `execute_through`, `spec_folder`, `spec_checks` and `tracker_writes`; their defaults keep the earlier behavior.
+- Proposed decision `docs/decisions/261107-intake-copies-tracker-text-verbatim.md`: intake copies the tracker text word for word, and the plan writes the requirements.
+
 ### Changed
 
 - The operator profile keys moved from core's profile template to the operator pack (`packs/operator/templates/operator-project-profile.md`), together with `flow_plan` and `judge_runner`, which only the operator skills read; a project that already has them in its profile changes nothing. Core's artifacts no longer name the operator pack.
 - `git-verify-pr` > Digests reads the blocks to strip from a pull request body from the new core profile key `digest_exclude` instead of the operator configuration; its value lists `` `<start marker>` .. `<end marker>` `` blocks separated by `;`.
 - `scripts/validate-pack.sh` checks profile keys and `ai:*` labels per pack: a pack reads keys from its own schema or core's, core reads only its own, a key both schemas define must carry the same default, and the operator pack's labels are checked against its own `pr-state` page, so the operator pack validates without core.
 - Operator: the new profile key `direct_lane` names the documents that need no reviewed pull request. Intake and clarify commit a queue record straight to the integration branch only when it matches, and clarify merges a clarification pull request on its own only when every changed path matches. The default `none` matches nothing: queue records go through a pull request, and clarify asks the owner to set the key instead of merging.
+- `templates/claude-settings.json` denies force-push, `--no-verify` and blanket staging wherever the flag sits in the command, denies the commands that discard uncommitted work and reading the credentials file, and turns off commit, pull request and session-link attribution.
+- `dev-init` writes push-deny rules for every protected branch, reports the harmless commands the rules also deny and a missing `claudeMdExcludes`, and reports the host's Node, git, make, line-ending, long-path and symlink state before setup.
+- `dev-verification-gates` defines the change every gate runner and review judges: everything between the merge-base and the working tree, untracked files, deletions and both sides of a rename included; a base that does not resolve or an empty merge-base stops the run. `dev-run-tests` and `dev-review-changes` read that change.
+- `git-commit-push` commits with `git commit --only -- <paths>`, so paths another step left staged stay out of the commit; it runs profile `regenerate` first, and in a spec project it stops when a spec the change ticks is not `in-progress` or `completed`.
+- A review finding names the case that fails, and in rules, skills and agents only a wrong or missing outcome, a contradiction or a stale reference counts; what an approved plan states is settled.
+- The `## Code review` report carries one record forward in `### Unresolved` and `### Resolved` lists, only a review moves an entry to Resolved, and `git-finalize-pr` queues only Unresolved Criticals as defects.
+- `git-open-pr` rebuilds the body of an already open pull request from its sources, and `git-finalize-pr` and `git-commit-push` route body changes through it.
+- `git-finalize-pr` runs its judging stages in the foreground and, in a spec project, puts a delivered spec that is not `completed` to the owner; `dev-deliver` runs a worktree instance's implement and review phases from a session started in that worktree.
+- `spec-plan` writes a shorter plan: `## Approach` with `Constraints:`, `Defaults:` and `Precedents:` replaced MUST READ FIRST, the sibling checklist and the per-phase citations; each work step names its outcome, place, executor and check; the planner picks and checks every executor, path and command it cites; a replan rewrites the plan in place, keeping ticks and adding rework steps.
+- A spec question is a fact or a decision: the agent finds facts and `spec-plan` fixes a `[plan error]`; decisions carry `Depends on:` and stable numbers, and `spec-answer` asks them one at a time and can correct an earlier answer.
+- Consistency covers the product's precedent (UI and copy, API contracts, where data lives, decisions taken, glossary); every behavior a step adds traces to a requirement, a precedent or a default, and `spec-validate` reports one that does not.
+- `spec-orchestration` routes every finding after planning through one table, and `spec-execute` takes an in-scope fix as text, also on a finished plan.
+- `scripts/validate-pack.sh` warns on a `SKILL.md` over 1500 words or a paragraph over 200, and resolves pack-level `references/` pages by name; `CONTRIBUTING.md` asks a fix to restate the outcome so that it covers the case a review found.
 
-**Updating:** a project whose `operator_config` sets `digestExclude` adds the same blocks as `digest_exclude` to its profile, or its verification reports go stale after each rewrite of those blocks.
+**Updating:** a project whose `operator_config` sets `digestExclude` adds the same blocks as `digest_exclude` to its profile, or its verification reports go stale after each rewrite of those blocks. A project that already ran `dev-init` keeps its old prefix rules until it runs `dev-init` again, which adds the new rules beside them. A tool that parses the `### Critical` / `### Warning` / `### Suggestion` headings of a `## Code review` report reads the severity at the start of each `### Unresolved` entry instead. A plan written before this release fails `spec.mjs check` until it carries the seven plan sections in order and names its executors in backticks; `spec-plan` replans it in place.
 
 ## [0.12.1] - 2026-11-06
 

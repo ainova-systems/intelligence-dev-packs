@@ -25,7 +25,7 @@ Then run **`dev-init`** so the agent pins the project profile, creates the `ai:*
 
 | Pack | Install when | Contents |
 |---|---|---|
-| **core** (`dev-`, `git-`)<br>`@ainova-systems/core` | Always - it is universal | 6 always-on rules (skill-first, context engineering, verification gates, rollback safety, commit conventions, git workflow), 3 agents (code reviewer, QA verifier, test engineer), 17 skills: init, deliver a task end to end, deliver the next queue item, return to the integration branch, tests, diff review, handoff, commit+push, open PR, drive the PR rounds, verify the PR's own steps, review the PR diff, complete the PR, resolve conflicts, merge, release, secret scan |
+| **core** (`dev-`, `git-`)<br>`@ainova-systems/core` | Always - it is universal | 7 always-on rules (skill-first, context engineering, verification gates, rollback safety, commit conventions, git workflow, working with people), 3 agents (code reviewer, QA verifier, test engineer), 17 skills: init, deliver a task end to end, deliver the next queue item, return to the integration branch, tests, diff review, handoff, commit+push, open PR, drive the PR rounds, verify the PR's own steps, review the PR diff, complete the PR, resolve conflicts, merge, release, secret scan; a reference on writes into systems people own |
 | **operator** (`operator-`)<br>`@ainova-systems/operator` | With the Operator runtime; core recommended, optional via profile keys | 8 skills: the run contract and the phase skills the runtime runs (intake, plan, implement, review, verify, merge, clarify), each also runnable by hand; the forge contract, its contract test and its GitHub implementation (`forge-github.mjs`, a script, not a skill); its own profile-key schema (`templates/operator-project-profile.md`) |
 | **spec** (`spec-`)<br>`@ainova-systems/spec` | Opt-in, depends on core | The spec-driven lifecycle: 2 rules (spec discipline, multi-agent orchestration), 2 agents (architect, docs writer), 15 skills from tracker intake through plan, adversarial validation, execution, and docs upkeep |
 
@@ -58,7 +58,7 @@ Nothing is wired by hand. Skills read the repository - default branch from git, 
 
 To pin those answers so nothing is re-detected or re-asked, run `dev-init`. It declares the branch model, verification commands (including an optional single gate-runner via `verify`), PR platform and merge method, release flow, the tracker, and the docs structure. It is generated and filled from your repo - never copied or hand-edited - and rides as an always-on rule.
 
-Hard invariants can be backed by machinery rather than prose - force-push, blanket-stage and `--no-verify` denied outright, and the merge, the tag push and the release object prompting the owner at the command: `dev-init` merges the pack's `templates/claude-settings.json` into the project's `.claude/settings.json`, and [docs/enforcement.md](docs/enforcement.md) maps each invariant to its mechanism.
+Hard invariants can be backed by machinery rather than prose - force-push, blanket-stage, `--no-verify`, commands that discard uncommitted work and pushes to protected branches denied outright, tool attribution off, and the merge, the tag push and the release object prompting the owner at the command: `dev-init` merges the pack's `templates/claude-settings.json` into the project's `.claude/settings.json`, and [docs/enforcement.md](docs/enforcement.md) maps each invariant to its mechanism.
 
 ## One task, one flow
 

@@ -9,9 +9,11 @@
 #   directions: every pack is installable by name, every declared path exists.
 # - every ai:* label a pack uses is defined in the page that owns that pack's vocabulary.
 # - every skill has the sections the artifact contract requires.
-# - every artifact an artifact names actually exists.
+# - every artifact an artifact names actually exists; a pack-level references/ page counts.
 # - each pack's profile schema and its artifacts agree: no schema key nothing reads,
 #   no key an artifact reads that neither its pack's schema nor core's defines.
+# - word budgets: a SKILL.md over SKILL_WORD_BUDGET words, or a paragraph over
+#   PARAGRAPH_WORD_BUDGET, is reported as a warning; warnings do not fail the run.
 # A pack with its own schema (templates/<prefix>-project-profile.md) stands alone: its checks
 # read only its own folder, plus core's schema and artifacts when core is present.
 # Zero dependencies: bash + awk + grep.
@@ -24,8 +26,14 @@ PACKS_DIR="$PACK_ROOT/packs"
 # Known domain prefixes. Add a row here when a new domain (e.g. react-, sec-) is introduced.
 KNOWN_PREFIXES="dev- git- spec- operator-"
 
+# Word budgets (CONTRIBUTING.md > Writing for current models).
+SKILL_WORD_BUDGET=1500
+PARAGRAPH_WORD_BUDGET=200
+
 errors=0
 fail() { echo "FAIL: $1" >&2; errors=$((errors + 1)); }
+warnings=0
+warn() { echo "WARN: $1"; warnings=$((warnings + 1)); }
 
 has_known_prefix() {
     local name="$1"
@@ -171,7 +179,7 @@ done
 # here holds is an optional artifact of a pack that is not in this repository (the
 # operator pack names core skills as defaults it does not need), so it is not checked.
 present_domains="$(find "$PACKS_DIR"/*/rules "$PACKS_DIR"/*/agents "$PACKS_DIR"/*/skills "$PACKS_DIR"/*/templates \
-    -mindepth 1 -maxdepth 1 2>/dev/null | sed 's|.*/||' | grep -oE '^[a-z]+-' | sort -u || true)"
+    "$PACKS_DIR"/*/references -mindepth 1 -maxdepth 1 2>/dev/null | sed 's|.*/||' | grep -oE '^[a-z]+-' | sort -u || true)"
 artifact_refs="$(grep -rhoE '`(dev|git|spec|operator)-[a-z-]+`' "$PACKS_DIR" | tr -d '`' | sort -u || true)"
 for ref in $artifact_refs; do
     grep -qx "${ref%%-*}-" <<< "$present_domains" || continue
@@ -181,8 +189,9 @@ for ref in $artifact_refs; do
         [ -f "$pack_dir$(printf 'rules/%s.md' "$ref")" ] && found=1
         [ -f "$pack_dir$(printf 'agents/%s.md' "$ref")" ] && found=1
         [ -f "$pack_dir$(printf 'templates/%s.md' "$ref")" ] && found=1
+        [ -f "$pack_dir$(printf 'references/%s.md' "$ref")" ] && found=1
     done
-    [ -n "$found" ] || fail "artifact '$ref' is named in packs/ but no rule, agent, skill or template by that name exists"
+    [ -n "$found" ] || fail "artifact '$ref' is named in packs/ but no rule, agent, skill, template or reference by that name exists"
 done
 
 # The profile is a contract in both directions. A key nothing reads promises behavior
@@ -240,6 +249,41 @@ elif [ -d "$PACKS_DIR/core" ]; then
     fail "[core] the profile schema is missing at packs/core/templates/dev-project-profile.md"
 fi
 
+# Text grows a clause per review finding until nobody reads it whole; the budget makes that
+# growth visible. Several skills are over it today, so an offender warns instead of failing.
+# A paragraph is a run of prose lines; a list item starts a new one, and headings, table rows
+# and fenced blocks belong to none. A skill's total counts everything below its frontmatter.
+# One awk pass over every file, since a process per file is slow on some hosts.
+budget_report="$(cd "$PACK_ROOT" && find packs -type f -name '*.md' \( -path '*/rules/*' -o -path '*/agents/*' \
+    -o -path '*/skills/*' -o -path '*/templates/*' -o -path '*/references/*' \) | sort \
+    | xargs awk -v skill_max="$SKILL_WORD_BUDGET" -v para_max="$PARAGRAPH_WORD_BUDGET" '
+        function flush() {
+            if (n > para_max) print file ":" start " has a " n "-word paragraph (budget " para_max ")"
+            n = 0
+        }
+        function close_file() {
+            flush()
+            if (file ~ /\/skills\/[^\/]+\/SKILL\.md$/ && total > skill_max)
+                print file " is " total " words (budget " skill_max ")"
+        }
+        FNR == 1 {
+            if (file != "") close_file()
+            file = FILENAME; total = 0; fm = 0; fence = 0
+            if ($0 == "---") { fm = 1; next }
+        }
+        fm { if ($0 == "---") fm = 0; next }
+        { total += NF }
+        /^[[:space:]]*(```|~~~)/ { flush(); fence = !fence; next }
+        fence { next }
+        /^[[:space:]]*$/ || /^[[:space:]]*#/ || /^[[:space:]]*\|/ { flush(); next }
+        /^[[:space:]]*([-*+]|[0-9]+[.)])[[:space:]]/ { flush() }
+        { if (n == 0) start = FNR; n += NF }
+        END { if (file != "") close_file() }
+    ' || true)"
+while IFS= read -r line; do
+    if [ -n "$line" ]; then warn "$line"; fi
+done <<< "$budget_report"
+
 if [ "$errors" -gt 0 ]; then
     echo "" >&2
     echo "$errors problem(s) found." >&2
@@ -247,4 +291,8 @@ if [ "$errors" -gt 0 ]; then
 fi
 
 echo ""
-echo "OK: $pack_count pack(s) valid."
+if [ "$warnings" -gt 0 ]; then
+    echo "OK: $pack_count pack(s) valid, $warnings word-budget warning(s)."
+else
+    echo "OK: $pack_count pack(s) valid."
+fi

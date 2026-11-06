@@ -18,7 +18,7 @@ Every phase resolves its owner the way the pack resolves anything else: **profil
 
 ## Pre-flight - read where the work already stands
 
-Resumption is derived, never stored: git and the pull request hold every answer a state file would, and cannot drift from the work the way a file can. `git status --porcelain` dirty on a protected branch is a stop. On a feature branch it establishes that uncommitted work exists, never that this run produced it: an instance owns its worktree, so a run that did not dirty the tree itself reports what is uncommitted and asks before Phase B continues into it.
+Resumption is derived, never stored: git and the pull request hold every answer a state file would, and cannot drift from the work the way a file can. That holds because every phase, subagents included, leaves its work in the tree, its commits and the pull request as it goes; after an interrupted subagent the ladder is read again, never its outcome assumed. `git status --porcelain` dirty on a protected branch is a stop. On a feature branch it establishes that uncommitted work exists, never that this run produced it: an instance owns its worktree, so a run that did not dirty the tree itself reports what is uncommitted and asks before Phase B continues into it.
 
 Resolve the subject - the argument's task, branch name or PR number, otherwise the current branch - and keep the branch **name** as the identity rather than the branch itself: `git-merge-pr` deletes the local branch on a confirmed merge, and the pull request still carries that name as its head ref afterwards.
 
@@ -59,7 +59,7 @@ A gate declined upfront withholds the boundary it governs and nothing earlier: e
 
 ## How the run ends
 
-Five endings, each stated to the owner rather than left to be read out of silence:
+Five endings, each stated to the owner (`dev-working-with-people`) rather than left to be read out of silence:
 
 | Ending | What the owner is left with |
 |---|---|
@@ -76,7 +76,7 @@ Past Phase C every one of them leaves the pull request carrying exactly one outc
 It talks to the owner, so it stays where the owner is; it is never a subagent.
 
 1. Read first: the profile, the rules, the area the task touches. A question the repository answers is answered there, never asked.
-2. The phase's owner per the resolution above runs it, and this step ends when nothing about the goal is still open. Nothing installed covers the phase - interview here, one question at a time, dependencies first.
+2. The phase's owner per the resolution above runs it, and this step ends when nothing about the goal is still open. Nothing installed covers the phase - interview here, dependencies first, each question put as `dev-working-with-people` describes.
 3. **Exit condition**: the goal in one sentence, what the owner will see when it is done, and what is out of scope - all three stated without hedging.
 4. **The acceptance criteria** are the phase's product: each an action plus the result the owner expects to observe, carrying what `git-open-pr` requires of a declared step - the state it starts from, including what the environment does by default where that is not where the step wants the reader and which role it runs as where behaviour differs by one, and an expected result the change itself cannot falsify. Phase B fills the verification section with these verbatim, so a criterion missing either half is a pull request that cannot satisfy `git-open-pr`'s own gate. Every one must be executable read-only against a running change; one needing a live pull request, a credential only a person holds, or state only the author can create is rewritten now. Left as written it returns in Phase C as `blocked (step)`, after the code exists.
 5. `flow_approvals: upfront` - take both gates now.
@@ -95,7 +95,7 @@ Its own context because it is the largest one of the run, and because nothing af
 Its own context because the stages that judge this pull request must not inherit the author's account of why the code is right - `git-finalize-pr` > Isolation - and a phase that begins by reading the PR and the diff holds that isolation for free.
 
 1. `git-finalize-pr`, then `git-complete-pr`. The rounds, the factors and the outcome belong to them; nothing here re-decides any of it. When pre-flight established the claim as this run's, the prompt says so - that sentence is what separates this phase from a second actor, and without it `git-finalize-pr` refuses the very pull request the phase was spawned to finish.
-2. The phase ends at exactly one outcome label. `ai:manual` or `ai:failed` ends the run there, reporting the owner's list - there is no merge on a caveat. One ending writes no label at all: a pull request already claimed by another run stops `git-finalize-pr` at its pre-flight (`git-workflow`), and this instance ends on the comment it left there rather than on an outcome it has no standing to write.
+2. The phase ends at exactly one outcome label. `ai:manual` or `ai:failed` ends the run there, reporting the owner's list - there is no merge on a caveat. The one ending without a label is a pull request another run holds (*How the run ends*).
 3. Accept-ready reaches the accept gate.
 
 ## Phase D - Release (main session)
@@ -108,9 +108,9 @@ Its own context because the stages that judge this pull request must not inherit
 
 A run works in the checkout it was invoked in, and one task never makes a worktree at all: a second directory is a cost the owner pays in attention, and nothing buys one for a run that already has somewhere to work. A task arriving while the branch it needs is occupied is the one with nowhere, and it never enters the occupied worktree. Whether it gets its own is profile `worktree_policy` (default `auto` - one here; `never` makes it wait for that branch instead; `always` gives every parallel task one, which is the setting for a project that routinely runs them in batches).
 
-Making one is `git worktree add <root>/<slug> -b <prefix>/<slug> <base>`, `<root>` from profile `worktree_root` (default `auto` - a sibling directory of the repository root); removing it is `git worktree remove`, once `git-merge-pr` confirms the merge landed. A repository where git alone does not leave a directory ready to work in - dependencies to install, env files to link - says so in `worktree_create` and `worktree_remove`, and those commands replace both: where a project states how its worktrees are made, that is how they are made.
+Making one is `git worktree add <root>/<slug> -b <prefix>/<slug> <base>`, `<root>` from profile `worktree_root` (default `auto` - a sibling directory of the repository root); removing it is `git worktree remove`, once `git-merge-pr` confirms the merge landed. A repository where git alone does not leave a directory ready to work in - dependencies to install, env files to link, generated tool files to render - says so in `worktree_create` and `worktree_remove`, and those commands replace both: where a project states how its worktrees are made, that is how they are made.
 
-A worktree is its own instance: its own branch, pull request and position on the ladder, its Phase A still here with the owner, its B and C subagents working in that directory. Instances share only you and the owner's attention, so the gates serialize - one question at a time, each naming its instance. Every worktree a run needs is yours to create and to remove, including one a stage needs: a stage works where it was told and never makes its own judging location, so creation and cleanup keep a single owner. The throwaway repository a stage probes in is not one of these and is the stage's own (`git-finalize-pr` > Isolation).
+A worktree is its own instance: its own branch, pull request and position on the ladder, its Phase A still here with the owner, its B and C phases run by a session started in that directory. Claude Code loads project skills from the directory a session starts in, and in a worktree with no rendered skills of its own it loads the main checkout's, so work driven from anywhere else is checked against a layer that branch does not carry. Instances share only you and the owner's attention, so the gates serialize - one question at a time, each naming its instance. Every worktree a run needs is yours to create and to remove, including one a stage needs: a stage works where it was told and never makes its own judging location, so creation and cleanup keep a single owner. The throwaway repository a stage probes in is not one of these and is the stage's own (`git-finalize-pr` > Isolation).
 
 ## Verify
 

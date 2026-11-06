@@ -17,7 +17,7 @@ Retire a spec that will not ship - the owner dropped it, scope changed, or anoth
 4. Set `status: cancelled` (or `status: superseded by NNN`, with both linked) plus a one-line reason and the date in the spec's front page.
 5. Reconcile any draft docs the spec left behind (via `spec-document`): a stubbed feature doc or an inferred rule that describes behavior which never shipped is removed or clearly marked not-shipped - never leave orphan docs implying a change that did not land.
 6. Archive per project convention - default: keep the folder with the cancelled status. Never silently delete; the record of "we decided not to" is itself valuable.
-7. Report: spec retired, reason, supersede link, docs reconciled, any open PR left for the owner.
+7. Report (`dev-working-with-people`): spec retired, reason, supersede link, docs reconciled, any open PR left for the owner.
 
 ## Verify
 

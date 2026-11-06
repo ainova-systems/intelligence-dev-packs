@@ -1,18 +1,18 @@
 ---
 name: git-open-pr
-description: "Opens a pull request for the current branch against its target, filling the repo's template. Driving it to green afterwards is git-finalize-pr."
+description: "Opens a pull request for the current branch against its target, filling the repo's template, or rebuilds the body of the one already open. Driving it to green afterwards is git-finalize-pr."
 argument-hint: "[title override]"
 ---
 
 # Open a PR
 
-Turn a pushed feature branch into a reviewable PR. Idempotent: if a PR already exists for the branch, report it and stop - never open a second.
+Turn a pushed feature branch into a reviewable PR. Idempotent: when a PR already exists for the branch, this skill rebuilds its body instead of opening a second.
 
 ## Steps
 
 1. `git branch --show-current` - on a protected branch (default/integration), STOP; a PR is opened FROM a feature branch.
 2. Confirm the branch is pushed and current: `git rev-parse HEAD` equals `git rev-parse @{u}` - unpushed work goes through `git-commit-push` first.
-3. Existing-PR check: `gh pr list --head <branch> --state open --json number,url --jq '.[0]'`. Non-empty - report the URL and STOP (nothing to open).
+3. Existing-PR check: `gh pr list --head <branch> --state open --json number,url --jq '.[0]'`. Non-empty - rebuild its body: steps 4 and 6 from the current diff and the plan or task behind it, the verification steps it declares carried over unless the caller supplies corrected ones, then `gh pr edit <pr> --body-file <file>`; report the URL and STOP. A body is always written whole from those sources, never patched by hand, because a patched body keeps whatever the earlier one got wrong.
 4. Resolve the target from profile `pr_target` (default `auto` - the integration branch when one exists, else the default branch).
 5. Title: an explicit argument wins; else the latest commit subject (`git log -1 --pretty=%s`). Honor profile `artifact_language` for title and body when set (e.g. write them in English even when the working language differs).
 6. Body: profile `pr_template` decides which template applies - `auto` (default) fills the repo's own (`.github/PULL_REQUEST_TEMPLATE.md` or `.github/pull_request_template.md`) when one exists, `none` skips it even when present, which is the setting for a repo whose template is written for a human filling a web form. Either way, with no template in play use the pack default `assets/pr-template.md`. Fill the chosen template's sections honestly - real content per section, "None" where one genuinely does not apply; never leave its hint comments. Write for the audience `git-commit-conventions` states - a reviewer who was not in the implementing session - and in the register it sets: each section answers its own question and stops. When the pack default is in play, fill every section per its comments; each comment sets that section's ceiling, and a small change stays well under it. When profile `pr_risk_size: on`, prepend the deterministic Risk/Size line (below).
