@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Work an operator run could not verify and push stays committed in its slot for the next run to continue, instead of going to a pushed `operator/leftover/<job>` branch; a leftover branch is now local only and deleted when the pull request merges or closes.
+- Every operator run reconciles its slot with the pull request's live head first: work a run could not verify and push stays committed in the slot for the next implement run to gate and push, other phases set unexpected slot state aside on a local, never-pushed `operator/leftover/<job>` branch, and merging or closing the pull request deletes those branches.
 
 ## [0.11.0] - 2026-11-05
 
