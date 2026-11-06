@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `scripts/validate-pack.sh` no longer reports a profile key as undefined at random: the schema lookup reads a here-string instead of a pipe that `grep -q` could close early under `pipefail`.
 - Operator forge contract: `pr edit` takes `--title` and `--body-file` in the same call as the milestone move, labels and claim, and any flag a subcommand does not read is a usage error (exit 2) instead of being ignored.
 
 ## [0.12.0] - 2026-11-06
