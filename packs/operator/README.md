@@ -100,7 +100,7 @@ clarification slot is free, offers the top ones to `operator-clarify`. It picks 
 from the repository first, then asks the owner one question at a time in a draft documentation pull
 request, recording each answer in the documents. A settled item is ready; its `## Clarification - READY` report at the head is the authorization,
 so the PR goes to Merge Queue and the same operation merges it once CI decides, without another
-owner review. The PR body follows the skill's own short template (Task, Approach, Open questions). Clarification slots never take
+owner review, when every path it changes matches profile `direct_lane` (unset: the owner merges it). The PR body follows the skill's own short template (Task, Approach, Open questions). Clarification slots never take
 delivery work, and delivery slots never clarify.
 
 ## What the owner does

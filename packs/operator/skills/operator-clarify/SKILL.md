@@ -67,8 +67,9 @@ factors: the owner's answers are its review, and the owner does not read it agai
 
 ## Close (`step: close`)
 
-7. Claim it. Record the outcome on the item on the integration branch, through the direct lane
-   (profile `direct_lane`): rejected → the owner's reason, the item stays waiting and the next
+7. Claim it. Record the outcome on the item on the integration branch - straight there when every
+   path the record changes matches profile `direct_lane`, otherwise (`none` included) through a pull
+   request opened with profile `open_pr_skill` and named in the note: rejected → the owner's reason, the item stays waiting and the next
    attempt starts from that reason; cancelled → the reason and `clarifySkip: true`, so it is not
    offered again. A missing reason is an owner question (`resume: clarify`). Then post one note
    naming the outcome, close the PR without deleting its remote branch, drop the claim, and run
@@ -78,7 +79,7 @@ factors: the owner's answers are its review, and the owner does not read it agai
 
 8. **Validate.** Require OPEN, `humanReview` or `mergeQueue`, a last `## Clarification - READY`
    report naming the live head (or `owner:accepted`), no owner input after it, and no `owner:onhold`,
-   rejection or cancellation. Every changed path matches profile `direct_lane`: anything else refuses the merge with one note. Every required check green on this
+   rejection or cancellation. Every changed path matches profile `direct_lane`: anything else refuses the merge with one note. With `direct_lane` `none` no path matches, so the note asks the owner to set profile `direct_lane` (or merge the pull request themselves) and the run ends `noop`. Every required check green on this
    head, no unresolved thread, no standing change request.
 9. **Merge.** Take no claim; the PR carries no `ai:*` label, so profile `merge_skill` (default `git-merge-pr`) judges it on checks,
    threads and its guards. Check out the head, move it to `mergeQueue`, profile `forge_cli pr ready <n>`, then

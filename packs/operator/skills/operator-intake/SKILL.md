@@ -54,13 +54,16 @@ the `operator-contract` skill first: input, result, claim and markers follow it.
    hand-off request (`operator-contract`).
 5. **Record the queue change first.** For a PR subject, claim it. Read the linked item and the
    owner's reason; recover a deleted item from history. A missing reason is an owner question with
-   `resume: intake`, never an invented reason. On the integration branch, through the direct lane
-   (profile `direct_lane`), record with profile `commit_skill` (default `git-commit-push`):
+   `resume: intake`, never an invented reason. Record it on the integration branch with profile
+   `commit_skill` (default `git-commit-push`): straight there when every path the record changes
+   matches profile `direct_lane`, otherwise (`none` included) through a pull request opened with
+   profile `open_pr_skill` and named in the result:
    - rejected: the reason and the failed PR on the item, which stays eligible; every recorded
      reason binds the next plan;
    - cancelled: the item leaves the queue the way `flow_queue` says items leave it.
-   The queue change lands before the PR closes, because a closed PR is never taken again: a retry
-   finds the record already there and goes straight to step 6.
+   The queue change lands (or its pull request opens) before the PR closes, because a closed PR is
+   never taken again: a retry finds the record already there, or its pull request open, and goes
+   straight to step 6.
 6. **Then close the attempt.** Check out its head. Call profile `outcome_skill` to record `ai:failed`
    naming the owner's reason. Close the PR without deleting its remote branch, confirm CLOSED,
    record the local and remote SHAs, and run profile `sync_base_skill` for the branch. The slot's local
