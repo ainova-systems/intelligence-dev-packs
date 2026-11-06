@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The judging stages (`git-review-pr`, `dev-review-changes`, `git-verify-pr`) never switch, commit, fetch or pull in the workspace they judge.
+- `ai:reviewed` goes stale when the pull request body changes: the review report names a body digest, and every gate that reads review freshness compares it.
+
+### Changed
+
+- The operator pack records a passing review's body digest in an `operator:reviewed` note, discovery gains `--body-digest <n>` and re-verifies a Human Review pull request whose body changed, and `operator-implement` recomputes the Risk/Size line before the review instead of after it.
+
 ## [0.11.0] - 2026-11-05
 
 An open pull request handed off with a label is finished by the next free pipeline slot.

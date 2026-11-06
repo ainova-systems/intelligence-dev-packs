@@ -15,11 +15,12 @@ and `operator trigger` that delivers an answer, are the runtime's operation cont
 | `--standalone` | Text, one line per subject: `pr-<n>: /operator-<operation> <n>`, `#<n> waits: <reason>`, or `waits: <reason>`; `nothing to do` when empty. Reads only |
 | `--request <n>` | JSON `{ "next": [request] }` for pull request `<n>` now, or `{ "skip": "<reason>" }`. Reads only |
 | `--steps-digest <n>` | One line: the steps digest of pull request `<n>`, or `none` |
+| `--body-digest <n>` | One line: the body digest of pull request `<n>` |
 | `--owner-input <n>` | JSON `{ "report": null \| { id, createdAt, url, title }, "input": [{ id, kind: comment\|review, createdAt, url, body, inline? }] }` |
 
 A request is `{ operation, subject: pr-<n> | queue | clarify-queue, key, member: <slot>, input }`.
 The key is `<route>:<head>` followed by every value that changes the answer (CI state and run
-attempts, QA state, the latest owner input id, the steps digest, the latest owner-label change,
+attempts, QA state, the latest owner input id, the steps and body digests, the latest owner-label change,
 `stale-<job>`), so an unchanged state asks once and a changed one asks again. The development route
 also carries the id of the latest stage report (`none` when there is none) - the same report
 `--owner-input` returns as its cutoff, of any stage, `HELD` included: the runtime keeps one job per key,
@@ -41,7 +42,7 @@ already covers is skipped.
 | 3 | conflicts with the integration branch, past `queue` | `implement`, `reason: conflict` | `conflict:<head>` |
 | 4 | carries a `sendBack` label, past `queue`, and is that label's oldest takeable PR | the label's operation, `reason: sendback`, `label` | `sendback:<label>:<head>` |
 | 5 | `revalidate`, not a draft in `verification` | `verify` | `revalidate:<head>:…` |
-| 6 | in `humanReview`/`mergeQueue` and the steps digest differs from the last passing verification's | `verify` | `steps:<head>:s-<digest>` |
+| 6 | in `humanReview`/`mergeQueue` and the steps digest differs from the last passing verification's, or the body digest from the last passing review's (verify then returns the stale review to development) | `verify` | `steps:<head>:s-<digest>`, `body:<head>:b-<digest>` |
 | 7 | in `humanReview`/`mergeQueue` and the head is not the one the last verification judged | `verify` | `moved:<head>` |
 | 8 | owner QA feedback (owner input or a QA ticket) newer than the last stage report, in `humanReview`/`mergeQueue` | `verify` | `feedback:<head>:…` |
 | 9 | `accepted`, in `humanReview`/`mergeQueue` | `merge` | `merge:<head>:…` |
@@ -128,6 +129,13 @@ puts it in `input.qa` (`passed`, `pending`, `failed`, `none`), and asks for rows
 2. Find the line that is exactly `## <profile verify_section>`; none → the digest is `none`.
 3. Take the lines after it up to the next line starting `## `, or the end; join with `\n`; trim.
 4. The digest is the first 12 hexadecimal characters of that text's SHA-256 (UTF-8).
+
+## The body digest
+
+The steps digest's steps 1 and 4 over the whole remaining body, trimmed, instead of one section: the
+review judged every claim the body makes. A passing review's body digest is the one its
+`<!-- operator:reviewed <digest> -->` note names (`operator-review`); a passing review at the head
+without that note judged a body nobody recorded, and is stale.
 
 ## Owner input
 

@@ -57,16 +57,20 @@ round runs, the claim, the hand-off to review and the move to `verification`. Lo
    A check that reverts the fix to watch a test go red runs in a throwaway worktree at the same head,
    detached so it leaves no branch behind (`git worktree add --detach`, then `git worktree remove`),
    never in the slot: a run that stops midway must not leave the slot's tree half reverted.
-5. **Hand the head to review** after a push, or when no review report stands at the head. The
-   review judges the slot itself, read-only: leave it clean at the head (`git status --porcelain`
-   empty, HEAD equal to the live head) and write the live PR body beside the checkout,
-   profile `forge_cli pr body <n> > <slot-root>.review/pr-<n>-<head>.body.md`.
+5. **Hand the head to review** after a push, or when no review at the head is fresh for the current
+   body (`operator-contract` > `references/pr-state.md`). When profile `pr_risk_size` is on, first
+   recompute the body's Risk/Size line from the head's diff by profile `open_pr_skill`'s (default
+   `git-open-pr`) rules (edit the live body, every other part intact), so the body the review judges
+   is the one that moves on. The review judges the slot itself, read-only: leave it clean at the
+   head (`git status --porcelain` empty, HEAD equal to the live head) and write the live PR body
+   beside the checkout, profile `forge_cli pr body <n> > <slot-root>.review/pr-<n>-<head>.body.md`.
    Release the claim and end `done` with `next: review`, subject `pr-<n>`, input
    `{ pr, head, checkout: <slot root, absolute>, body: <absolute path> }`, and key `review:<head>:oe-<id>`,
    where `<id>` is the latest `owner:*` label event on the PR (profile `forge_cli events <n>`,
    `none` when there is none): a review that a
    pause interrupted is then asked for again. When this round pushed nothing - no report stands at
-   the head because an earlier review's could not be posted - the key ends `:retry-<run.jobId>`,
+   the head because an earlier review's could not be posted, or the one standing judged an older
+   body - the key ends `:retry-<run.jobId>`,
    because the plain key names the finished review and would match it instead of reviewing again.
    The runtime keeps the review in this slot.
 6. **Move a finished head on.** Nothing pending, the plan complete (documentation finalization
@@ -74,8 +78,7 @@ round runs, the claim, the hand-off to review and the move to `verification`. Lo
    Critical, the review factor fresh when `pr_success_factors` declares it, and CI green → one call
    moves the PR to the verification milestone, drops `ai:processing`, and replaces the title intake
    reserved with what the change does (the project's one-line commit style - core's `git-commit-conventions` when installed - since the
-   squash publishes it), recomputing the body's Risk/Size line from the final diff by profile `open_pr_skill`'s (default `git-open-pr`)
-   rules when profile `pr_risk_size` is on (edit the live body, every other part intact); then the
+   squash publishes it); the body stays as the review judged it (step 5). Then the
    hand-off request (`operator-contract`). CI still running → release the claim, `noop` naming it.
 7. **Leave the slot on the PR branch** at the head this run pushed (`operator-contract`); keep the
    body file for the review.
@@ -83,7 +86,8 @@ round runs, the claim, the hand-off to review and the move to `verification`. Lo
 ## Run by hand
 
 `/operator-implement <n>`. Step 5 then runs profile `review_skill` (default `git-review-pr`) itself, through profile `judge_runner`,
-instead of handing the head to the runtime; repeat until step 6 moves the PR on.
+instead of handing the head to the runtime, and posts its report, label and body note as
+`operator-review` step 3 does; repeat until step 6 moves the PR on.
 
 ## Verify
 
