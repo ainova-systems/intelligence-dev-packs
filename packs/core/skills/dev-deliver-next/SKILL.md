@@ -1,6 +1,6 @@
 ---
 name: dev-deliver-next
-description: "Picks the next non-conflicting item from the project's work queue - or the next N, each in its own worktree - and runs dev-deliver on it, then returns the checkout to the integration branch. The session counterpart of operator-intake."
+description: "Picks the next non-conflicting item from the project's work queue - or the next N, each in its own worktree - and runs dev-deliver on it, then returns the checkout to the integration branch."
 argument-hint: "[count, default 1] [--pick to choose among the ranked candidates]"
 ---
 
@@ -50,8 +50,7 @@ is eligible, and when related items ship together are profile `flow_queue`'s.
 
 ## Scope / hand-off
 
-- Each task runs through `dev-deliver`; the reset is `git-sync-base`; the same pick phase by phase
-  under the runtime is `operator-intake`.
+- Each task runs through `dev-deliver`; the reset is `git-sync-base`.
 
 ## Constraints
 

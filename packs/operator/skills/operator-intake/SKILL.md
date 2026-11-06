@@ -40,8 +40,8 @@ the `operator-contract` skill first: input, result, claim and markers follow it.
    and end `noop`. Every candidate needing the owner → the contract's "intake itself cannot choose".
 4. **Open the selected attempt.** Re-check that the slot is free, quotas and overlap immediately before branching.
    Create `<prefix><slot>-<slug>` (profile `branch_prefixes`: the bugfix prefix for a defect) from
-   the freshly fetched integration branch with `git checkout --no-track -b`, and verify HEAD equals
-   it before the first commit. Make exactly one reservation commit,
+   the freshly fetched integration branch (profile `integration_branch`) with `git checkout --no-track -b`,
+   and verify HEAD equals it before the first commit. Make exactly one reservation commit,
    `git commit --allow-empty -m "Took <item title> into the development pipeline"`, and push with
    `-u origin <branch>`. On retry, recover the existing branch and PR; never duplicate them.
    Call profile `open_pr_skill` (default `git-open-pr`) with the PR opened as a draft whenever `operator_config` sets `readyLimit`,
@@ -54,13 +54,16 @@ the `operator-contract` skill first: input, result, claim and markers follow it.
    hand-off request (`operator-contract`).
 5. **Record the queue change first.** For a PR subject, claim it. Read the linked item and the
    owner's reason; recover a deleted item from history. A missing reason is an owner question with
-   `resume: intake`, never an invented reason. On the integration branch, through the profile's
-   direct lane for queue documents, record with profile `commit_skill` (default `git-commit-push`):
+   `resume: intake`, never an invented reason. Record it on the integration branch with profile
+   `commit_skill` (default `git-commit-push`): straight there when every path the record changes
+   matches profile `direct_lane`, otherwise (`none` included) through a pull request opened with
+   profile `open_pr_skill` and named in the result:
    - rejected: the reason and the failed PR on the item, which stays eligible; every recorded
      reason binds the next plan;
    - cancelled: the item leaves the queue the way `flow_queue` says items leave it.
-   The queue change lands before the PR closes, because a closed PR is never taken again: a retry
-   finds the record already there and goes straight to step 6.
+   The queue change lands (or its pull request opens) before the PR closes, because a closed PR is
+   never taken again: a retry finds the record already there, or its pull request open, and goes
+   straight to step 6.
 6. **Then close the attempt.** Check out its head. Call profile `outcome_skill` to record `ai:failed`
    naming the owner's reason. Close the PR without deleting its remote branch, confirm CLOSED,
    record the local and remote SHAs, and run profile `sync_base_skill` for the branch. The slot's local

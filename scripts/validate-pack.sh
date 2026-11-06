@@ -7,11 +7,13 @@
 # - a templates/ folder, if present, is non-empty.
 # - index.yaml (the registry index) and the packs on disk agree, in both
 #   directions: every pack is installable by name, every declared path exists.
-# - every ai:* label used anywhere is defined in the rule that owns the vocabulary.
+# - every ai:* label a pack uses is defined in the page that owns that pack's vocabulary.
 # - every skill has the sections the artifact contract requires.
 # - every artifact an artifact names actually exists.
-# - the project profile and the artifacts agree: no schema key nothing reads,
-#   no key an artifact reads that the schema does not define.
+# - each pack's profile schema and its artifacts agree: no schema key nothing reads,
+#   no key an artifact reads that neither its pack's schema nor core's defines.
+# A pack with its own schema (templates/<prefix>-project-profile.md) stands alone: its checks
+# read only its own folder, plus core's schema and artifacts when core is present.
 # Zero dependencies: bash + awk + grep.
 
 set -euo pipefail
@@ -133,31 +135,46 @@ fi
 [ "$pack_count" -gt 0 ] || fail "no packs found under packs/"
 
 # One source per convention (dev-context-engineering): the ai:* label vocabulary is
-# defined in git-workflow and only cited elsewhere. A label an artifact uses but the
-# rule never defines is a second definition site - the failure mode that recurred
-# three times before this check existed.
-LABEL_RULE="$PACKS_DIR/core/rules/git-workflow.md"
-# grep exits 1 on no match, and `set -euo pipefail` would kill the script mid-run
-# before any check could report: an empty result is an answer here, not a failure.
-used_labels="$(grep -rho 'ai:[a-z][a-z-]*' "$PACKS_DIR" | sort -u || true)"
-if [ -n "$used_labels" ]; then
-    if [ -f "$LABEL_RULE" ]; then
-        defined_labels="$(grep -o 'ai:[a-z][a-z-]*' "$LABEL_RULE" | sort -u || true)"
+# defined once per pack and only cited elsewhere - core's git-workflow rule, and for the
+# operator pack its own pr-state page, so that pack checks without core. A label an artifact
+# uses but its definition site never names is a second definition site - the failure mode
+# that recurred three times before this check existed.
+label_rule_for() {
+    case "$(basename "$1")" in
+        operator) echo "$1skills/operator-contract/references/pr-state.md" ;;
+        *) echo "$PACKS_DIR/core/rules/git-workflow.md" ;;
+    esac
+}
+for pack_dir in "$PACKS_DIR"/*/; do
+    [ -d "$pack_dir" ] || continue
+    pack="$(basename "$pack_dir")"
+    label_rule="$(label_rule_for "$pack_dir")"
+    # grep exits 1 on no match, and `set -euo pipefail` would kill the script mid-run
+    # before any check could report: an empty result is an answer here, not a failure.
+    used_labels="$(grep -rho 'ai:[a-z][a-z-]*' "$pack_dir" | sort -u || true)"
+    [ -n "$used_labels" ] || continue
+    if [ -f "$label_rule" ]; then
+        defined_labels="$(grep -o 'ai:[a-z][a-z-]*' "$label_rule" | sort -u || true)"
         for label in $used_labels; do
             grep -qx "$label" <<< "$defined_labels" \
-                || fail "label '$label' is used in packs/ but not defined in packs/core/rules/git-workflow.md"
+                || fail "[$pack] label '$label' is used but not defined in ${label_rule#"$PACK_ROOT"/}"
         done
     else
         # A missing definition site must fail, not skip: a gate that disappears when
         # its source is moved is the unenforced rule this check exists to prevent.
-        fail "ai:* labels are used in packs/ but the rule that defines them is missing at packs/core/rules/git-workflow.md"
+        fail "[$pack] ai:* labels are used but the page that defines them is missing at ${label_rule#"$PACK_ROOT"/}"
     fi
-fi
+done
 
 # Every artifact an artifact names must exist. Renaming or removing one otherwise
-# leaves a dangling reference that reads as a working hand-off.
-artifact_refs="$(grep -rhoE '`(dev|git|spec)-[a-z-]+`' "$PACKS_DIR" | tr -d '`' | sort -u || true)"
+# leaves a dangling reference that reads as a working hand-off. A name in a domain no pack
+# here holds is an optional artifact of a pack that is not in this repository (the
+# operator pack names core skills as defaults it does not need), so it is not checked.
+present_domains="$(find "$PACKS_DIR"/*/rules "$PACKS_DIR"/*/agents "$PACKS_DIR"/*/skills "$PACKS_DIR"/*/templates \
+    -mindepth 1 -maxdepth 1 2>/dev/null | sed 's|.*/||' | grep -oE '^[a-z]+-' | sort -u || true)"
+artifact_refs="$(grep -rhoE '`(dev|git|spec|operator)-[a-z-]+`' "$PACKS_DIR" | tr -d '`' | sort -u || true)"
 for ref in $artifact_refs; do
+    grep -qx "${ref%%-*}-" <<< "$present_domains" || continue
     found=""
     for pack_dir in "$PACKS_DIR"/*/; do
         [ -d "$pack_dir$(printf 'skills/%s' "$ref")" ] && found=1
@@ -169,26 +186,58 @@ for ref in $artifact_refs; do
 done
 
 # The profile is a contract in both directions. A key nothing reads promises behavior
-# that does not exist; a key an artifact reads but the schema omits cannot be set.
-PROFILE="$PACKS_DIR/core/templates/dev-project-profile.md"
-# An artifact references a key in backticks, as `key` or `key: value`.
-artifact_files="$(find "$PACKS_DIR" -type f -name '*.md' | grep -v "$PROFILE" || true)"
-read_keys="$(grep -rhoE 'profile `[a-z_]+' $artifact_files /dev/null | sed 's/profile `//' | sort -u || true)"
-if [ ! -f "$PROFILE" ]; then
+# that does not exist; a key an artifact reads but no schema defines cannot be set.
+# Each pack checks against its own schema plus core's: a pack may read core's keys, core
+# may read only its own. A pack without a schema builds on core's, so its reads also keep
+# core's keys alive; a pack with its own schema stands alone and restates each core key it
+# reads, with core's default, so it runs without core.
+CORE_SCHEMA="$PACKS_DIR/core/templates/dev-project-profile.md"
+schema_keys_of() {
+    [ -f "$1" ] || return 0
+    grep -oE '^- [a-z_]+:' "$1" | sed 's/^- //;s/:$//' | sort -u || true
+}
+schema_default() {
+    awk -v key="$2" 'index($0, "- " key ":") == 1 {
+        v = substr($0, length(key) + 4); sub(/<!--.*/, "", v); gsub(/^[ \t]+|[ \t]+$/, "", v); print v; exit
+    }' "$1"
+}
+core_keys="$(schema_keys_of "$CORE_SCHEMA")"
+core_readers=""
+for pack_dir in "$PACKS_DIR"/*/; do
+    [ -d "$pack_dir" ] || continue
+    pack="$(basename "$pack_dir")"
+    schema="$(find "$pack_dir" -path '*/templates/*-project-profile.md' | head -n 1 || true)"
+    # An artifact references a key in backticks, as `key` or `key: value`.
+    files="$(find "$pack_dir" -type f -name '*.md' ! -path "$schema" || true)"
+    [ -n "$schema" ] || core_readers="$core_readers $files"
+    [ "$pack" = core ] && core_readers="$core_readers $files"
+    own_keys="$(schema_keys_of "$schema")"
+    allowed="$own_keys"
+    [ "$pack" = core ] || allowed="$(printf '%s\n%s\n' "$own_keys" "$core_keys" | sort -u)"
+    read_keys="$(grep -rhoE 'profile `[a-z_]+' $files /dev/null | sed 's/profile `//' | sort -u || true)"
+    for key in $read_keys; do
+        grep -qx "$key" <<< "$allowed" \
+            || fail "[$pack] profile key '$key' is read but defined in neither its pack's schema nor core's"
+    done
+    [ -n "$schema" ] && [ "$pack" != core ] || continue
+    for key in $own_keys; do
+        grep -qhE "\`$key[\`:]" $files /dev/null \
+            || fail "[$pack] profile key '$key' is defined in $(basename "$schema") but no artifact of the pack reads it"
+        if grep -qx "$key" <<< "$core_keys"; then
+            [ "$(schema_default "$schema" "$key")" = "$(schema_default "$CORE_SCHEMA" "$key")" ] \
+                || fail "[$pack] profile key '$key' has a different default in $(basename "$schema") than in core's schema"
+        fi
+    done
+done
+if [ -f "$CORE_SCHEMA" ]; then
+    for key in $core_keys; do
+        grep -qhE "\`$key[\`:]" $core_readers /dev/null \
+            || fail "[core] profile key '$key' is defined in the schema but no artifact of core or of a pack building on it reads it"
+    done
+elif [ -d "$PACKS_DIR/core" ]; then
     # Same rule as the label gate: a check that skips when its source is gone is a
     # check that disappears silently, which is what it exists to prevent.
-    [ -z "$read_keys" ] \
-        || fail "artifacts read profile keys but the schema is missing at packs/core/templates/dev-project-profile.md"
-else
-    schema_keys="$(grep -oE '^- [a-z_]+:' "$PROFILE" | sed 's/^- //;s/:$//' | sort -u || true)"
-    for key in $schema_keys; do
-        grep -qhE "\`$key[\`:]" $artifact_files /dev/null \
-            || fail "profile key '$key' is defined in the schema but no artifact reads it"
-    done
-    for key in $read_keys; do
-        grep -qx "$key" <<< "$schema_keys" \
-            || fail "profile key '$key' is read by an artifact but the schema does not define it"
-    done
+    fail "[core] the profile schema is missing at packs/core/templates/dev-project-profile.md"
 fi
 
 if [ "$errors" -gt 0 ]; then

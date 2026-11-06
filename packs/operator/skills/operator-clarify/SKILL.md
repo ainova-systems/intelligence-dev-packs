@@ -32,8 +32,8 @@ factors: the owner's answers are its review, and the owner does not read it agai
    business the most today, by profile `clarify_priority`, keeping discovery's order on a tie. An
    item flagged `clarifyFirst` is taken first whatever today's priority says. Nothing left → `noop`
    naming why.
-3. **Open the attempt.** Create `<clarify_branch_prefix><slot>-clarify-<slug>` from the freshly
-   fetched integration branch with `git checkout --no-track -b`, verify HEAD equals it, then do
+3. **Open the attempt.** Create `<clarify_branch_prefix><slot>-clarify-<slug>` (profile
+   `clarify_branch_prefix`) from the freshly fetched integration branch with `git checkout --no-track -b`, verify HEAD equals it, then do
    step 4's planning before the first commit, so the pull request opens with substance. Push with
    `-u origin <branch>` and call profile `open_pr_skill` (default `git-open-pr`) as a draft with this skill's `assets/pr-template.md`
    as the template, never the implementation one: a clarification PR declares no verification steps
@@ -67,8 +67,9 @@ factors: the owner's answers are its review, and the owner does not read it agai
 
 ## Close (`step: close`)
 
-7. Claim it. Record the outcome on the item on the integration branch, through the profile's direct
-   lane for queue documents: rejected → the owner's reason, the item stays waiting and the next
+7. Claim it. Record the outcome on the item on the integration branch - straight there when every
+   path the record changes matches profile `direct_lane`, otherwise (`none` included) through a pull
+   request opened with profile `open_pr_skill` and named in the note: rejected → the owner's reason, the item stays waiting and the next
    attempt starts from that reason; cancelled → the reason and `clarifySkip: true`, so it is not
    offered again. A missing reason is an owner question (`resume: clarify`). Then post one note
    naming the outcome, close the PR without deleting its remote branch, drop the claim, and run
@@ -78,8 +79,7 @@ factors: the owner's answers are its review, and the owner does not read it agai
 
 8. **Validate.** Require OPEN, `humanReview` or `mergeQueue`, a last `## Clarification - READY`
    report naming the live head (or `owner:accepted`), no owner input after it, and no `owner:onhold`,
-   rejection or cancellation. Every changed path is within the profile's direct lane for documentation and queue
-   documents: anything else refuses the merge with one note. Every required check green on this
+   rejection or cancellation. Every changed path matches profile `direct_lane`: anything else refuses the merge with one note. With `direct_lane` `none` no path matches, so the note asks the owner to set profile `direct_lane` (or merge the pull request themselves) and the run ends `noop`. Every required check green on this
    head, no unresolved thread, no standing change request.
 9. **Merge.** Take no claim; the PR carries no `ai:*` label, so profile `merge_skill` (default `git-merge-pr`) judges it on checks,
    threads and its guards. Check out the head, move it to `mergeQueue`, profile `forge_cli pr ready <n>`, then
