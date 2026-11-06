@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-11-06
+
+Judging stages leave their workspace still, a review goes stale on a body edit, and operator runs keep unpushed work in their slot.
+
 ### Fixed
 
 - The judging stages (`git-review-pr`, `dev-review-changes`, `git-verify-pr`) never switch, commit, fetch or pull in the workspace they judge.
