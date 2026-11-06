@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-11-06
+
+The operator pack moved to its own repository, and core no longer carries anything only the operator pack reads.
+
 ### Changed
 
 - Core's profile template no longer defines `flow_plan`, `judge_runner` and the keys only the Operator runtime's phase skills read; a project that already has them in its profile changes nothing. Core's artifacts no longer name another pack's skills.
