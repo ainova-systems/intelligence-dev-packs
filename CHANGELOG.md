@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.1] - 2026-11-06
+
+The forge edit replaces a pull request's title and body in the hand-off call, and the pack validator no longer fails at random.
+
 ### Fixed
 
 - `scripts/validate-pack.sh` no longer reports a profile key as undefined at random: the schema lookup reads a here-string instead of a pipe that `grep -q` could close early under `pipefail`.
