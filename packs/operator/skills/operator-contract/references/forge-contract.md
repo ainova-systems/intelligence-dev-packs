@@ -15,7 +15,7 @@ platform cannot serve fails with a named capability gap, never an emulation.
 | `pr create --base <b> --head <h> --title <t> --body-file <f> [--draft]` | `pr` |
 | `pr ready <n>` | `pr` |
 | `pr draft <n>` | `pr`, back to draft |
-| `pr edit <n> [--claim [--takeover]] [--milestone <m>] [--add-label <l>]... [--remove-label <l>]...` | `pr`; a phase hand-off, or a claim with a milestone move, is one edit |
+| `pr edit <n> [--claim [--takeover]] [--milestone <m>] [--title <t>] [--body-file <f>] [--add-label <l>]... [--remove-label <l>]...` | `pr`; a phase hand-off, or a claim with a milestone move, is one edit, a new title or body included; with `--claim` the held check comes first and a held pull request is not edited at all |
 | `pr body <n>` | the body as plain text |
 | `pr files <n>` | `{ pr, files: [path] }` |
 | `branch rename <n> --to <name>` | `pr`; renames the head branch and the open pull request follows it; unchanged when it already has that name; a head on a fork is a usage error (exit 2) |
@@ -40,7 +40,7 @@ lets a run take over its own earlier claim or a stale one.
 | Code | Meaning |
 |---|---|
 | 0 | done; the answer is on stdout |
-| 2 | usage: unknown subcommand, a missing or empty option value, no operator configuration |
+| 2 | usage: unknown subcommand, a flag the subcommand does not take, a missing or empty option value, no operator configuration |
 | 3 | held: the claim already stands and this call did not take it |
 | 1 | the platform failed; its message is on stderr |
 

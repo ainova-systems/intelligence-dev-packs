@@ -60,7 +60,8 @@ round runs, the claim, the hand-off to review and the move to `verification`. Lo
 5. **Hand the head to review** after a push, or when no review at the head is fresh for the current
    body (`operator-contract` > `references/pr-state.md`). When profile `pr_risk_size` is on, first
    recompute the body's Risk/Size line from the head's diff by profile `open_pr_skill`'s (default
-   `git-open-pr`) rules (edit the live body, every other part intact), so the body the review judges
+   `git-open-pr`) rules (edit the live body, every other part intact, and write it back with profile
+   `forge_cli pr edit <n> --body-file <file>`, the file beside the checkout, never in it), so the body the review judges
    is the one that moves on. The review judges the slot itself, read-only: leave it clean at the
    head (`git status --porcelain` empty, HEAD equal to the live head) and write the live PR body
    beside the checkout, profile `forge_cli pr body <n> > <slot-root>.review/pr-<n>-<head>.body.md`.
@@ -81,7 +82,8 @@ round runs, the claim, the hand-off to review and the move to `verification`. Lo
    Critical, the review factor fresh when `pr_success_factors` declares it, and CI green → one call
    moves the PR to the verification milestone, drops `ai:processing`, and replaces the title intake
    reserved with what the change does (the project's one-line commit style - core's `git-commit-conventions` when installed - since the
-   squash publishes it); the body stays as the review judged it (step 5). Then the
+   squash publishes it): profile `forge_cli pr edit <n> --milestone "<verification title>"
+   --remove-label ai:processing --title "<title>"`. The body stays as the review judged it (step 5). Then the
    hand-off request (`operator-contract`). CI still running → release the claim, `noop` naming it.
 7. **Leave the slot on the PR branch** at the head this run pushed, or with what it could not push
    committed on top (`operator-contract`); keep the body file for the review.

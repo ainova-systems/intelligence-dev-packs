@@ -395,3 +395,33 @@ test('the discovery reader lists whether each head lives on a fork', () => {
   assert.equal(readPullRequests(run)[0].isCrossRepository, true);
   assert.ok(calls[0].at(-1).split(',').includes('isCrossRepository'));
 });
+
+test('an edit replaces the title and the body, alone or in the same call as the hand-off and the claim', () => {
+  const alone = fake({ 'pr view 7': JSON.stringify(RAW) });
+  execute(['pr', 'edit', '7', '--title', 'Added the export', '--body-file', 'b.md'], alone.run);
+  assert.deepEqual(alone.calls.filter((args) => args[1] === 'edit'), [['pr', 'edit', '7', '--title', 'Added the export', '--body-file', 'b.md']]);
+  const handoff = fake({ 'pr view 7': JSON.stringify(RAW) });
+  execute(['pr', 'edit', '7', '--milestone', 'Verification', '--remove-label', 'ai:processing', '--title', 'Added the export'], handoff.run);
+  assert.deepEqual(handoff.calls.filter((args) => args[1] === 'edit'), [['pr', 'edit', '7', '--milestone', 'Verification', '--title', 'Added the export', '--remove-label', 'ai:processing']]);
+  // The claim check comes first: a held pull request keeps its title and body.
+  const held = fake({ 'pr view 7': JSON.stringify(RAW) });
+  assert.deepEqual(execute(['pr', 'edit', '7', '--claim', '--title', 'X', '--body-file', 'b.md'], held.run), { pr: 7, claimed: false, held: true });
+  assert.equal(held.calls.some((args) => args[1] === 'edit'), false);
+  const free = fake({ 'pr view 7': JSON.stringify({ ...RAW, labels: [] }) });
+  execute(['pr', 'edit', '7', '--claim', '--milestone', 'Development', '--body-file', 'b.md'], free.run);
+  assert.deepEqual(free.calls.filter((args) => args[1] === 'edit'), [['pr', 'edit', '7', '--milestone', 'Development', '--body-file', 'b.md', '--add-label', 'ai:processing']]);
+  assert.throws(() => execute(['pr', 'edit', '7', '--title'], free.run), /--title needs a value/);
+});
+
+test('a flag the subcommand does not read is a usage error, never silently ignored', () => {
+  const run = fake({ 'pr view 7': JSON.stringify(RAW), 'pr comment 7': 'https://github.com/o/r/pull/7#issuecomment-1' }).run;
+  assert.throws(() => execute(['pr', 'edit', '7', '--milestone', 'Verification', '--titel', 'x'], run), /pr edit does not take --titel/);
+  assert.throws(() => execute(['pr', 'edit', '7', '--draft'], run), /pr edit does not take --draft/);
+  assert.throws(() => execute(['comment', '7', '--body-file', 'b.md', '--title', 'x'], run), /comment does not take --title/);
+  assert.throws(() => execute(['pr', 'view', '7', '--claim'], run), /pr view does not take --claim/);
+  // A value that starts with dashes is still the value of the flag before it.
+  assert.equal(execute(['comment', '7', '--body-file', '--titel.md'], run).pr, 7);
+  const cli = spawnSync('node', [SCRIPT, 'pr', 'edit', '7', '--milestone', 'Verification', '--titel', 'x'], { encoding: 'utf8' });
+  assert.equal(cli.status, 2);
+  assert.match(cli.stderr, /does not take --titel/);
+});
