@@ -51,7 +51,8 @@ may add factors that other agents or pipelines apply.
 
 A factor is a claim about one commit. It counts only while fresh: the report that earned it names
 the current head, and every other input it judged is unchanged - a verification names the digest of
-the steps it executed (`discovery-contract.md` > The steps digest). For a factor no operator stage
+the steps it executed (`discovery-contract.md` > The steps digest), a review the digest of the body
+whose claims it judged (`discovery-contract.md` > The body digest). For a factor no operator stage
 writes, the label was applied after the head commit landed. A push makes every factor stale whether
 or not anyone removed the label; no gate trusts a label without checking freshness.
 
@@ -63,7 +64,7 @@ Every stage records its verdict as one pull request comment and never edits an e
 
 ```text
 ## <Stage> - <VERDICT>
-head: <sha> [<other inputs the stage judged, e.g. the steps digest>]
+head: <sha> [<other inputs the stage judged, e.g. the steps or body digest>]
 
 <findings>
 ```

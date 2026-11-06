@@ -29,7 +29,7 @@ only through profile `forge_cli`.
 | `flow_intake` | `auto`: the project's intake skill, else `dev-deliver`'s Phase A interview | the queue item and the repository | nothing on the PR | capture the business goal, observable acceptance criteria and scope exclusions, answering from the item what it settles, and nothing further |
 | `commit_skill` | `git-commit-push` | the slot's pending work | a commit on the branch; no label | run the project's gates, commit the work as one change and push it |
 | `open_pr_skill` | `git-open-pr` | the pushed branch, its target, the title and body, draft or ready | the pull request; no label | open one pull request filling the project's template and its verification section with one observable step per criterion, prepend the Risk/Size line when profile `pr_risk_size` is on (and recompute it on request from the final diff), and open it as a draft when asked |
-| `review_skill` | `git-review-pr` | the pull request at one head | one `## Code review - <VERDICT>` report; `ai:reviewed` | judge the diff against the rules and what the pull request claims; write the label only on `CLEAN` or `PASS-WITH-WARNINGS` |
+| `review_skill` | `git-review-pr` | the pull request at one head and its body | one `## Code review - <VERDICT>` report naming the head and the body digest; `ai:reviewed` | judge the diff against the rules and what the pull request claims; write the label only on `CLEAN` or `PASS-WITH-WARNINGS` |
 | `verify_skill` | `git-verify-pr` | the pull request at one head and its declared steps | one `## Verification - <VERDICT>` report naming the head and the steps digest; `ai:verified` | execute every declared step against the running change; write the label only on `PASS` |
 | `threads_skill` | the Threads procedure of `git-complete-pr` | the unresolved review threads | one reply per thread, ending with the note marker; no label | answer each thread with its outcome (fixed: the commit; declined: the rule; deferred: the follow-up) and resolve it |
 | `outcome_skill` | `git-complete-pr` | the pull request and the outcome the phase reached | `ai:completed`, `ai:manual` or `ai:failed`, removing `ai:processing` in the same edit; a `## Outcome - MANUAL` / `## Outcome - FAILED` report with its `head:` line for the last two | write exactly one terminal label |
@@ -212,7 +212,8 @@ input starts the phase operation again.
 - Comments CI posts carry the project's markers (`operator_config` `pipelineMarkers`).
 - Every other comment a skill posts ends with `<!-- operator:note -->`, a reply in a review thread
   included: its review has no body of its own, so discovery reads the thread comment. A passing
-  verification's note also carries `<!-- operator:verified <digest> -->` (`operator-verify`).
+  verification's note also carries `<!-- operator:verified <digest> -->` (`operator-verify`), and a
+  passing review's `<!-- operator:reviewed <digest> -->` (`operator-review`).
 
 ## Judging stages
 

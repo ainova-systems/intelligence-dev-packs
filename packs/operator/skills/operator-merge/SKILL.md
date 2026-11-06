@@ -29,8 +29,8 @@ Merge applies the owner's acceptance to one verified head; it is the `merge` ope
    stage report, owner comment and review (`forge_cli notes <n>`), and every unresolved thread
    (`forge_cli threads <n> --unresolved`).
 3. **Validate the evidence.** Require `ai:completed`, the acceptance label, and every factor profile
-   `pr_success_factors` declares fresh (`operator-contract` > `references/pr-state.md`: verification's steps digest and any QA
-   invalidation included). Every
+   `pr_success_factors` declares fresh (`operator-contract` > `references/pr-state.md`: verification's steps digest, review's body
+   digest and any QA invalidation included). Every
    required check green on this head, no unresolved thread, no outstanding change request, and
    profile `merge_skill`'s guards. Discovery's input and an aggregate status do not prove a required check
    passed; unreadable, missing, cancelled or pending evidence cannot pass, and a token that cannot

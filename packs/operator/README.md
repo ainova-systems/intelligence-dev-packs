@@ -14,7 +14,7 @@ For a clean start install the core pack beside this one: every delegated-step ke
 core skill, and core's `git-workflow` rule states the same label, factor and report vocabulary.
 A project that already has its own equivalents points the keys at them instead. What a replacement
 must honour is the contract the operator pack owns - the state labels and their single writer, the
-success factors and their freshness at head (the verification steps digest included), the stage
+success factors and their freshness at head (the verification steps and review body digests included), the stage
 report envelope and the claim (`operator-contract` > `references/pr-state.md`, which wins for operator
 runs when both packs are installed) - and the duty each key's row in the Delegated steps table names.
 
@@ -43,7 +43,7 @@ queue item in one session instead of phase by phase.
 | Key | Meaning |
 |---|---|
 | `operator_config` | The operator configuration JSON: milestone and label roles, owner author associations, slots, QA admission, CI workflows, markers and send-back routes. Schema: `operator-contract` > `references/operator-config.md`, example `references/operator-config.example.json` |
-| `operator_discover` | The project's discovery command: `--standalone`, `--request <n>`, `--steps-digest <n>`, `--owner-input <n>`, and its runtime pass. Contract: `operator-contract` > `references/discovery-contract.md` |
+| `operator_discover` | The project's discovery command: `--standalone`, `--request <n>`, `--steps-digest <n>`, `--body-digest <n>`, `--owner-input <n>`, and its runtime pass. Contract: `operator-contract` > `references/discovery-contract.md` |
 | `forge_cli` | The forge contract command every code-host call goes through: `pr` (list, view, create, ready, draft, edit, body, files), `branch rename`, `checks`, `threads`, `claim`, `factor`, `comment`, `notes`, `merge`, `events`, answering JSON. On GitHub it points at `skills/operator-contract/scripts/forge-github.mjs` with `OPERATOR_CONFIG` naming `operator_config`; another platform ships its own implementation of the contract later |
 | `flow_intake`, `commit_skill`, `open_pr_skill`, `review_skill`, `verify_skill`, `threads_skill`, `outcome_skill`, `merge_skill`, `sync_base_skill` | The skill each delegated step runs; unset = the core skill (`operator-contract` > Delegated steps lists the defaults, inputs, outputs and what a replacement must do) |
 | `flow_queue` | The work queue's order and rules |

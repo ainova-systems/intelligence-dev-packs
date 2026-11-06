@@ -11,8 +11,8 @@ An independent read of the whole diff from a context that never watched it being
 
 ## Pre-flight
 
-1. Resolve the PR, its base and its head: `gh pr view <pr> --json number,baseRefName,headRefOid`. Every finding is bound to that SHA.
-2. A review report for this exact SHA already exists - report it and stop.
+1. Resolve the PR, its base, its head and its body: `gh pr view <pr> --json number,baseRefName,headRefOid,body`. Every finding is bound to that SHA and that body.
+2. A review report for this exact SHA and body digest (step 4) already exists - report it and stop.
 
 ## Steps
 
@@ -26,11 +26,11 @@ An independent read of the whole diff from a context that never watched it being
 
    Each finding cites `file:line` plus the body line it contradicts, except a body-audience finding, which cites the heading.
 3. **Verify every finding** by re-reading the code; drop what cannot be evidenced. A finding that restates a rule without a line of the diff is not a finding - except a body-audience finding, whose evidence is the body heading.
-4. **Record.** One PR comment (`gh pr comment`) in the report envelope `git-workflow` defines - never an inline review thread, because findings posted as threads come back through `git-complete-pr` and the run starts reviewing itself in a circle:
+4. **Record.** One PR comment (`gh pr comment`) in the report envelope `git-workflow` defines - never an inline review thread, because findings posted as threads come back through `git-complete-pr` and the run starts reviewing itself in a circle. Name the head SHA **and** the body digest of the body it judged (`git-verify-pr` > Digests): the claims axis judged the body, which can be edited without the head moving, and a review of the old claims is not a review of the new ones.
 
 ```
 ## Code review - CLEAN | PASS-WITH-WARNINGS | BLOCK
-head: <sha> - base: <base> - files N, +A/-D
+head: <sha> - base: <base> - body: <digest> - files N, +A/-D
 
 ### Critical
 - `path/file.ts:42` - <what> - <the rule or PR-body line it breaks>
@@ -47,7 +47,7 @@ One pass by default. Fan out by review dimension only when the diff exceeds what
 ## Verify
 
 - What it published holds nothing `git-commit-conventions` forbids in a published artifact.
-- One comment naming the head SHA; every finding carries `file:line` plus evidence, or a body heading for a body-audience finding; a verdict is stated; `ai:reviewed` present only when no Critical finding stands.
+- One comment naming the head SHA and the body digest; every finding carries `file:line` plus evidence, or a body heading for a body-audience finding; a verdict is stated; `ai:reviewed` present only when no Critical finding stands.
 
 ## Scope / hand-off
 
@@ -59,4 +59,4 @@ One pass by default. Fan out by review dimension only when the diff exceeds what
 - Only Critical blocks the factor. Promoting warnings to blockers makes the factor unearnable and the ladder meaningless.
 - A diff mixing unrelated changes - the first finding is "split it".
 - One issue comment per run; never inline review comments.
-- Judge the location you were given and never make your own. If it is not at the head under judgement, or it moves mid-run, write no factor and report that instead - a verdict drawn from a workspace nobody could pin must not end up looking green (`git-finalize-pr` > Isolation).
+- Judge the location you were given and never make your own. Never move it or the refs it resolves against - no switch, commit, fetch or pull. If it is not at the head under judgement, or it moves mid-run, write no factor and report that instead - a verdict drawn from a workspace nobody could pin must not end up looking green (`git-finalize-pr` > Isolation).

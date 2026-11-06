@@ -48,4 +48,5 @@ Read-only review before commit or PR - findings only, never edits.
 
 ## Constraints
 
+- Never moves its workspace or the refs it resolves against - no switch, commit, fetch or pull (`git-finalize-pr` > Isolation).
 - A diff mixing unrelated changes - the first finding is "split it".

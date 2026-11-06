@@ -13,7 +13,7 @@ operation of `operator.yaml`. Load the `operator-contract` skill first.
 | Contract | |
 |---|---|
 | Trigger | The runtime's `review` job finished; `input.output` is its findings file at `input.head`, `input.checkout` the PR's slot it judged |
-| Work | post the report unchanged; `ai:reviewed` when no Critical stands |
+| Work | post the report unchanged; `ai:reviewed` and the body note when no Critical stands |
 | Evidence | the `## Code review - …` comment at `head:` |
 | Next | `implement` as discovery asks it: on findings, owner input or decided CI, never while CI runs after a clean review; it acts on findings or hands a complete, reviewed, green head to `verification` |
 
@@ -28,7 +28,12 @@ operation of `operator.yaml`. Load the `operator-contract` skill first.
    `## Code review - …` comment the review stage posts (`operator-contract` > `references/pr-state.md`).
    Post `report` unchanged; then, as the review stage does, add `ai:reviewed` when the verdict is `CLEAN` or `PASS-WITH-WARNINGS`
    and no finding is `critical`. A report naming another head, or outside the envelope, ends
-   `failed`.
+   `failed`. After a pass, post one note recording the body it judged - `Reviewed body: <digest>`,
+   then `<!-- operator:reviewed <digest> -->` before the note marker, the digest of `input.body` from
+   profile `operator_discover --body-digest <n> --body <input.body>` - so a body edited later, or
+   during the review, leaves it stale (`operator-contract` > `references/pr-state.md`). Unless that
+   call exits 0 with exactly one 12-hexadecimal-character digest on stdout, the digest is not
+   available: no note and no failure, the result says so, and the review stays fresh by head alone.
 4. **Hand back to implementation** whatever the verdict: drop `ai:processing` and end `done` with
    the hand-off request (`operator-contract`). Discovery asks implementation for a head with
    findings, owner input or CI that has decided, and for nothing while CI still runs after a clean
@@ -45,7 +50,8 @@ Nothing to post without a runtime review: run profile `review_skill` through pro
 ## Verify
 
 - The `## Code review` comment names the head it judged, and `ai:reviewed` stands only when no
-  Critical finding does.
+  Critical finding does; a pass carries the `operator:reviewed` note whenever discovery answers
+  `--body-digest`.
 
 ## Scope / hand-off
 
@@ -54,5 +60,6 @@ Nothing to post without a runtime review: run profile `review_skill` through pro
 
 ## Constraints
 
-- One review comment per head: a report for this head already standing ends the run `noop`.
+- One review comment per head and body: a report for this head already standing ends the run `noop`,
+  unless its passing note names another body digest than `input.body`'s.
 - No judgement of its own and no fixes here; fixes are `operator-implement`'s.

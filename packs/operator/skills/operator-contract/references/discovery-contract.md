@@ -15,11 +15,12 @@ and `operator trigger` that delivers an answer, are the runtime's operation cont
 | `--standalone` | Text, one line per subject: `pr-<n>: /operator-<operation> <n>`, `#<n> waits: <reason>`, or `waits: <reason>`; `nothing to do` when empty. Reads only |
 | `--request <n>` | JSON `{ "next": [request] }` for pull request `<n>` now, or `{ "skip": "<reason>" }`. Reads only |
 | `--steps-digest <n>` | One line: the steps digest of pull request `<n>`, or `none` |
+| `--body-digest <n> [--body <path>]` | One line: the body digest of pull request `<n>`, or of the body file `<path>` |
 | `--owner-input <n>` | JSON `{ "report": null \| { id, createdAt, url, title }, "input": [{ id, kind: comment\|review, createdAt, url, body, inline? }] }` |
 
 A request is `{ operation, subject: pr-<n> | queue | clarify-queue, key, member: <slot>, input }`.
 The key is `<route>:<head>` followed by every value that changes the answer (CI state and run
-attempts, QA state, the latest owner input id, the steps digest, the latest owner-label change,
+attempts, QA state, the latest owner input id, the steps and body digests, the latest owner-label change,
 `stale-<job>`), so an unchanged state asks once and a changed one asks again. The development route
 also carries the id of the latest stage report (`none` when there is none) - the same report
 `--owner-input` returns as its cutoff, of any stage, `HELD` included: the runtime keeps one job per key,
@@ -41,7 +42,7 @@ already covers is skipped.
 | 3 | conflicts with the integration branch, past `queue` | `implement`, `reason: conflict` | `conflict:<head>` |
 | 4 | carries a `sendBack` label, past `queue`, and is that label's oldest takeable PR | the label's operation, `reason: sendback`, `label` | `sendback:<label>:<head>` |
 | 5 | `revalidate`, not a draft in `verification` | `verify` | `revalidate:<head>:…` |
-| 6 | in `humanReview`/`mergeQueue` and the steps digest differs from the last passing verification's | `verify` | `steps:<head>:s-<digest>` |
+| 6 | in `humanReview`/`mergeQueue` and the steps digest differs from the last passing verification's, or the body digest from the last passing review's (verify then returns the stale review to development) | `verify` | `steps:<head>:s-<digest>`, `body:<head>:b-<digest>` |
 | 7 | in `humanReview`/`mergeQueue` and the head is not the one the last verification judged | `verify` | `moved:<head>` |
 | 8 | owner QA feedback (owner input or a QA ticket) newer than the last stage report, in `humanReview`/`mergeQueue` | `verify` | `feedback:<head>:…` |
 | 9 | `accepted`, in `humanReview`/`mergeQueue` | `merge` | `merge:<head>:…` |
@@ -121,13 +122,29 @@ puts it in `input.qa` (`passed`, `pending`, `failed`, `none`), and asks for rows
 
 ## The steps digest
 
+Both digests are stated here in full because core is optional; their algorithm must match core's
+definition, `git-verify-pr` > Digests, wherever both packs are installed.
+
 1. From the pull request body remove every block `operator_config` `digestExclude` names: each
    `start` through the next `end`, both markers included, every occurrence, scanning left to right
    and resuming after each removed `end`; a `start` with no `end` after it removes nothing. A status
    block CI rewrites inside the body would otherwise change the digest after every CI run.
-2. Find the line that is exactly `## <profile verify_section>`; none → the digest is `none`.
-3. Take the lines after it up to the next line starting `## `, or the end; join with `\n`; trim.
+2. The verification section runs from the line that is exactly `## <profile verify_section>` to
+   the line before the next line starting `## `, or the end. No such line: the steps digest is
+   `none`, and the body digest covers the whole body.
+3. Take the lines of that section after its heading; join with `\n`; trim.
 4. The digest is the first 12 hexadecimal characters of that text's SHA-256 (UTF-8).
+
+## The body digest
+
+The steps digest's step 1, then the body without its verification section (step 2), heading
+included - the whole body when there is none - joined with `\n` and trimmed, digested as its
+step 4. A checked box in that section or a CI-written block therefore does not re-run the review. `--body <path>` digests that file instead of the live body (`operator-review`). A passing
+review's body digest is the one its `<!-- operator:reviewed <digest> -->` note names. A passing
+review at the head without that note is fresh by head alone, its body being unknown: that is review
+freshness for a project whose discovery does not answer `--body-digest` yet. A body digest counts only
+when the call exits 0 and its stdout is exactly one 12-hexadecimal-character digest; anything else
+means not available.
 
 ## Owner input
 
