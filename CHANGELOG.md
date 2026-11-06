@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Work an operator run could not verify and push stays committed in its slot for the next run to continue, instead of going to a pushed `operator/leftover/<job>` branch; a leftover branch is now local only and deleted when the pull request merges or closes.
+
 ## [0.11.0] - 2026-11-05
 
 An open pull request handed off with a label is finished by the next free pipeline slot.

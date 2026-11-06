@@ -28,7 +28,9 @@ round runs, the claim, the hand-off to review and the move to `verification`. Lo
 2. **Claim the PR in its slot.** A conflicting PR from a later milestone moves back to the
    development milestone in the claim edit, removing an obsolete `ai:completed`: the merged head is
    reviewed and verified again on its way back. The slot is normally already on the PR branch at the
-   live head (`operator-contract`); check it out there when it is not. A slot on another branch with
+   live head, or ahead of it by work an earlier run of this PR kept there unpushed
+   (`operator-contract`): inspect that work and carry it through this round's gates and push instead
+   of redoing it. Check the PR branch out when the slot is not on it. A slot on another branch with
    uncommitted work ends `failed` naming it. Read CI from the head's checks
    (profile `forge_cli checks <head>`, the latest attempt of each workflow), the latest `## Code review` and
    `## Verification` reports (profile `forge_cli notes <n>`), owner input newer than the last stage
@@ -77,8 +79,9 @@ round runs, the claim, the hand-off to review and the move to `verification`. Lo
    squash publishes it), recomputing the body's Risk/Size line from the final diff by profile `open_pr_skill`'s (default `git-open-pr`)
    rules when profile `pr_risk_size` is on (edit the live body, every other part intact); then the
    hand-off request (`operator-contract`). CI still running → release the claim, `noop` naming it.
-7. **Leave the slot on the PR branch** at the head this run pushed (`operator-contract`); keep the
-   body file for the review.
+7. **Leave the slot on the PR branch** at the head this run pushed, or with the work it could not
+   verify and push committed on top of it, which a `failed` result names (`operator-contract`);
+   keep the body file for the review.
 
 ## Run by hand
 

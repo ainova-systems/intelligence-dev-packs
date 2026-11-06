@@ -122,14 +122,11 @@ sends it to the operation named there, which returns it to `development`.
 - **Another run's claim** is an `ai:processing` this run did not write, except two that are this
   run's to take over: the `claims` record names this run's own `jobId` (an earlier attempt of this
   job), or `input.staleClaim` names the job the record holds and `operator jobs --status running --json`
-  lists no such job (discovery found a stopped run's claim). To take one over: keep what the stopped
-  run left first - when the slot has uncommitted changes, or commits its branch's remote lacks,
-  `git switch -c operator/leftover/<that job>`, commit everything as
-  `Kept the work a stopped pipeline run left in the slot`, push it, switch back to the PR branch and
-  only then reset it to its remote head - and post one note naming that branch; then take it with
+  lists no such job (discovery found a stopped run's claim). To take one over: take it with
   profile `forge_cli claim take <n> --takeover` (or `pr edit <n> --claim --takeover ...` when the step
   moves the milestone in the same edit), record the claim as this run's - its `claims` record adds
-  `"takeover": {"from": "<the previous holder's job>"}` - and go on. `--takeover` is used nowhere else. A run recognises a claim as its own only through its
+  `"takeover": {"from": "<the previous holder's job>"}` - and go on from the work the stopped run
+  kept in the slot (*The slot stays with its pull request*). `--takeover` is used nowhere else. A run recognises a claim as its own only through its
   `claims` record or `input.staleClaim`; a handoff note (core's `dev-handoff`) is not recognised.
   **Any other claim stops the run where it stands:** it posts one `## <Stage> - HELD` report
   (`references/pr-state.md` > Claims; `<Stage>` is the skill's phase), takes and changes nothing
@@ -141,16 +138,30 @@ sends it to the operation named there, which returns it to `development`.
   profile `outcome_skill` where the phase says so. A run never ends with its claim left behind.
 - **Owner labels are re-read before every write, and between the steps of a long round.**
   `owner:onhold`, `owner:rejected` or `owner:cancelled` appearing stops the run where it stands:
-  commit and push nothing more, drop `ai:processing`, result `noop` - a closed attempt belongs to
+  push nothing more (work in hand stays in the slot, committed: below), drop `ai:processing`,
+  result `noop` - a closed attempt belongs to
   intake, which keeps what the run pushed. Skills read `owner:*` and never write it, the `question` label (*Asking the owner*) excepted.
 - **The slot stays with its pull request.** A pull request lives in the slot its branch names
   (`<prefix><slot>-<slug>`) from intake until it merges or closes: every run of it works there,
-  the review included, and leaves the slot on the PR branch at the head it pushed, with nothing
-  uncommitted, so the next run and the owner find the task where it stands. Only the end of the
-  pull request returns the slot to the integration branch with profile `sync_base_skill`: after a confirmed
-  merge unscoped (profile `merge_skill` has deleted the branch), after a closed attempt scoped to its
-  branch. Work a run cannot commit is never left behind and never discarded: the run ends `failed`
-  naming it.
+  the review included, and leaves the slot on the PR branch, so the next run and the owner find the
+  task where it stands. A run that pushed leaves it at that head with nothing uncommitted.
+- **Work a run could not verify and push stays in the slot.** Gates interrupted, the run failed or
+  was stopped: the work is committed on the PR branch and not pushed, and a `failed` result's
+  `failure.reason` says it is kept in the slot as local commits ahead of the remote head (a commit
+  that itself fails leaves the changes uncommitted, named the same way). Nothing pushes it to
+  another branch. The next run in the slot - a retry of the job, or a takeover of a stale claim -
+  continues from there: it inspects those commits and changes, runs the gates, and pushes them
+  with its round.
+- **Only state a run cannot continue is set aside**, such as a broken mid-merge: `git switch -c
+  operator/leftover/<run.jobId>` (`manual-<UTC timestamp, yyyymmddHHMMSS>` by hand), commit
+  everything as `Kept the work a pipeline run could not continue`, switch back to the PR branch,
+  reset it to its remote head, and post one note naming that branch. A leftover branch is local and
+  never pushed.
+- **Only the end of the pull request frees the slot.** After a confirmed merge it returns to the
+  integration branch with profile `sync_base_skill` unscoped (profile `merge_skill` has deleted the
+  branch), after a closed attempt scoped to its branch; and the run that merges or closes the pull
+  request deletes (`git branch -D`) every local `operator/leftover/*` branch the pull request's
+  notes name.
 
 ## Owner labels
 
@@ -258,4 +269,5 @@ that skill (`/operator-plan <n>`).
 ## Constraints
 
 - A run never takes a pull request another run holds, except the takeover this contract allows.
+- A run pushes no branch but its pull request's; an `operator/leftover/*` branch stays local.
 - A run never writes an `owner:*` label other than the question label, and never awards itself a factor.

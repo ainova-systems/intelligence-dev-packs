@@ -43,7 +43,8 @@ Merge applies the owner's acceptance to one verified head; it is the `merge` ope
    when needed, re-read acceptance, head, milestone and claims, then invoke profile `merge_skill`
    with `owner:accepted` as the owner's standing authorization. Record its confirmed merge SHA;
    a command that exited zero is not a confirmation. Profile `merge_skill` deletes the local branch, so the
-   slot then returns with profile `sync_base_skill` unscoped.
+   slot then returns with profile `sync_base_skill` unscoped; then delete the local
+   `operator/leftover/*` branches the PR's notes name (`operator-contract` > Holding a pull request).
 6. **Report a refusal.** Stale evidence or an unmet gate → one comment naming exactly what is stale
    and which stage must refresh it, ending with the note marker, then `noop`. Reuse an identical
    standing refusal instead of repeating it. A command or cleanup failure is `failed` with its
