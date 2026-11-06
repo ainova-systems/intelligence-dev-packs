@@ -51,7 +51,8 @@ factors: the owner's answers are its review, and the owner does not read it agai
    options weighed, the recommendation and why - and update the feature document it concerns.
    Commit through profile `commit_skill` (default `git-commit-push`). A resumed run first records the owner's answer (contract),
    writes it into the item and the feature document, and commits that. Keep the PR body's Approach
-   and Open questions current with every commit (`Decided: <answer>` on an answered question).
+   and Open questions current with every commit (`Decided: <answer>` on an answered question), written
+   back with profile `forge_cli pr edit <n> --body-file <file>`.
 5. **Ask what only the owner can decide, one question at a time.** Each question names its context
    in a few lines, two to four options and the recommended one (contract, *Asking the owner*;
    `resume: clarify`). A business change - a consumer dropped, a rule widened, a settled decision

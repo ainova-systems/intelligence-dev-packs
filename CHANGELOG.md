@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Operator forge contract: `pr edit` takes `--title` and `--body-file` in the same call as the milestone move, labels and claim, and any flag a subcommand does not read is a usage error (exit 2) instead of being ignored.
+
 ## [0.12.0] - 2026-11-06
 
 Judging stages leave their workspace still, a review goes stale on a body edit, and operator runs keep unpushed work in their slot.

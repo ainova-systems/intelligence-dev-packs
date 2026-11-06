@@ -30,11 +30,14 @@
 //          base: { ref }, mergeable: clean|conflicting|unknown, labels, milestone, createdAt, author }
 //
 // Extensions the operator skills and discovery need beyond the core contract, part of it here:
-//   pr edit <n> [--claim [--takeover]] [--milestone <title>] [--add-label <l>]... [--remove-label <l>]...
-//                                 pr         a phase hand-off, or a claim with a milestone move, is one edit;
-//                                 --claim adds the processing label after the check `claim take` makes,
-//                                 answering { pr, claimed: false, held: true } (exit 3) instead of editing
-//   A missing or empty option value, or one that is itself a flag of this script, is a usage error (exit 2).
+//   pr edit <n> [--claim [--takeover]] [--milestone <title>] [--title <t>] [--body-file <f>]
+//               [--add-label <l>]... [--remove-label <l>]...
+//                                 pr         a phase hand-off, or a claim with a milestone move, is one edit,
+//                                 title and body included; --claim adds the processing label after the check
+//                                 `claim take` makes, answering { pr, claimed: false, held: true } (exit 3)
+//                                 instead of editing anything
+//   A missing or empty option value, one that is itself a flag of this script, or a flag the subcommand
+//   does not read is a usage error (exit 2).
 //   pr body <n>                   the body as plain text, for a file the review reads
 //   pr files <n>                  { pr, files: [path] }   the conflict gate and the merge gates read them
 //   events <n>                    [{ id, event: labeled|unlabeled, label, createdAt }]
@@ -156,8 +159,11 @@ export function renameBranch(number, to, run = gh) {
   return viewPr(number, run);
 }
 
-/** One edit, so a hand-off moves the milestone and drops the claim together or not at all. */
-export function editPr(number, { milestone, add = [], remove = [], claim: take = false, takeover = false } = {}, run = gh) {
+/**
+ * One edit, so a hand-off moves the milestone, drops the claim and replaces the title or body together
+ * or not at all; with --claim, the held check comes first and a held pull request is left untouched.
+ */
+export function editPr(number, { milestone, title, bodyFile, add = [], remove = [], claim: take = false, takeover = false } = {}, run = gh) {
   const processing = operatorConfig().labels.processing;
   if (add.includes(processing)) throw new UsageError(`${processing} is the claim: use pr edit --claim or claim take`);
   if (takeover && !take) throw new UsageError('--takeover goes with --claim');
@@ -167,10 +173,12 @@ export function editPr(number, { milestone, add = [], remove = [], claim: take =
   if (take && !standing) add = [...add, processing];
   const args = ['pr', 'edit', String(number)];
   if (milestone) args.push('--milestone', milestone);
+  if (title) args.push('--title', title);
+  if (bodyFile) args.push('--body-file', bodyFile);
   for (const label of add) args.push('--add-label', label);
   for (const label of remove) args.push('--remove-label', label);
   if (args.length === 3 && standing) return { pr: number, claimed: true, changed: false, takenOver: true };
-  if (args.length === 3) throw new UsageError('pr edit needs --claim, --milestone, --add-label or --remove-label');
+  if (args.length === 3) throw new UsageError('pr edit needs --claim, --milestone, --title, --body-file, --add-label or --remove-label');
   run(args);
   return viewPr(number, run);
 }
@@ -399,9 +407,36 @@ export function notes(number, run = gh, config = operatorConfig()) {
   }));
 }
 
-/** The value after `name`; an option given without a real value is a usage error, never a silent default. */
-export const FLAGS = new Set(['--claim', '--takeover', '--milestone', '--add-label', '--remove-label', '--base', '--head', '--title', '--body-file', '--draft', '--unresolved', '--resolve', '--body', '--name', '--method', '--to']);
+/** The options that take a value; every other flag is a switch. */
+const VALUE_FLAGS = new Set(['--milestone', '--add-label', '--remove-label', '--base', '--head', '--title', '--body-file', '--resolve', '--body', '--name', '--method', '--to']);
 
+/** The flags each subcommand reads; any other flag is a usage error, never silently ignored. */
+export const SUBCOMMAND_FLAGS = {
+  'pr create': ['--base', '--head', '--title', '--body-file', '--draft'],
+  'pr edit': ['--claim', '--takeover', '--milestone', '--title', '--body-file', '--add-label', '--remove-label'],
+  'branch rename': ['--to'],
+  threads: ['--unresolved', '--resolve', '--body'],
+  claim: ['--takeover'],
+  factor: ['--name'],
+  comment: ['--body-file'],
+  merge: ['--method'],
+};
+
+/** Every flag of this script: a missing value is never taken for another option. */
+export const FLAGS = new Set(Object.values(SUBCOMMAND_FLAGS).flat());
+
+/** Refuses a flag `subcommand` does not read; the value after an option is skipped, whatever it looks like. */
+function onlyFlags(args, subcommand) {
+  const allowed = SUBCOMMAND_FLAGS[subcommand] ?? [];
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+    if (!arg.startsWith('-')) continue;
+    if (!allowed.includes(arg)) throw new UsageError(`${subcommand} does not take ${arg}`);
+    if (VALUE_FLAGS.has(arg)) index += 1;
+  }
+}
+
+/** The value after `name`; an option given without a real value is a usage error, never a silent default. */
 function valueAt(args, index, name) {
   const value = args[index + 1];
   // A body like `-- done` is a value; only another of this script's flags means the value is missing.
@@ -424,18 +459,22 @@ function number(value) {
   return parsed;
 }
 
-const USAGE = 'usage: forge-github.mjs pr list|view <n>|create ...|ready <n>|draft <n>|edit <n> [--claim] ...|body <n>|files <n> | branch rename <n> --to <name> | checks <sha> | threads <n> [--unresolved] [--resolve <id> --body <text>] | claim take|release <n> | factor set|clear <n> --name <f> | comment <n> --body-file <f> | notes <n> | merge <n> --method <m> | events <n>';
+const SUBCOMMANDS = new Set(['pr list', 'pr view', 'pr create', 'pr ready', 'pr draft', 'pr edit', 'pr body', 'pr files', 'branch rename', 'checks', 'threads', 'claim', 'factor', 'comment', 'notes', 'merge', 'events']);
+
+const USAGE = 'usage: forge-github.mjs pr list|view <n>|create ...|ready <n>|draft <n>|edit <n> [--claim] [--milestone <m>] [--title <t>] [--body-file <f>] ...|body <n>|files <n> | branch rename <n> --to <name> | checks <sha> | threads <n> [--unresolved] [--resolve <id> --body <text>] | claim take|release <n> | factor set|clear <n> --name <f> | comment <n> --body-file <f> | notes <n> | merge <n> --method <m> | events <n>';
 
 /** Runs one subcommand and returns what it prints: JSON, or plain text for `pr body`. */
 export function execute(args, run = gh) {
   const [command, action, target] = args;
+  const subcommand = command === 'pr' || command === 'branch' ? `${command} ${action}` : command;
+  if (SUBCOMMANDS.has(subcommand)) onlyFlags(args, subcommand);
   if (command === 'pr') {
     if (action === 'list') return listPrs(run);
     if (action === 'view') return viewPr(number(target), run);
     if (action === 'create') return createPr({ base: option(args, '--base'), head: option(args, '--head'), title: option(args, '--title'), bodyFile: option(args, '--body-file'), draft: args.includes('--draft') }, run);
     if (action === 'ready') return readyPr(number(target), run);
     if (action === 'draft') return draftPr(number(target), run);
-    if (action === 'edit') return editPr(number(target), { milestone: option(args, '--milestone'), add: options(args, '--add-label'), remove: options(args, '--remove-label'), claim: args.includes('--claim'), takeover: args.includes('--takeover') }, run);
+    if (action === 'edit') return editPr(number(target), { milestone: option(args, '--milestone'), title: option(args, '--title'), bodyFile: option(args, '--body-file'), add: options(args, '--add-label'), remove: options(args, '--remove-label'), claim: args.includes('--claim'), takeover: args.includes('--takeover') }, run);
     if (action === 'body') return { text: prBody(number(target), run) };
     if (action === 'files') return prFiles(number(target), run);
   }

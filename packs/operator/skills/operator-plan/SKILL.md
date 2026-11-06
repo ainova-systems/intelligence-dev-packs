@@ -45,7 +45,8 @@ Plan captures the intended result before any implementation; it is the `plan` op
 5. **Publish the acceptance contract.** Fill the PR body's verification section (profile
    `verify_section`) with the captured criteria verbatim, one observable step per criterion
    (`git-open-pr` sets the same rule when core is installed). Edit the live body, keeping every
-   other section and block intact. Commit and push the plan through
+   other section and block intact: profile `forge_cli pr body <n>` into a file, change it there, and
+   write it back with `forge_cli pr edit <n> --body-file <file>`. Commit and push the plan through
    profile `commit_skill`; an identical capture already published is reused, never committed empty.
 6. **Hand off.** All in-scope questions settled → re-check live state, then one call moves the PR
    to the development milestone and drops `ai:processing`. Result `done` with the hand-off request
