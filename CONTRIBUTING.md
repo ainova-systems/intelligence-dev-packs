@@ -11,7 +11,7 @@ Content lives in packs under `packs/<name>/` (`rules/`, `agents/`, `skills/`, op
 Every artifact must pass one test: **would this apply unchanged to any repository in the pack's scope?** For `core`, that means any repository at all; for `spec`, any spec-driven project.
 
 - No project names, stacks, file paths, or business logic. Stack-specific knowledge belongs either in a dedicated pack or in the host project's own intelligence sources.
-- Project variability goes through the project profile (core's `templates/dev-project-profile.md`; the operator pack's own keys in its `templates/operator-project-profile.md`), never into artifact text. If a new skill needs a project-specific value, add a profile field and a detection fallback.
+- Project variability goes through the project profile (core's `templates/dev-project-profile.md`; a pack with keys of its own keeps them in its `templates/<prefix>-project-profile.md`), never into artifact text. If a new skill needs a project-specific value, add a profile field and a detection fallback.
 - Prefer one strong default over a menu of options. The pack encodes an opinionated practice, with the profile as the escape hatch.
 
 ## Conventions
