@@ -122,18 +122,26 @@ puts it in `input.qa` (`passed`, `pending`, `failed`, `none`), and asks for rows
 
 ## The steps digest
 
-The steps digest `git-verify-pr` > Digests defines, with `operator_config` `digestExclude` as the
-machine-written blocks it removes, over the declared section alone: discovery matches no standing
-checks. No line exactly `## <profile verify_section>` → the digest is `none`.
+Both digests are stated here in full because core is optional; their algorithm must match core's
+definition, `git-verify-pr` > Digests, wherever both packs are installed.
+
+1. From the pull request body remove every block `operator_config` `digestExclude` names: each
+   `start` through the next `end`, both markers included, every occurrence, scanning left to right
+   and resuming after each removed `end`; a `start` with no `end` after it removes nothing. A status
+   block CI rewrites inside the body would otherwise change the digest after every CI run.
+2. Find the line that is exactly `## <profile verify_section>`; none → the digest is `none`.
+3. Take the lines after it up to the next line starting `## `, or the end; join with `\n`; trim.
+4. The digest is the first 12 hexadecimal characters of that text's SHA-256 (UTF-8).
 
 ## The body digest
 
-The body digest `git-verify-pr` > Digests defines, with the same `digestExclude`: the body without
-its verification section, so a checked box there or a CI-written block does not re-run the review.
-`--body <path>` digests that file instead of the live body (`operator-review`). A passing review's
-body digest is the one its `<!-- operator:reviewed <digest> -->` note names. A passing review at the
-head without that note is fresh by head alone, its body being unknown: that is review freshness for
-a project whose discovery does not answer `--body-digest` yet.
+The steps digest's step 1, then the body without its verification section - the step 2 line through
+the line before the next line starting `## `, or the end - joined with `\n` and trimmed, digested as
+its step 4. A checked box in that section or a CI-written block therefore does not re-run the
+review. `--body <path>` digests that file instead of the live body (`operator-review`). A passing
+review's body digest is the one its `<!-- operator:reviewed <digest> -->` note names. A passing
+review at the head without that note is fresh by head alone, its body being unknown: that is review
+freshness for a project whose discovery does not answer `--body-digest` yet.
 
 ## Owner input
 
