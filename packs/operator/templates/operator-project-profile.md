@@ -20,6 +20,7 @@ description: Project profile keys the operator pack's skills read, with their de
 - merge_gates: none                  <!-- project rules that block a merge besides checks and factors -->
 - clarify_priority: none             <!-- the business priority operator-clarify weighs among discovery's top candidates -->
 - clarify_branch_prefix: docs/       <!-- branch prefix for a clarification pull request, which changes documents only -->
+- direct_lane: **/*.md               <!-- comma-separated path globs of the documents that need no pull request: operator-intake and operator-clarify commit queue records matching them straight to the integration branch, and operator-clarify merges a clarification pull request only while every path it changes matches; unset = every Markdown file (**/*.md) -->
 - flow_plan: none                    <!-- the skill that writes a feature-sized plan; none = the plan goes on the queue item -->
 - judge_runner: none                 <!-- where review_skill and verify_skill run: none = in the session | <skill> that runs them read-only in another engine -->
 

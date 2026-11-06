@@ -10,8 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - The operator profile keys moved from core's profile template to the operator pack (`packs/operator/templates/operator-project-profile.md`), together with `flow_plan` and `judge_runner`, which only the operator skills read; a project that already has them in its profile changes nothing. Core's artifacts no longer name the operator pack.
-- `git-verify-pr` > Digests reads the blocks to strip from a pull request body from the new core profile key `digest_exclude` instead of the operator configuration; a project whose CI rewrites a block in the body sets it to the same blocks as its operator `digestExclude`.
+- `git-verify-pr` > Digests reads the blocks to strip from a pull request body from the new core profile key `digest_exclude` instead of the operator configuration; its value lists `` `<start marker>` .. `<end marker>` `` blocks separated by `;`.
 - `scripts/validate-pack.sh` checks profile keys and `ai:*` labels per pack: a pack reads keys from its own schema or core's, core reads only its own, a key both schemas define must carry the same default, and the operator pack's labels are checked against its own `pr-state` page, so the operator pack validates without core.
+- Operator: the documents intake and clarify commit straight to the integration branch, and the only paths a clarification pull request may change before it merges, are the new profile key `direct_lane` (default every Markdown file, `**/*.md`).
+
+**Updating:** a project whose `operator_config` sets `digestExclude` adds the same blocks as `digest_exclude` to its profile, or its verification reports go stale after each rewrite of those blocks.
 
 ## [0.12.1] - 2026-11-06
 

@@ -140,29 +140,29 @@ fi
 # uses but its definition site never names is a second definition site - the failure mode
 # that recurred three times before this check existed.
 label_rule_for() {
-    case "$1" in
-        operator) echo "packs/operator/skills/operator-contract/references/pr-state.md" ;;
-        *) echo "packs/core/rules/git-workflow.md" ;;
+    case "$(basename "$1")" in
+        operator) echo "$1skills/operator-contract/references/pr-state.md" ;;
+        *) echo "$PACKS_DIR/core/rules/git-workflow.md" ;;
     esac
 }
 for pack_dir in "$PACKS_DIR"/*/; do
     [ -d "$pack_dir" ] || continue
     pack="$(basename "$pack_dir")"
-    label_rule="$(label_rule_for "$pack")"
+    label_rule="$(label_rule_for "$pack_dir")"
     # grep exits 1 on no match, and `set -euo pipefail` would kill the script mid-run
     # before any check could report: an empty result is an answer here, not a failure.
     used_labels="$(grep -rho 'ai:[a-z][a-z-]*' "$pack_dir" | sort -u || true)"
     [ -n "$used_labels" ] || continue
-    if [ -f "$PACK_ROOT/$label_rule" ]; then
-        defined_labels="$(grep -o 'ai:[a-z][a-z-]*' "$PACK_ROOT/$label_rule" | sort -u || true)"
+    if [ -f "$label_rule" ]; then
+        defined_labels="$(grep -o 'ai:[a-z][a-z-]*' "$label_rule" | sort -u || true)"
         for label in $used_labels; do
             grep -qx "$label" <<< "$defined_labels" \
-                || fail "[$pack] label '$label' is used but not defined in $label_rule"
+                || fail "[$pack] label '$label' is used but not defined in ${label_rule#"$PACK_ROOT"/}"
         done
     else
         # A missing definition site must fail, not skip: a gate that disappears when
         # its source is moved is the unenforced rule this check exists to prevent.
-        fail "[$pack] ai:* labels are used but the page that defines them is missing at $label_rule"
+        fail "[$pack] ai:* labels are used but the page that defines them is missing at ${label_rule#"$PACK_ROOT"/}"
     fi
 done
 

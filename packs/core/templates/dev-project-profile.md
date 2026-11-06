@@ -39,7 +39,7 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 - app_url: none                     <!-- base URL once it is up, e.g. http://localhost:3000 -->
 - code_review_skill: auto           <!-- reviewer git-review-pr invokes: auto = the host's own code-review skill when it ships one, else dev-review-changes | <skill name> -->
 - qa_checks: auto                   <!-- standing checks git-verify-pr adds for the areas a PR touched (schema: templates/dev-qa-checks.md): auto = docs/qa-checks.md when it exists | <repo-relative file> | none -->
-- digest_exclude: none               <!-- blocks removed from a pull request body before a digest is computed (git-verify-pr > Digests), as start-marker ... end-marker pairs, e.g. the HTML comments around a status block CI rewrites in the body; none -->
+- digest_exclude: none               <!-- blocks removed from a pull request body before a digest is computed: each block a backticked start marker, `..`, a backticked end marker, blocks separated by `;` - format and example in git-verify-pr > Digests; any other tool that computes these digests for the same pull requests must strip the same blocks; none = nothing removed -->
 
 ## Workspace
 

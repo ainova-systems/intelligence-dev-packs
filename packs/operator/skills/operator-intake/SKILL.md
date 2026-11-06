@@ -54,8 +54,8 @@ the `operator-contract` skill first: input, result, claim and markers follow it.
    hand-off request (`operator-contract`).
 5. **Record the queue change first.** For a PR subject, claim it. Read the linked item and the
    owner's reason; recover a deleted item from history. A missing reason is an owner question with
-   `resume: intake`, never an invented reason. On the integration branch, through the profile's
-   direct lane for queue documents, record with profile `commit_skill` (default `git-commit-push`):
+   `resume: intake`, never an invented reason. On the integration branch, through the direct lane
+   (profile `direct_lane`), record with profile `commit_skill` (default `git-commit-push`):
    - rejected: the reason and the failed PR on the item, which stays eligible; every recorded
      reason binds the next plan;
    - cancelled: the item leaves the queue the way `flow_queue` says items leave it.
