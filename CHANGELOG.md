@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `dev-init` > `scripts/guard-push.mjs`: a Claude Code `PreToolUse` hook on Bash and PowerShell that denies a `git push` updating a branch profile `protected_branches` names unless every path it changes matches `direct_lane`. It resolves refspecs, `remote.<name>.push` and `push.default` through `git -C`, chained commands, `sh -c`, `pwsh -Command`, command substitutions and git aliases, denies `--all`, `--mirror` and deleting a protected branch, and denies a push whose targets it cannot resolve; `guard-push.test.mjs` runs it against a real repository and remote.
+- Core profile key `direct_lane` (default `none`): the paths that may be pushed straight to a protected branch, as gitignore-style patterns; the operator pack defines the same key with the same default.
+
+### Changed
+
+- The ten skills that read files, git state and arguments rather than the conversation run forked in their agent's subagent (`context: fork`, `background: false`): `dev-review-changes`, `dev-run-tests`, `git-review-pr`, `git-verify-pr`, `spec-pull`, `spec-plan`, `spec-validate`, `spec-close`, `spec-document` and `spec-audit-docs`. The six that hold a dialogue or take an approval run inline and drop the `agent:` field, which takes effect only with `context: fork`: `spec-answer`, `spec-approve`, `spec-cancel`, `spec-create`, `spec-decision` and `spec-init`.
+- A forked skill never asks (`dev-working-with-people`): it stops before the write a decision governs and ends its result with the question, and its caller asks. `git-verify-pr` returns its missing-environment question that way, `spec-pull` its tracker question, `spec-document` the claims to confirm and `spec-audit-docs` the doc fixes; `spec-pull` runs `spec-plan` itself.
+- The read-only judges work without the skill and MCP tools their agent lacks: `dev-review-changes` and `git-review-pr` follow the other skill's `SKILL.md` in the same run, and `git-verify-pr` drives interfaces through the shell. `git-finalize-pr` invokes its two judging stages directly instead of wrapping each in a subagent of its own, and `dev-deliver` asks a forked intake skill's questions in Phase A.
+- `templates/claude-settings.json` carries the push-guard hook. `dev-init` merges it and no longer writes the eight push-deny rules per protected branch, which also blocked the paths a project pushes straight to its integration branch, and reports any it finds as superseded. `docs/enforcement.md` says the guard is off until the rendered script exists, as in a fresh clone before sync, with the forge's branch protection as the boundary.
+
+**Updating:** Re-run `dev-init` to add the push-guard hook to `.claude/settings.json`. It reports the `Bash(git push ...)` deny rules an earlier run wrote for each protected branch; remove them, because no allow rule overrides a deny rule and they keep blocking what `direct_lane` allows. A project that set `direct_lane` for the operator pack already has it in `dev-project-profile.md`, where the guard reads it. A caller that started its own subagent for one of the ten forked skills invokes the skill instead.
+
 ## [0.14.0] - 2026-11-07
 
 Gate runners, reviews and commits judge one defined change, the settings template denies commands that discard work, and spec plans are shorter.

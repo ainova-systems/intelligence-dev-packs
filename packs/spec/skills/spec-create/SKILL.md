@@ -2,7 +2,6 @@
 name: spec-create
 description: "Turns a stated task or captured brief into a spec's requirements when no tracker item covers it, then hands to spec-plan. Tracker intake is spec-pull."
 argument-hint: "<task description, brief, or feature name>"
-agent: spec-architect
 ---
 
 # Create a Spec

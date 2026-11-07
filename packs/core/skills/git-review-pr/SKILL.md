@@ -3,11 +3,13 @@ name: git-review-pr
 description: "Reviews an open pull request's diff against the project rules and against what the PR claims about itself, and records the verdict on the PR. Answering other people's review threads is git-complete-pr."
 argument-hint: "[pr number]"
 agent: dev-code-reviewer
+context: fork
+background: false
 ---
 
 # Review the PR
 
-An independent read of the whole diff from a context that never watched it being written. Read-only: findings only, never edits.
+An independent read of the whole diff from a context that never watched it being written; it runs forked, so that holds whoever invokes it. Read-only: findings only, never edits.
 
 ## Pre-flight
 
@@ -17,7 +19,7 @@ An independent read of the whole diff from a context that never watched it being
 
 ## Steps
 
-1. **Run the review** over `git diff <base>...HEAD` - the PR's whole diff, not the working tree. The reviewer comes from profile `code_review_skill`: `auto` (default) uses the host's own code-review skill when it ships one, else `dev-review-changes`. Its checks and severity ladder are the review; this skill adds the axis below and the recording.
+1. **Run the review** over `git diff <base>...HEAD` - the PR's whole diff, not the working tree. The reviewer comes from profile `code_review_skill`: `auto` (default) uses the host's own code-review skill when it ships one, else `dev-review-changes`. Its checks and severity ladder are the review; this skill adds the axis below and the recording. This run follows the reviewer's `SKILL.md` itself, because a forked run on its read-only agent has no skill tool; a reviewer whose steps need a tool this run lacks, such as a subagent or an MCP server, is named in the report and `dev-review-changes` reviews instead.
 2. **The claims axis** - what a pre-commit review could not check, because the PR did not exist yet:
    - why the change exists and what the solution is are recoverable from the body without the implementing session (`git-commit-conventions`); a body that only lists files or restates the diff is a finding, evidenced by the body heading that failed;
    - every behavior the PR body claims has code in the diff that delivers it;
@@ -47,7 +49,7 @@ head: <sha> - base: <base> - body: <digest> - files N, +A/-D
 
 ## Delegation
 
-One pass by default. Fan out by review dimension only when the diff exceeds what one pass holds: each worker gets its dimension and its slice plus the rules, never the author's account of why the change is right - a worker that inherits the rationale confirms it. Step 3 still applies to everything that comes back: a finding this skill cannot evidence itself is dropped, not forwarded.
+One pass by default. A forked run on the read-only agent cannot start subagents, so it reads a diff larger than one pass holds in slices itself. A run that can fans out by review dimension only when the diff exceeds what one pass holds: each worker gets its dimension and its slice plus the rules, never the author's account of why the change is right - a worker that inherits the rationale confirms it. Step 3 still applies to everything that comes back: a finding this skill cannot evidence itself is dropped, not forwarded.
 
 ## Verify
 

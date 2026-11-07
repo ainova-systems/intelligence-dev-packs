@@ -1,11 +1,11 @@
-// Checks the template's Bash deny rules and dev-init's protected-branch push forms against a
-// SIMULATION of the matcher Claude Code documents (code.claude.com/docs/en/permissions: "Wildcard
-// patterns", "Compound commands", "Wrappers"). It shows what each rule shape matches under the
-// documented semantics, not what a given Claude Code release does. Not simulated: the stripped
-// process wrappers, commands nested in subshells or substitutions, and redirections.
+// Checks the template's Bash deny rules against a SIMULATION of the matcher Claude Code documents
+// (code.claude.com/docs/en/permissions: "Wildcard patterns", "Compound commands", "Wrappers"). It
+// shows what each rule shape matches under the documented semantics, not what a given Claude Code
+// release does. Not simulated: the stripped process wrappers, commands nested in subshells or
+// substitutions, and redirections. Pushes to protected branches are the hook's (guard-push.mjs).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -52,8 +52,6 @@ function subcommands(command) {
 const bashRules = (rules) => rules.filter((r) => r.startsWith('Bash(')).map((r) => r.slice(5, -1));
 const denied = (rules, command) => subcommands(command).some((sub) => rules.some((r) => ruleMatches(r, sub)));
 const templateDeny = bashRules(settings.permissions.deny);
-const pushForms = [...skill.matchAll(/`Bash\((git push [^`]*<branch>[^`]*)\)`/g)].map((m) => m[1]);
-const protectedDeny = (branch) => pushForms.map((f) => f.replaceAll('<branch>', branch));
 
 test('the simulation reproduces the documented examples', () => {
   const rows = [
@@ -97,19 +95,22 @@ test('the harmless denials dev-init reports are the ones the rules make', () => 
   for (const named of ['`git clean -n`', '`git stash list`', '`git restore --staged`']) assert.ok(skill.includes(named), named);
 });
 
-test('the protected-branch forms deny every refspec that lands on the branch', () => {
-  assert.equal(pushForms.length, 8);
-  const rules = protectedDeny('main');
-  for (const command of [
-    'git push origin main', 'git push -u origin main', 'git push origin main --tags', 'git push origin HEAD:main',
-    'git push origin feature/x:main', 'git push origin HEAD:refs/heads/main', 'git push origin refs/heads/main',
-    'git push origin feature/x:refs/heads/main --no-verify', 'git push origin :main', 'git push origin --delete main',
-  ]) assert.equal(denied(rules, command), true, command);
-  for (const command of [
-    'git push origin feature/main', 'git push origin main-fix', 'git push origin feature/x:feature/main', 'git push origin v1.2.0',
-    // No text rule sees the branch here; the forge's protection is the boundary.
-    'git push',
-  ]) assert.equal(denied(rules, command), false, command);
+test('a push to a protected branch is left to the hook, which runs the rendered guard on shell commands that mention push', () => {
+  // No deny rule names a branch: one would also block the pushes profile `direct_lane` allows.
+  assert.equal(denied(templateDeny, 'git push origin main'), false);
+  assert.equal(templateDeny.some((rule) => /^git push .*\bmain\b/.test(rule)), false);
+  const groups = settings.hooks.PreToolUse;
+  assert.equal(groups.length, 1);
+  assert.equal(groups[0].matcher, 'Bash|PowerShell');
+  // One handler per tool, each spawned only for a command that mentions push (hooks reference, `if`).
+  assert.deepEqual(groups[0].hooks.map((h) => h.if), ['Bash(*push*)', 'PowerShell(*push*)']);
+  for (const handler of groups[0].hooks) {
+    assert.equal(handler.type, 'command');
+    assert.equal(handler.command, 'node');
+    assert.deepEqual(handler.args, ['${CLAUDE_PROJECT_DIR}/.claude/skills/dev-init/scripts/guard-push.mjs']);
+  }
+  assert.ok(existsSync(join(here, 'guard-push.mjs')), 'the script the hook names ships in this skill');
+  assert.ok(skill.includes('`scripts/guard-push.mjs`'), 'dev-init names the guard');
 });
 
 test('the template sets attribution off and denies reading the default secrets file', () => {

@@ -3,6 +3,8 @@ name: spec-document
 description: "Writes or updates one documentation artifact - feature, rule, glossary, model, or architecture - from what the code actually does."
 argument-hint: "<type: feature|rule|glossary|model|architecture> <name/topic>"
 agent: spec-docs-writer
+context: fork
+background: false
 ---
 
 # Write a Docs Artifact
@@ -25,7 +27,7 @@ Learn from the project (read two sibling docs in the target folder; mimic, don't
 2. **Read two siblings** to match structure and tone.
 3. **Draft from code as ground truth**; mark each claim `confirmed` / `inferred`. Never state intent the code does not show - business rules in config, database rows, or runtime extensions are invisible to static drafting; flag them, don't fabricate.
 4. **Naming**: kebab-case, `R-NNN` / `NNNN-` zero-padded, one concept one name.
-5. **Owner gate** (`dev-working-with-people`): present the draft; it stays `inferred` until the owner confirms.
+5. **Owner gate** (`dev-working-with-people`): the draft is written and stays `inferred`; the run ends with the claims the owner has to confirm, each with its recommendation, and the caller asks. A claim turns `confirmed` on the owner's yes.
 
 ## Verify
 

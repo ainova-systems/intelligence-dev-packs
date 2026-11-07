@@ -3,6 +3,8 @@ name: git-verify-pr
 description: "Executes a pull request's own verification steps against the running change and records what was observed. Behavioral QA - CI and the fix rounds are git-finalize-pr."
 argument-hint: "[pr number]"
 agent: dev-qa-verifier
+context: fork
+background: false
 ---
 
 # Verify the PR
@@ -25,11 +27,11 @@ Be the manual QA engineer the PR body asks for: run the steps it declares agains
 
    **Nothing resolves and detection finds nothing** - that is a standing configuration gap, not an event of this PR, so it is resolved the way every other project value is: asked once, recorded in the profile. Two answers are valid and the profile holds both - set `qa_env` plus `app_run` / `app_url` (naming where test accounts come from, never the accounts themselves), or drop `ai:verified` from `pr_success_factors` because this project has nothing to exercise.
 
-   **Who asks depends on where this runs, and the stage does not guess.** Invoked directly by a person, it asks (`dev-working-with-people`) and records. Inside a run it is an isolated subagent with no one to ask, so it returns `blocked (project)` naming both keys and the question travels out with the escalation - `git-finalize-pr` stops retrying it, `git-complete-pr` puts it to the owner. Either way the answer lands in the profile once; an escalation that repeats identically on every PR without saying how to end it is noise.
+   **This stage never asks** (`dev-working-with-people`): it returns `blocked (project)` naming both keys, with its recommendation, and its caller puts the question - a person's session asks and records it, `git-finalize-pr` stops retrying it and `git-complete-pr` puts it to the owner. Either way the answer lands in the profile once; an escalation that repeats identically on every PR without saying how to end it is noise.
 
-3. **Execute each step in order, exactly as written**, driving the interface it names with whatever the host provides (browser automation, an HTTP client, the CLI). Record for each: the action taken, the observed result verbatim, and the expected result the step states.
+3. **Execute each step in order, exactly as written**, driving the interface it names through this run's shell (the CLI, an HTTP client, a browser the repository's own tooling drives); a forked run on its read-only agent has no MCP tools. Record for each: the action taken, the observed result verbatim, and the expected result the step states.
 
-   **A capability this host lacks is replaced before it is escalated.** A repository that exercises an interface in CI already ships a way to drive it - an end-to-end project with its own browser, a client with the project's auth, a preview whose sign-in offers seeded accounts - and reaching for one of those is this stage's work. The `blocked (step)` of step 4 is reached for a capability only once that search comes back empty, and its report says what was looked for. Handing the look to the owner because the host's own tool would not connect is not a verdict; it makes them the stage, and what they find then, they find in public.
+   **A capability this host lacks is replaced before it is escalated.** A repository that exercises an interface in CI already ships a way to drive it - an end-to-end project with its own browser, a client with the project's auth, a preview whose sign-in offers seeded accounts - and reaching for one of those is this stage's work. The `blocked (step)` of step 4 is reached for a capability only once that search comes back empty, and its report says what was looked for. Handing the look to the owner because the host's own tool would not connect is not a verdict.
 4. **One verdict per step**, and there are four - a bare `blocked` is not one of them, because the two kinds route differently and a generic verdict strands the router:
    - **`pass`** - observed matches expected.
    - **`fail`** - observed contradicts expected.
@@ -72,7 +74,7 @@ The verification section runs from the line that is exactly `## <profile verify_
 
 ## Delegation
 
-One pass by default. Fan out by surface (the UI steps, the API steps, the CLI steps) only when the declared steps exceed what one pass holds or need different host capabilities: each worker gets its slice plus the profile, never the author's account of why the change is right, and its observations come back here to be recorded. A judge that concatenates what workers reported has verified nothing.
+One pass. A forked run on the read-only agent cannot start subagents and runs every step itself; a run that can fans out by surface (the UI steps, the API steps, the CLI steps) only when the declared steps exceed what one pass holds or need different host capabilities: each worker gets its slice plus the profile, never the author's account of why the change is right, and its observations come back here to be recorded. A judge that concatenates what workers reported has verified nothing.
 
 ## Verify
 

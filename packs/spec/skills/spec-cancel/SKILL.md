@@ -2,7 +2,6 @@
 name: spec-cancel
 description: "Retires a spec as cancelled or superseded with the reason recorded, and reconciles the docs it had drafted."
 argument-hint: "<spec folder or slug> [superseded-by <NNN>]"
-agent: spec-architect
 ---
 
 # Cancel a Spec

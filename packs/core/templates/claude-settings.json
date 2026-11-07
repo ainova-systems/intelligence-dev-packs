@@ -30,5 +30,30 @@
       "Bash(git stash *)",
       "Read(.env.local)"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(*push*)",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/skills/dev-init/scripts/guard-push.mjs"
+            ]
+          },
+          {
+            "type": "command",
+            "if": "PowerShell(*push*)",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/skills/dev-init/scripts/guard-push.mjs"
+            ]
+          }
+        ]
+      }
+    ]
   }
 }
