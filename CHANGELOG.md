@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Core rule `dev-working-with-people`, always on: a report opens on the result in the reader's language, a question carries one decision explained from zero, consent is one yes per stage, and the work keeps to the scope that was asked.
+- Core reference `references/dev-external-writes.md`: a write into a system people own is a project script subcommand that dry-runs unless `--apply` comes last, is allow-listed by its exact form, and sends content the layer does not own back unchanged.
+- Core gate runner `skills/dev-run-tests/scripts/verify-runner.mjs`: it runs a gate table the project owns against the change, cheapest gate first, stops at the first failure and reports what it did not run or reach; with `--ci` a gate whose runtime is missing is reported as not run and the run exits 3.
+- `dev-init` > `references/windows-hosts.md`: Windows host facts, each with the failure it caused and what the layer does instead.
+- `dev-init` > `scripts/settings-patterns.test.mjs`: checks the settings template's rule shapes against a simulation of the documented Claude Code permission matcher.
+- `spec-validate` > `scripts/spec.mjs`: the spec's state, the plan's mechanical checks, the open questions in dependency order, the specs a change delivers, and two structural plan edits, run by every spec skill.
+- Spec template `spec-retired-conventions`: an optional project rule listing the conventions the code has deprecated, each with its replacement; `spec-init` drafts it when deprecation marks exist.
+- Core profile key `secrets_file` (default `.env.local`): the credentials file `dev-init` keeps out of the agent's file tools.
+- Profile keys `regenerate`, `approval`, `execute_through`, `spec_folder`, `spec_checks` and `tracker_writes`; their defaults keep the earlier behavior.
+- Proposed decision `docs/decisions/261107-intake-copies-tracker-text-verbatim.md`: intake copies the tracker text word for word, and the plan writes the requirements.
+
+### Changed
+
+- `templates/claude-settings.json` denies force-push, `--no-verify` and blanket staging wherever the flag sits in the command, denies the commands that discard uncommitted work and reading the credentials file, and turns off commit, pull request and session-link attribution.
+- `dev-init` writes push-deny rules for every protected branch, reports the harmless commands the rules also deny and a missing `claudeMdExcludes`, and reports the host's Node, git, make, line-ending, long-path and symlink state before setup.
+- `dev-verification-gates` defines the change every gate runner and review judges: everything between the merge-base and the working tree, untracked files, deletions and both sides of a rename included; a base that does not resolve or an empty merge-base stops the run. `dev-run-tests` and `dev-review-changes` read that change.
+- `git-commit-push` commits with `git commit --only -- <paths>`, so paths another step left staged stay out of the commit; it runs profile `regenerate` first, and in a spec project it stops when a spec the change ticks is not `in-progress` or `completed`.
+- A review finding names the case that fails, and in rules, skills and agents only a wrong or missing outcome, a contradiction or a stale reference counts; what an approved plan states is settled.
+- The `## Code review` report carries one record forward in `### Unresolved` and `### Resolved` lists, only a review moves an entry to Resolved, and `git-finalize-pr` queues only Unresolved Criticals as defects.
+- `git-open-pr` rebuilds the body of an already open pull request from its sources, and `git-finalize-pr` and `git-commit-push` route body changes through it.
+- `git-finalize-pr` runs its judging stages in the foreground and, in a spec project, puts a delivered spec that is not `completed` to the owner; `dev-deliver` runs a worktree instance's implement and review phases from a session started in that worktree.
+- `spec-plan` writes a shorter plan: `## Approach` with `Constraints:`, `Defaults:` and `Precedents:` replaced MUST READ FIRST, the sibling checklist and the per-phase citations; each work step names its outcome, place, executor and check; the planner picks and checks every executor, path and command it cites; a replan rewrites the plan in place, keeping ticks and adding rework steps.
+- A spec question is a fact or a decision: the agent finds facts and `spec-plan` fixes a `[plan error]`; decisions carry `Depends on:` and stable numbers, and `spec-answer` asks them one at a time and can correct an earlier answer.
+- Consistency covers the product's precedent (UI and copy, API contracts, where data lives, decisions taken, glossary); every behavior a step adds traces to a requirement, a precedent or a default, and `spec-validate` reports one that does not.
+- `spec-orchestration` routes every finding after planning through one table, and `spec-execute` takes an in-scope fix as text, also on a finished plan.
+- `scripts/validate-pack.sh` warns on a `SKILL.md` over 1500 words or a paragraph over 200, and resolves pack-level `references/` pages by name; `CONTRIBUTING.md` asks a fix to restate the outcome so that it covers the case a review found.
+
+**Updating:** A project that already ran `dev-init` keeps its old prefix rules until it runs `dev-init` again, which adds the new rules beside them. A tool that parses the `### Critical` / `### Warning` / `### Suggestion` headings of a `## Code review` report reads the severity at the start of each `### Unresolved` entry instead. A plan written before this release fails `spec.mjs check` until it carries the seven plan sections in order and names its executors in backticks; `spec-plan` replans it in place. A project that runs the operator pack with `direct_lane` removes the push-deny rules `dev-init` writes for its integration branch, because an allow rule cannot override a deny rule.
+
 ## [0.13.0] - 2026-11-06
 
 The operator pack moved to its own repository, and core no longer carries anything only the operator pack reads.

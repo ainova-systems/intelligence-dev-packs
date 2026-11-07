@@ -15,14 +15,14 @@ repo-root/
     ├── rules/R-NNN-*.md      # atomic business rules; one rule = one contract test (1:1)
     ├── features/<feature>.md # what a feature does TODAY (behavior baseline) + EARS criteria
     ├── specs/NNN-<feature>/  # change workflow (Spec-Driven Development)
-    │   ├── NNN-requirements.md  # acceptance criteria (EARS) + source + provenance; carries the folder number
-    │   └── NNN-plan.md          # coverage table, phases, checkboxed work steps, question + correction logs
+    │   ├── NNN-requirements.md  # acceptance criteria (EARS) + source + provenance; carries the folder key
+    │   └── NNN-plan.md          # coverage table, approach, checkboxed work steps, question + correction logs
     ├── decisions/            # ADRs, immutable; date-named yyMMdd-*.md by default (numbered NNNN-*.md via profile)
     ├── architecture/
     │   ├── architecture.md   #   condensed arc42 (one section per heading)
     │   ├── dependency-map.md #   -> compiled into a boundary check (Layer A)
     │   ├── golden-path.md    #   names the reference module
-    │   ├── modules/<module>.md
+    │   ├── modules/<module-name>.md
     │   └── diagrams/         #   C4 container/component level
     ├── guides/               # Diataxis (human onboarding): tutorials/ how-to/ reference/ explanation/
     └── _inbox/               # QUARANTINE: unclassified/legacy content (non-authoritative)

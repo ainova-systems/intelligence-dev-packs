@@ -18,7 +18,7 @@ The ADR is not the default record: a standing law belongs in the rule that owns 
 3. Superseding? The old ADR gets `Superseded by <name>`, both link to each other; never rewrite an accepted ADR's substance - append-only, a dead decision is superseded, never deleted.
 4. Write the sections: Title (the decision as a statement), Status (`proposed | accepted | superseded by <name>` plus date), Context (the forces - readable in two years), Decision (active voice), Consequences (honest, costs included), Alternatives (each with the one reason it lost).
 5. Link the ADR from the docs or rules it affects.
-6. Report the path plus a one-line summary.
+6. Report the path plus a one-line summary (`dev-working-with-people`).
 
 ## Verify
 

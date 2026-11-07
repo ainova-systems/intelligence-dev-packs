@@ -22,6 +22,8 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 | `dev-context-engineering` | rule | Conventions, decisions, and domain knowledge live in the repo |
 | `dev-verification-gates` | rule | Typecheck, lint, tests pass before every commit; gates never weakened |
 | `dev-rollback-safety` | rule | Reversible migrations, feature flags, expand-contract sequencing |
+| `dev-working-with-people` | rule | Reports open on the result in the reader's language, one decision per question, one yes per stage, the scope that was asked |
+| `dev-external-writes` | reference | Writes into systems people own: a script subcommand per write, a dry run unless `--apply` comes last, exact allow-list entries, content the layer does not own sent back unchanged |
 | `dev-code-reviewer` | agent | Reviews changes and PRs for correctness, conventions, tests, security, and the PR's own claims (read-only) |
 | `dev-qa-verifier` | agent | Executes a change's declared verification steps against the running software (read-only) |
 | `dev-test-engineer` | agent | Test strategy and coverage across all levels |
@@ -50,7 +52,7 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 | `git-scan-secrets` | skill | Credential scan over diff, tree, or history |
 | `git-sync-base` | skill | Return to the integration branch and clean away merged local branches and worktrees |
 
-The pack also ships two templates besides the profile schema. `dev-init` merges `packs/core/templates/claude-settings.json` into the project's committed `.claude/settings.json` so the invariants the rules state in prose are machinery too: no force-push, no blanket-stage and no `--no-verify` are denied outright, and the merge, the tag push and the release object prompt the owner at the command rather than relying on who invoked the skill. `packs/core/templates/dev-qa-checks.md` is the schema for the optional standing-checks file the profile's `qa_checks` points at - what `git-verify-pr` adds for any change touching an area, whatever that change says about itself.
+The pack also ships two templates besides the profile schema. `dev-init` merges `packs/core/templates/claude-settings.json` into the project's committed `.claude/settings.json` so the invariants the rules state in prose are machinery too: force-push, blanket staging, `--no-verify`, commands that discard uncommitted work and pushes to protected branches are denied outright, tool attribution is off, and the merge, the tag push and the release object prompt the owner at the command rather than relying on who invoked the skill. `packs/core/templates/dev-qa-checks.md` is the schema for the optional standing-checks file the profile's `qa_checks` points at - what `git-verify-pr` adds for any change touching an area, whatever that change says about itself.
 
 ### spec - `spec-` domain (depends on core)
 
@@ -63,10 +65,10 @@ The pack also ships two templates besides the profile schema. `dev-init` merges 
 | `spec-init` | skill | After `dev-init`: scaffold the in-repo docs substrate and migrate existing docs into it, drafting core docs from code |
 | `spec-pull` | skill | Pull one tracker item into a spec, read-only, with drift keys; re-pull updates the same spec in place |
 | `spec-create` | skill | Manual intake when no tracker item covers the change: grills the owner, keeps the brief verbatim, writes numbered requirements |
-| `spec-plan` | skill | Writes the plan from existing requirements: coverage table, sibling citations, phases, checkboxed work steps |
-| `spec-validate` | skill | Adversarial pre-execution fact-check of the plan against the repo; gaps become open questions |
+| `spec-plan` | skill | Writes the plan from existing requirements: coverage table, approach with precedents, checkboxed work steps naming outcome, place, executor and check; replans in place |
+| `spec-validate` | skill | Adversarial pre-execution fact-check of the plan against the repo; gaps become open questions; `scripts/spec.mjs`, the spec's state and the plan's mechanical checks every spec skill runs |
 | `spec-answer` | skill | Resolve a blocked spec's open questions with the developer; answers move with a `Changed:` line |
-| `spec-approve` | skill | Autonomous mode: record the owner's gate-1 decision (`status: approved`), entering the queue |
+| `spec-approve` | skill | Record the owner's gate-1 decision: `status: approved` entering the autonomous queue, or the supervised approval line under profile `approval: explicit` |
 | `spec-execute` | skill | Planned spec executed via parallel subagents; supervised - ends unstaged for developer review, autonomous - to an outcome-labeled PR |
 | `spec-continue` | skill | Resume a mid-flight spec: inherited-work drift audit, then execution |
 | `spec-execute-next` | skill | Autonomous mode: drain the approved queue - pick the highest-value spec, drive it end-to-end, close merged specs, reset |

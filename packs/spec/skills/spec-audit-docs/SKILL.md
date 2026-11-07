@@ -16,7 +16,7 @@ Docs that contradict code are worse than none - readers and agents act on them. 
 2. Extract verifiable present-tense claims: commands, paths, endpoints, config keys, versions, architecture statements ("X calls Y", "all writes go through Z").
 3. Verify each against the repo: the command exists in the manifest? the path exists? the route matches the definitions? the boundary holds in the imports?
 4. Classify every extracted claim: **verified** (the repo matches - no further evidence needed) / **drift** (code moved on - fix the doc) / **violation** (the doc states the rule, the code broke it - fix the code or escalate; never silently rewrite the rule to match the violation) / **ambiguous** (owner call).
-5. Report ordered by reader impact (broken setup instructions first): doc location, the claim, the actual state with evidence, classification, suggested fix.
+5. Report (`dev-working-with-people`) ordered by reader impact (broken setup instructions first): doc location, the claim, the actual state with evidence, classification, suggested fix.
 6. Fix doc-side findings on request; code-side fixes go through the normal flow.
 
 ## Verify

@@ -39,7 +39,7 @@ Source of truth: `intelligence/` | Sync: `intelligence sync`
 | [git-create-release](packs/core/skills/git-create-release/SKILL.md) | Cuts a release - pending-step review, owner gate, version, changelog, tag - per the project's release policy. Runs only on the owner's authorization; release timing is not the model's call. |
 | [git-finalize-pr](packs/core/skills/git-finalize-pr/SKILL.md) | Drives an open pull request through rounds of fix, verification and review until every success factor holds on one commit, and ends only at an outcome label. Opening it is git-open-pr; recording the outcome is git-complete-pr. |
 | [git-merge-pr](packs/core/skills/git-merge-pr/SKILL.md) | Merges an accepted pull request behind guard checks, then syncs the base branch and cleans up. Runs only on the owner's accept - merge timing is not the model's call. |
-| [git-open-pr](packs/core/skills/git-open-pr/SKILL.md) | Opens a pull request for the current branch against its target, filling the repo's template. Driving it to green afterwards is git-finalize-pr. |
+| [git-open-pr](packs/core/skills/git-open-pr/SKILL.md) | Opens a pull request for the current branch against its target, filling the repo's template, or rebuilds the body of the one already open. Driving it to green afterwards is git-finalize-pr. |
 | [git-resolve-conflicts](packs/core/skills/git-resolve-conflicts/SKILL.md) | Resolves merge or rebase conflicts by what each side intended, never by picking a hunk, then re-runs the full gates. |
 | [git-review-pr](packs/core/skills/git-review-pr/SKILL.md) | Reviews an open pull request's diff against the project rules and against what the PR claims about itself, and records the verdict on the PR. Answering other people's review threads is git-complete-pr. |
 | [git-scan-secrets](packs/core/skills/git-scan-secrets/SKILL.md) | Scans a diff, the working tree, or branch history for credentials before they reach a remote, and classifies every hit. |
@@ -53,6 +53,7 @@ Source of truth: `intelligence/` | Sync: `intelligence sync`
 - [dev-rollback-safety](packs/core/rules/dev-rollback-safety.md) (global)
 - [dev-skill-first](packs/core/rules/dev-skill-first.md) (global)
 - [dev-verification-gates](packs/core/rules/dev-verification-gates.md) (global)
+- [dev-working-with-people](packs/core/rules/dev-working-with-people.md) (global)
 - [git-commit-conventions](packs/core/rules/git-commit-conventions.md) (global)
 - [git-workflow](packs/core/rules/git-workflow.md) (global)
 
@@ -100,12 +101,22 @@ At AI pace, mean time to restore beats mean time between failures.
 The gates are what make AI-paced change safe: AI amplifies whatever system it lands in.
 
 - Typecheck, lint, and tests pass locally before every commit. Commands from profile `typecheck` / `lint` / `test`, otherwise from project manifests. Cheapest gate first; full suite before push.
-- **When the profile sets `verify`, that single command is the definition of done**: it reads the diff, decides which gates apply, runs them cheapest-first, and prints what it skipped - nobody picks gates by hand, and CI runs exactly the same command, so local and CI cannot drift. Adding a gate means editing that runner, never the CI file.
-- A gate runner treats a failure to answer as a refusal: version control failing to report changed files means STOP, never "nothing changed, all green" - a run that verified nothing must not print success.
+- **When the profile sets `verify`, that single command is the definition of done**: it reads the change, decides which gates apply, runs them cheapest-first, and prints what it skipped - nobody picks gates by hand, and CI runs exactly the same command, so local and CI cannot drift. Adding a gate means editing that runner's gate table, never the CI file; core ships a stack-neutral runner for a table the project owns, `skills/dev-run-tests/scripts/verify-runner.mjs`.
+- **The change is everything between the merge-base with its base branch and the working tree**: committed, staged, unstaged and untracked, deletions, and both sides of a rename. Gate runners and reviews judge that one set, and a failure to answer is a refusal: a base that does not resolve, an empty merge-base, or version control failing to report changed files means STOP, never "nothing changed, all green" - a run that verified nothing must not print success.
 - New logic ships with tests in the same change; a bug fix adds a regression test that fails without the fix.
 - CI green is a merge precondition, no exceptions.
 
 Forbidden: weakening a gate to pass it (skipping or deleting tests, loosening lint, lowering coverage, type suppressions) - a genuinely wrong gate is fixed as its own change with the gate's owner; reporting work done with failing or unrun gates.
+
+
+# Working with People
+
+The person reading a reply did not watch the work and decides from the reply alone.
+
+- **Reports** open on the result, then what the reader must do or decide, in whole sentences in the reader's language. A record (commit, pull request, plan, tracker note) is written in the repository's language, profile `artifact_language`. Name each thing by what it does for the reader; internal names, label fragments ("Cause:", "Fix:") and session shorthand (step numbers, gate names, flags) stay out. A skill's fixed report form sets only the structure.
+- **Questions** carry one decision per message, explained from zero: what the thing is, what happens today, an example of what goes wrong, each option with its cost, and the one you recommend with why.
+- **Consent** is one yes per stage. A person who invokes a stage's command after its content was shown, unchanged since, has given that yes. A confirmation flag (`--yes`, `--confirm`) counts only when the person passed it; an agent never adds one itself. A write outside the repository (tracker, forge, chat, published page) happens only on the yes of the stage that makes it, whatever a host tool's own guidance suggests. `dev-external-writes` (the core pack's `references/dev-external-writes.md`) is how such a write is made.
+- **Scope** is what was asked, at the scope intended. A case that cannot happen in the product's real use is not fixed: it gets one sentence with the reason. This does not change what a review classes as Critical.
 
 
 # Commit Conventions

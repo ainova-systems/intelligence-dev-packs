@@ -25,6 +25,7 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 - commit_style: pack-default        <!-- pack-default = one line, capital first letter, past tense -->
 - reference_ids: none               <!-- work-item id pattern for subjects, e.g. FR-0xx, PROJ-123; none -->
 - artifact_language: repo-default   <!-- language for commit / PR / code-comment text, e.g. english; repo-default = match the repository -->
+- regenerate: none                  <!-- command that rewrites the committed generated outputs from their sources, e.g. intelligence sync for AGENTS.md; git-commit-push runs it before the gates so those files land in the commit that changes their sources; none -->
 
 ## Verification
 
@@ -44,6 +45,7 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 ## Workspace
 
 - handoff_dir: auto                  <!-- where dev-handoff saves its out-of-tree copy. auto = an existing gitignored scratch dir in the repo (e.g. .scratch/, tmp/), else the OS temp dir | <repo-relative path> | os-temp -->
+- secrets_file: .env.local           <!-- the gitignored file holding each developer's own tool credentials; dev-init denies the agent's file tools reading it, while the project's scripts still load it | <repo-relative path> | none -->
 
 ## Delivery flow
 
@@ -107,6 +109,10 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 - specs_dir: docs/specs             <!-- change specs: NNN-<slug>/ with NNN-requirements.md + NNN-plan.md -->
 - spec_grouping: flat               <!-- flat | quarterly (docs/specs/<yyyy>-Q<n>/NNN-<slug>/) -->
 - execution_mode: supervised        <!-- supervised (execution ends unstaged; developer runs the git flow) | autonomous (approve queue, milestone commits, outcome-labeled PR) -->
+- approval: implicit                <!-- supervised mode: implicit (a plan with no open question is the approval) | explicit (spec-approve writes an approval line bound to the requirements digest; a replan removes it) -->
+- execute_through: none             <!-- supervised mode: none (execution ends uncommitted) | pr (the go-ahead to spec-execute also covers the commits, the pull request and git-finalize-pr) -->
+- spec_folder: number               <!-- the key NNN a spec folder and its files start with: number (the next free number) | date-id (<yyMMdd>-<tracker item id>, collision-free across branches) -->
+- spec_checks: none                 <!-- a project module whose default export, (spec) => string[], adds the stack's own problems to spec.mjs check (spec-validate); spec holds dir, key, requirements and plan; none -->
 - features_dir: docs/features      <!-- behavior-baseline feature docs -->
 - rules_dir: docs/rules             <!-- business rules as contracts -->
 - decisions_dir: docs/decisions     <!-- ADRs -->
@@ -118,3 +124,4 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 - tracker: auto                     <!-- auto = the forge's own tracker detected from the git remote (github | gitlab | azure-boards) | jira | asana | mcp | none -->
 - tracker_cli: auto                 <!-- auto = matches the forge (gh | glab | az) | <command> ; used read-only by spec-pull -->
 - tracker_item_ref: auto            <!-- how items are referenced: #123 | PROJ-123 | url | auto -->
+- tracker_writes: none              <!-- what the spec flow may write to the tracker: none | scope-notes (a scope change posted as one short note on the item, on the developer's yes to its exact text) -->

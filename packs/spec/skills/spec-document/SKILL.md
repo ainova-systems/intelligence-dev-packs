@@ -25,7 +25,7 @@ Learn from the project (read two sibling docs in the target folder; mimic, don't
 2. **Read two siblings** to match structure and tone.
 3. **Draft from code as ground truth**; mark each claim `confirmed` / `inferred`. Never state intent the code does not show - business rules in config, database rows, or runtime extensions are invisible to static drafting; flag them, don't fabricate.
 4. **Naming**: kebab-case, `R-NNN` / `NNNN-` zero-padded, one concept one name.
-5. **Owner gate**: present the draft; it stays `inferred` until the owner confirms.
+5. **Owner gate** (`dev-working-with-people`): present the draft; it stays `inferred` until the owner confirms.
 
 ## Verify
 
