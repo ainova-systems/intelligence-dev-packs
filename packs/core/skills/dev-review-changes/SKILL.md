@@ -1,14 +1,16 @@
 ---
 name: dev-review-changes
 description: "Reviews pending changes against the project's rules and reports findings with a severity verdict. Read-only - never edits, stages, or commits."
-argument-hint: "[base ref]"
+argument-hint: "[base ref] [the record of findings already settled]"
 agent: dev-code-reviewer
+context: fork
+background: false
 allowed-tools: Read, Grep, Glob, Bash
 ---
 
 # Review Pending Changes
 
-Read-only review before commit or PR - findings only, never edits.
+Read-only review before commit or PR - findings only, never edits. It runs forked: it reads the repository and its arguments, never the conversation that invoked it.
 
 ## Steps
 
@@ -20,10 +22,10 @@ Read-only review before commit or PR - findings only, never edits.
    - **Spec axis**: the diff against the spec's requirements - each requirement delivered, partially delivered, or missing; scope creep the spec never asked for; each finding quoting the requirement it maps to. Report the worst finding per axis, not one winner across both.
    Without a spec, run the standards axis alone.
 5. Check, grouped by severity:
-   - **Critical** (block): correctness bugs; boundary/layering violations; credentials anywhere in the reviewed diff (run `git-scan-secrets`, `diff` scope); weakened gates (skipped tests, suppressions, lowered thresholds); new logic without tests; cross-cutting drift - grep every removed/renamed symbol across the tree.
+   - **Critical** (block): correctness bugs; boundary/layering violations; credentials anywhere in the reviewed diff (`git-scan-secrets` at `diff` scope, followed from its `SKILL.md`, since a forked run has no skill tool); weakened gates (skipped tests, suppressions, lowered thresholds); new logic without tests; cross-cutting drift - grep every removed/renamed symbol across the tree.
    - **Warning**: convention violations, oversized files or diffs, duplicated helpers, missing validation at external boundaries.
    - **Suggestion**: naming, comments restating code, extractable helpers.
-6. Keep a finding only when it names the concrete case that fails - the input, state or reader for which the change does the wrong thing - and re-reading the code confirms it. In a rule, skill or agent, only a wrong or missing outcome, a contradiction, or a stale reference counts. What an approved plan states, and every finding already in the record the caller names, is settled and not raised again.
+6. Keep a finding only when it names the concrete case that fails - the input, state or reader for which the change does the wrong thing - and re-reading the code confirms it. In a rule, skill or agent, only a wrong or missing outcome, a contradiction, or a stale reference counts. What an approved plan states, and every finding already in the record the caller passes, is settled and not raised again.
 7. Report, for the reader `dev-working-with-people` describes:
 
 ```

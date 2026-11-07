@@ -2,7 +2,6 @@
 name: spec-answer
 description: "Resolves a blocked spec's open decisions with the developer, one at a time, records what each answer changed, and corrects an earlier answer on request. Questions owned by someone outside the session stay open."
 argument-hint: "<spec folder or slug> [question number to correct]"
-agent: spec-architect
 ---
 
 # Answer a Spec's Open Questions

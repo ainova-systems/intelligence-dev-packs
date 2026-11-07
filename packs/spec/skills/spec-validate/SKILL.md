@@ -3,6 +3,8 @@ name: spec-validate
 description: "Fact-checks a planned spec against the repository before execution and turns each gap into an open question that may re-block. Read-only on code."
 argument-hint: "<spec folder or slug>"
 agent: spec-architect
+context: fork
+background: false
 ---
 
 # Validate a Plan

@@ -3,6 +3,8 @@ name: spec-plan
 description: "Writes the plan for a spec whose requirements already exist - coverage, approach, and checkboxed steps that each name an outcome, a place, an executor and a check - and replans it in place when scope changes. Both intakes hand off here."
 argument-hint: "<spec folder or slug>"
 agent: spec-architect
+context: fork
+background: false
 ---
 
 # Plan a Spec

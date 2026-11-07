@@ -2,7 +2,6 @@
 name: spec-init
 description: "Scaffolds the in-repo docs substrate for spec-driven work and migrates existing documentation into it. Runs once, after `dev-init`, before the first spec."
 argument-hint: "[docs root, e.g. docs | Documentation]"
-agent: spec-architect
 ---
 
 # Initialize the Spec-Driven Docs Substrate

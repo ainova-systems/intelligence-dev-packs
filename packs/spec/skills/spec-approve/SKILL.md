@@ -2,7 +2,6 @@
 name: spec-approve
 description: "Records the owner's approval of a reviewed spec: the autonomous queue's entry, or the supervised approval line when the profile asks for one. Under the default supervised setting a plan with no open question is already approved."
 argument-hint: "<spec folder or slug>"
-agent: spec-architect
 disable-model-invocation: true
 ---
 

@@ -19,6 +19,7 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 - update_strategy: merge            <!-- merge | rebase -->
 - conflict_skill: git-resolve-conflicts   <!-- the skill the git flows hand conflicts to; a project with its own layered conflict skill names it here -->
 - protected_branches: main          <!-- comma-separated; default + integration are always protected -->
+- direct_lane: none                 <!-- the paths that may be pushed straight to a protected branch, as gitignore-style patterns, comma-separated, no brace expansion, **/ also matching the root: dev-init's push guard lets a push to a protected branch through only when every path it changes matches; none = no path matches -->
 
 ## Commits
 

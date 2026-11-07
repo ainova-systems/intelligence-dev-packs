@@ -20,7 +20,7 @@ The reference comes first precisely so the pack's strongest new word is defined 
 
 **Problem.** `dev-context-engineering` is a `core` rule, always on, and it requires that "significant decisions get a decision record with explicit status". The only skill that writes one is `spec-decision`, which ships in the `spec` pack. A project that installs `core` alone - the majority case, since `spec` is opt-in - carries the requirement with nothing to execute it, which is the pack's own "a procedure inside a rule has no name a plan can call" failure.
 
-**Shape.** Move the skill to `core` as `dev-decision`, keeping the three-condition gate and the date-naming default. Two implementation notes: the skill currently binds `agent: spec-docs-writer`, an agent that does not exist in a `core`-only install, so the binding has to go or be replaced; and the rename is breaking for the spec pack, so it lands with a release that says so.
+**Shape.** Move the skill to `core` as `dev-decision`, keeping the three-condition gate and the date-naming default. One implementation note: the rename is breaking for the spec pack, so it lands with a release that says so.
 
 ### `dev-add-ci-gate` - one gate command, provably the same locally and in CI
 

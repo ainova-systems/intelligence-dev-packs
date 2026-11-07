@@ -3,6 +3,8 @@ name: spec-pull
 description: "Pulls one tracker item into a spec, read-only against the tracker, and updates that same spec in place on every re-run. With no tracker item, spec-create is the path."
 argument-hint: "<item reference: #123, PROJ-123, or URL>"
 agent: spec-architect
+context: fork
+background: false
 ---
 
 # Pull a Spec from the Tracker
@@ -16,7 +18,7 @@ Read-only by design: this skill never writes to the tracker - the board is the b
 1. **Profile** `## Tracker`: `tracker`, `tracker_cli`, `tracker_item_ref` in `dev-project-profile.md`.
 2. **Detect the forge's own tracker** from the git remote: GitHub remote -> `gh issue view <n> --json title,body,comments,url`; GitLab -> `glab issue view <n>`; Azure DevOps -> `az boards work-item show --id <n>`. The forge tracker needs no new dependency - the PR skills already require the same CLI.
 3. **A connected MCP server** that can read the item is an accepted channel; name which server was used.
-4. **Ask once** and record the answer in the profile.
+4. **Ask once, through the caller** (`dev-working-with-people`): stop and end the result with the question and a recommendation; the caller asks, records the answer in the profile and runs this skill again.
 5. **STOP** when nothing resolves or `tracker: none`: name exactly what is missing ("no tracker in the profile, remote is not a known forge, no tracker MCP server connected") and point to `spec-create` as the taskless path. Never scrape, never guess, never half-pull.
 
 A channel that reads the body but not the comments degrades loudly: pull what is readable and record in the decision log that comments were not read and why.
@@ -29,7 +31,7 @@ A channel that reads the body but not the comments degrades loudly: pull what is
 4. **Record provenance and drift keys** in the frontmatter: `tracker_item_id`, `tracker_item_url`, `item_body_digest`, `item_comments_digest` (digests of the pulled text, so a later re-pull can tell what moved). Do not record a modification timestamp as a key - too many tracker events move it without changing content.
 5. **Gaps become questions, never dead-ends.** Every ambiguity goes to `## Open questions` in the `spec-discipline` question shape, with suggested answers; an undecided item goes under an explicit "Open for planning" marker. This skill never refuses a pullable item.
 6. **On re-pull**, diff the new digests against the recorded ones, apply the delta to the requirements, and note in one line what moved. A cancelled spec is never revived by a re-pull - the item gets a fresh spec, and the cancelled folder stays as the record.
-7. Report (`dev-working-with-people`): spec path, requirement count, decision-log summary, open questions. Then hand to `spec-plan`, which writes the plan beside these requirements - `spec-create` is not the follow-up, it is the other intake.
+7. Run `spec-plan` on the spec, which writes the plan beside these requirements - `spec-create` is not the follow-up, it is the other intake. Then report (`dev-working-with-people`): spec path, requirement count, decision-log summary, open questions, and the plan's report.
 
 ## Verify
 

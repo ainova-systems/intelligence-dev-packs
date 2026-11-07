@@ -73,7 +73,7 @@ Past Phase C every one of them leaves the pull request carrying exactly one outc
 
 ## Phase A - Interview (main session)
 
-It talks to the owner, so it stays where the owner is; it is never a subagent.
+It talks to the owner, so it stays where the owner is; it is never a subagent. A forked intake skill (`spec-pull`, `spec-plan`) ends with its questions, and they are asked here.
 
 1. Read first: the profile, the rules, the area the task touches. A question the repository answers is answered there, never asked.
 2. The phase's owner per the resolution above runs it, and this step ends when nothing about the goal is still open. Nothing installed covers the phase - interview here, dependencies first, each question put as `dev-working-with-people` describes.
@@ -92,7 +92,7 @@ Its own context because it is the largest one of the run, and because nothing af
 
 ## Phase C - Review (one subagent)
 
-Its own context because the stages that judge this pull request must not inherit the author's account of why the code is right - `git-finalize-pr` > Isolation - and a phase that begins by reading the PR and the diff holds that isolation for free.
+Its own context because the rounds' CI logs, fixes and stage reports would otherwise fill the session the owner talks in; the judging stages fork their own (`git-finalize-pr` > Isolation).
 
 1. `git-finalize-pr`, then `git-complete-pr`. The rounds, the factors and the outcome belong to them; nothing here re-decides any of it. When pre-flight established the claim as this run's, the prompt says so - that sentence is what separates this phase from a second actor, and without it `git-finalize-pr` refuses the very pull request the phase was spawned to finish.
 2. The phase ends at exactly one outcome label. `ai:manual` or `ai:failed` ends the run there, reporting the owner's list - there is no merge on a caveat. The one ending without a label is a pull request another run holds (*How the run ends*).
