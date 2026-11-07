@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-11-07
+
+Gate runners, reviews and commits judge one defined change, the settings template denies commands that discard work, and spec plans are shorter.
+
 ### Added
 
 - Core rule `dev-working-with-people`, always on: a report opens on the result in the reader's language, a question carries one decision explained from zero, consent is one yes per stage, and the work keeps to the scope that was asked.
