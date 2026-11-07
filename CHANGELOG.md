@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-11-07
+
+Judging and test skills run as forked subagents that hand questions back, and a hook guards pushes to protected branches.
+
 ### Added
 
 - `dev-init` > `scripts/guard-push.mjs`: a Claude Code `PreToolUse` hook on Bash and PowerShell that denies a `git push` updating a branch profile `protected_branches` names unless every path it changes matches `direct_lane`. It resolves refspecs, `remote.<name>.push` and `push.default` through `git -C`, chained commands, `sh -c`, `pwsh -Command`, command substitutions and git aliases, denies `--all`, `--mirror` and deleting a protected branch, and denies a push whose targets it cannot resolve; `guard-push.test.mjs` runs it against a real repository and remote.
