@@ -22,10 +22,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- The operator profile keys moved from core's profile template to the operator pack (`packs/operator/templates/operator-project-profile.md`), together with `flow_plan` and `judge_runner`, which only the operator skills read; a project that already has them in its profile changes nothing. Core's artifacts no longer name the operator pack.
-- `git-verify-pr` > Digests reads the blocks to strip from a pull request body from the new core profile key `digest_exclude` instead of the operator configuration; its value lists `` `<start marker>` .. `<end marker>` `` blocks separated by `;`.
-- `scripts/validate-pack.sh` checks profile keys and `ai:*` labels per pack: a pack reads keys from its own schema or core's, core reads only its own, a key both schemas define must carry the same default, and the operator pack's labels are checked against its own `pr-state` page, so the operator pack validates without core.
-- Operator: the new profile key `direct_lane` names the documents that need no reviewed pull request. Intake and clarify commit a queue record straight to the integration branch only when it matches, and clarify merges a clarification pull request on its own only when every changed path matches. The default `none` matches nothing: queue records go through a pull request, and clarify asks the owner to set the key instead of merging.
 - `templates/claude-settings.json` denies force-push, `--no-verify` and blanket staging wherever the flag sits in the command, denies the commands that discard uncommitted work and reading the credentials file, and turns off commit, pull request and session-link attribution.
 - `dev-init` writes push-deny rules for every protected branch, reports the harmless commands the rules also deny and a missing `claudeMdExcludes`, and reports the host's Node, git, make, line-ending, long-path and symlink state before setup.
 - `dev-verification-gates` defines the change every gate runner and review judges: everything between the merge-base and the working tree, untracked files, deletions and both sides of a rename included; a base that does not resolve or an empty merge-base stops the run. `dev-run-tests` and `dev-review-changes` read that change.
@@ -40,7 +36,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `spec-orchestration` routes every finding after planning through one table, and `spec-execute` takes an in-scope fix as text, also on a finished plan.
 - `scripts/validate-pack.sh` warns on a `SKILL.md` over 1500 words or a paragraph over 200, and resolves pack-level `references/` pages by name; `CONTRIBUTING.md` asks a fix to restate the outcome so that it covers the case a review found.
 
-**Updating:** a project whose `operator_config` sets `digestExclude` adds the same blocks as `digest_exclude` to its profile, or its verification reports go stale after each rewrite of those blocks. A project that already ran `dev-init` keeps its old prefix rules until it runs `dev-init` again, which adds the new rules beside them. A tool that parses the `### Critical` / `### Warning` / `### Suggestion` headings of a `## Code review` report reads the severity at the start of each `### Unresolved` entry instead. A plan written before this release fails `spec.mjs check` until it carries the seven plan sections in order and names its executors in backticks; `spec-plan` replans it in place.
+**Updating:** A project that already ran `dev-init` keeps its old prefix rules until it runs `dev-init` again, which adds the new rules beside them. A tool that parses the `### Critical` / `### Warning` / `### Suggestion` headings of a `## Code review` report reads the severity at the start of each `### Unresolved` entry instead. A plan written before this release fails `spec.mjs check` until it carries the seven plan sections in order and names its executors in backticks; `spec-plan` replans it in place. A project that runs the operator pack with `direct_lane` removes the push-deny rules `dev-init` writes for its integration branch, because an allow rule cannot override a deny rule.
+
+## [0.13.0] - 2026-11-06
+
+The operator pack moved to its own repository, and core no longer carries anything only the operator pack reads.
+
+### Changed
+
+- Core's profile template no longer defines `flow_plan`, `judge_runner` and the keys only the Operator runtime's phase skills read; a project that already has them in its profile changes nothing. Core's artifacts no longer name another pack's skills.
+- `git-verify-pr` > Digests reads the blocks to strip from a pull request body from the new core profile key `digest_exclude` instead of the operator configuration; its value lists `` `<start marker>` .. `<end marker>` `` blocks separated by `;`.
+- `scripts/validate-pack.sh` checks profile keys per pack: a pack reads keys from its own schema or core's, core reads only its own, and a key both schemas define must carry the same default.
+
+### Removed
+
+- The operator pack moved to https://github.com/ainova-systems/operator-packs; projects that installed it switch their package source there.
+
+**Updating:** a project that used the operator pack switches its source with `intelligence registry add https://github.com/ainova-systems/operator-packs.git`, then `intelligence package remove @ainova-systems/operator` (only when it was installed by that name from here) and `intelligence package add @ainova-systems/operator@^0.13.0`; in `intelligence.yaml` `sources.skills` it replaces the old operator skills path with `.intelligence/packages/@ainova-systems/operator/skills`, points profile `forge_cli` at `.intelligence/packages/@ainova-systems/operator/skills/operator-contract/scripts/forge-github.mjs`, and sets `direct_lane` to keep committing queue documents directly.
+
+**Updating:** a project whose `operator_config` sets `digestExclude` adds the same blocks as `digest_exclude` to its profile, or its verification reports go stale after each rewrite of those blocks.
 
 ## [0.12.1] - 2026-11-06
 

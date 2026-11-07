@@ -24,7 +24,7 @@ PACK_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PACKS_DIR="$PACK_ROOT/packs"
 
 # Known domain prefixes. Add a row here when a new domain (e.g. react-, sec-) is introduced.
-KNOWN_PREFIXES="dev- git- spec- operator-"
+KNOWN_PREFIXES="dev- git- spec-"
 
 # Word budgets (CONTRIBUTING.md > Writing for current models).
 SKILL_WORD_BUDGET=1500
@@ -143,15 +143,11 @@ fi
 [ "$pack_count" -gt 0 ] || fail "no packs found under packs/"
 
 # One source per convention (dev-context-engineering): the ai:* label vocabulary is
-# defined once per pack and only cited elsewhere - core's git-workflow rule, and for the
-# operator pack its own pr-state page, so that pack checks without core. A label an artifact
+# defined once and only cited elsewhere - core's git-workflow rule. A label an artifact
 # uses but its definition site never names is a second definition site - the failure mode
 # that recurred three times before this check existed.
 label_rule_for() {
-    case "$(basename "$1")" in
-        operator) echo "$1skills/operator-contract/references/pr-state.md" ;;
-        *) echo "$PACKS_DIR/core/rules/git-workflow.md" ;;
-    esac
+    echo "$PACKS_DIR/core/rules/git-workflow.md"
 }
 for pack_dir in "$PACKS_DIR"/*/; do
     [ -d "$pack_dir" ] || continue
@@ -176,11 +172,11 @@ done
 
 # Every artifact an artifact names must exist. Renaming or removing one otherwise
 # leaves a dangling reference that reads as a working hand-off. A name in a domain no pack
-# here holds is an optional artifact of a pack that is not in this repository (the
-# operator pack names core skills as defaults it does not need), so it is not checked.
+# here holds is an optional artifact of a pack that is not in this repository, so it is
+# not checked.
 present_domains="$(find "$PACKS_DIR"/*/rules "$PACKS_DIR"/*/agents "$PACKS_DIR"/*/skills "$PACKS_DIR"/*/templates \
     "$PACKS_DIR"/*/references -mindepth 1 -maxdepth 1 2>/dev/null | sed 's|.*/||' | grep -oE '^[a-z]+-' | sort -u || true)"
-artifact_refs="$(grep -rhoE '`(dev|git|spec|operator)-[a-z-]+`' "$PACKS_DIR" | tr -d '`' | sort -u || true)"
+artifact_refs="$(grep -rhoE '`(dev|git|spec)-[a-z-]+`' "$PACKS_DIR" | tr -d '`' | sort -u || true)"
 for ref in $artifact_refs; do
     grep -qx "${ref%%-*}-" <<< "$present_domains" || continue
     found=""
