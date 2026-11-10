@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- ROADMAP: epic planning replaces brief decomposition, Risk and Size as pull request labels replaces risk-driven factors, `rollback_policy: forward-fix` covers a project that fixes forward after release, `app_stop` is needed only for what outlives the command that started it, and one folder of defect records also keeps the defects that cannot be fixed; the CI gate wiring skill, the rejected-decisions registry and per-step HITL/AFK marking are dropped.
+
 ## [0.16.0] - 2026-11-10
 
 CI green and the gate runner mean what they say, the pull request template says why, and the two judging agents run at a fixed effort.
