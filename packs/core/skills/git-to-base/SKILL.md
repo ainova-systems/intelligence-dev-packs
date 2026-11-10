@@ -1,5 +1,5 @@
 ---
-name: git-sync-base
+name: git-to-base
 description: "Returns the checkout to the integration branch, fast-forwards it, and removes the local branches and worktrees whose pull request was merged, leaving everything else as it is. The routine reset between tasks."
 argument-hint: "[branch-name ...]"
 ---
@@ -12,9 +12,11 @@ closes a pull request and never touches a remote branch.
 
 ## Steps
 
-1. **Run the project's command when it has one.** Profile `sync_base_command` replaces steps 2-4:
+1. **Run the project's command when it has one.** Profile `to_base_command` replaces steps 2-4:
    run it once with the arguments given, with a generous timeout, and act on the status it reports
    (below). Never rebuild its flow out of ad-hoc git commands, and never delete a branch it retained.
+   A profile that still sets the key under its name before 0.17.0, sync_base_command, is read the
+   same way until the next minor release, and the report says to rename it.
 2. **Check the checkout.** Uncommitted work in it is a stop: list the files and let the owner
    commit, stash or discard. Check out the integration branch and `git pull --ff-only`; a diverged
    integration branch goes to profile `conflict_skill` through the owner, never a reset.
@@ -29,7 +31,7 @@ closes a pull request and never touches a remote branch.
 
 ## Status
 
-A `sync_base_command` reports its outcome in a last block, `<NAME>_STATUS=<value>`:
+A `to_base_command` reports its outcome in a last block, `<NAME>_STATUS=<value>`:
 
 | Status | Meaning | Your move |
 |---|---|---|

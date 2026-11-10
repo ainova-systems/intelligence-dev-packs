@@ -12,7 +12,7 @@ is eligible, and when related items ship together are profile `flow_queue`'s.
 
 ## Steps
 
-1. **Start clean.** Run `git-sync-base`. A dirty tree or a checkout that cannot return to the
+1. **Start clean.** Run `git-to-base`. A dirty tree or a checkout that cannot return to the
    integration branch is a stop: report what holds it, never discard work to proceed.
 2. **Read the queue** on the freshly fetched integration branch, in the order `flow_queue` defines,
    with its eligibility rules. Never rerank what it orders. Items `flow_queue` says ship together
@@ -40,7 +40,7 @@ is eligible, and when related items ship together are profile `flow_queue`'s.
    its own lifecycle - a status to push when work starts, a field to set in the change that resolves
    it - is part of its task.
 7. **Return.** Each instance ends where `dev-deliver` ends it - the accept gate, or an outcome label
-   when nobody is there to ask. Then run `git-sync-base` and report per task: the item, the pull
+   when nobody is there to ask. Then run `git-to-base` and report per task: the item, the pull
    request, its outcome label and what the owner has to do next.
 
 ## Verify
@@ -50,7 +50,7 @@ is eligible, and when related items ship together are profile `flow_queue`'s.
 
 ## Scope / hand-off
 
-- Each task runs through `dev-deliver`; the reset is `git-sync-base`.
+- Each task runs through `dev-deliver`; the reset is `git-to-base`.
 
 ## Constraints
 

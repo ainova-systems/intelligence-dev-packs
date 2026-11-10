@@ -62,7 +62,7 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 - worktree_create: none              <!-- command that creates a ready-to-work worktree, given its path and branch, in place of the plain git worktree add - e.g. one that also installs dependencies or links env files; none -->
 - worktree_remove: none              <!-- command that removes one, given its path, in place of the plain git worktree remove - e.g. one that also tears down what the create command set up; none -->
 - flow_queue: none                   <!-- where the work queue's pick order, eligibility, grouping and leave-the-queue rules are written, read by dev-deliver-next; none = dev-deliver-next asks for a task -->
-- sync_base_command: none            <!-- a project command that performs git-sync-base's steps and reports <NAME>_STATUS; none = the skill's own git steps -->
+- to_base_command: none            <!-- a project command that performs git-to-base's steps and reports <NAME>_STATUS; none = the skill's own git steps -->
 
 ## Pull requests
 

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `git-sync-base` is renamed `git-to-base`, since it returns the checkout to the base rather than bringing the base into a branch, and its profile key `sync_base_command` is renamed `to_base_command`. The name leaves the domain-verb-object pattern of the other skills on purpose; a new skill does not take it as a model.
+
+**Updating:** Invoke `git-to-base` where a prompt, a handoff or a project skill named `git-sync-base`. A profile that sets `sync_base_command` renames it to `to_base_command`; until the next minor release `git-to-base` still reads the old key and says so in its report.
+
 ## [0.16.0] - 2026-11-10
 
 CI green and the gate runner mean what they say, the pull request template says why, and the two judging agents run at a fixed effort.

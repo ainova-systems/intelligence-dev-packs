@@ -43,7 +43,7 @@ Source of truth: `intelligence/` | Sync: `intelligence sync`
 | [git-resolve-conflicts](packs/core/skills/git-resolve-conflicts/SKILL.md) | Resolves merge or rebase conflicts by what each side intended, never by picking a hunk, then re-runs the full gates. |
 | [git-review-pr](packs/core/skills/git-review-pr/SKILL.md) | Reviews an open pull request's diff against the project rules and against what the PR claims about itself, and records the verdict on the PR. Answering other people's review threads is git-complete-pr. |
 | [git-scan-secrets](packs/core/skills/git-scan-secrets/SKILL.md) | Scans a diff, the working tree, or branch history for credentials before they reach a remote, and classifies every hit. |
-| [git-sync-base](packs/core/skills/git-sync-base/SKILL.md) | Returns the checkout to the integration branch, fast-forwards it, and removes the local branches and worktrees whose pull request was merged, leaving everything else as it is. The routine reset between tasks. |
+| [git-to-base](packs/core/skills/git-to-base/SKILL.md) | Returns the checkout to the integration branch, fast-forwards it, and removes the local branches and worktrees whose pull request was merged, leaving everything else as it is. The routine reset between tasks. |
 | [git-verify-pr](packs/core/skills/git-verify-pr/SKILL.md) | Executes a pull request's own verification steps against the running change and records what was observed. Behavioral QA - CI and the fix rounds are git-finalize-pr. |
 
 ### Rules
