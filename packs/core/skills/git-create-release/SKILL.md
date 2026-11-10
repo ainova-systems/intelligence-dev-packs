@@ -44,12 +44,11 @@ State the resolved policy in one line before acting.
    - `release-pr` → commit on a `release/x.y.z` branch, open a PR to the target, get **CI green**, merge per `merge_method`. The branch is the review surface for everything the release changes about itself - changelog, version, release docs - and its PR body carries the step-2 checklist, so the pending steps are reviewed with the release rather than recalled from chat. No direct push - branch protection is satisfied. (`gitflow-merge`: the `develop` → `master` merge IS this PR.)
    - `automated` → defer to the release bot (e.g. release-please): make its open release PR reflect this version, get it green and merged; the bot lands the commit, sets the tag, and creates the release. Skip steps 7–8.
    - When landing this change-set itself triggers a deployment (a pre-production environment that tracks the release target), watch that deployment to green **before** tagging - it is the rehearsal for the tag, on the same commit.
-7. **Tag** the release commit (the *merge* commit for `release-pr` / `gitflow-merge`) - annotated, per `tag_format`, message = version plus the changelog headline.
-   - `tagger: maintainer` → `git tag -a <tag> <commit>`; **confirm with the owner**, then `git push origin <tag>` - push the *tag*, not a branch. A protected default branch does **not** block a tag push; locking tags is a separate `refs/tags/v*` ruleset.
-   - `tagger: ci` → do not tag locally; the merge triggers the CI tagger - verify it ran.
-8. **Publish the release object** per `release_artifact`:
-   - `tag-only` → done; the tag is the release.
-   - `github-release` / `github-release-draft` → `gh release create <tag> --verify-tag --title "<tag> - <headline>"` with the body from `release_notes` (`changelog-section` → `--notes-file <the [X.Y.Z] section>`; `generated` → `--generate-notes`; `none` → `--notes ""`); add `--draft` for the draft variant and `--prerelease` only when the version carries a pre-release suffix (e.g. `-rc.1`). Non-GitHub platforms use their own CLI (`glab release create`, …).
+7. **Tag and publish** the release commit (the *merge* commit for `release-pr` / `gitflow-merge`) with this skill's `scripts/release.mjs <tag> --commit <sha> --branch <target> --artifact <release_artifact> --notes <release_notes>`, adding `--notes-file <path>` for an assembled section outside `CHANGELOG.md` and `--version X.Y.Z` when `tag_format` does not end in it. Run it with `--dry-run` first and state its plan line - tag, commit, target, release kind - then without. Its header lists its checks; an `-rc.1` version becomes a prerelease, and a rerun finishes a partial one.
+   - `tagger: maintainer` → the script tags and pushes.
+   - `tagger: ci` → do not tag locally; the merge triggers the CI tagger - verify it ran. For `github-release` or `github-release-draft`, then run the script, which finds the pushed tag and only creates the release; for `tag-only` the CI tag is the release.
+   - Another forge uses its CLI (`glab release create`, …).
+8. **Publish the release object** - step 7's script, for `github-release` and `github-release-draft`; for `tag-only` the tag is the release.
 9. **Watch** the deploy/release pipeline to completion when one exists.
 10. **Close out.** Re-present the post-release steps the owner accepted in step 3 and confirm each is applied; re-run `drift_check` where it covers one. Report the tag, the changelog section, the release-object URL (if any), the pipeline outcome, and the checklist with every item closed.
 

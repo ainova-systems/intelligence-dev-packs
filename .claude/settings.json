@@ -3,7 +3,9 @@
     "allow": [
       "Bash(node scripts/*)",
       "Bash(node --test scripts/*)",
-      "Bash(bash scripts/*)"
+      "Bash(bash scripts/*)",
+      "Bash(node packs/*/skills/*/scripts/*)",
+      "Bash(node .claude/skills/*/scripts/*)"
     ]
   }
 }
