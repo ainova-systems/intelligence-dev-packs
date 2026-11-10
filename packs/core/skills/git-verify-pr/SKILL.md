@@ -14,7 +14,7 @@ Be the manual QA engineer the PR body asks for: run the steps it declares agains
 ## Pre-flight
 
 1. Resolve the PR and its head: `gh pr list --head <branch> --state open --json number,headRefOid --jq '.[0]'`. Every result below is bound to that SHA and names it.
-2. A verification report for this exact SHA already exists - report it and stop; nothing changed to re-verify.
+2. A report naming this SHA and the current steps digest (*Digests*) already exists - report it and stop.
 
 ## Steps
 
@@ -42,7 +42,7 @@ Be the manual QA engineer the PR body asks for: run the steps it declares agains
 
    A fifth belongs to the report rather than to any step: **`blocked (workspace)`** - the location this stage was given moved under it, so nothing it read is known to be one commit. No step carries it, because the finding is that no step's result can be trusted. It is the only verdict its caller can clear, by holding the location still and running the stage again (`git-finalize-pr` > Isolation) - which is what separates it from the two above, one waiting on a profile answer and the other on this PR.
 5. **Probe the negative each passing step implies**: empty input, an unauthorized caller, the boundary value it names. The defect the happy path hides is exactly the one the diff does not show.
-6. **Record.** Post one PR comment (`gh pr comment`) in the report envelope `git-workflow` defines - each run against a new head is a new entry in the log. Name the head SHA **and** the steps digest of what was executed (*Digests* below). The code is not this stage's only input: a PR body can be edited and a standing check added without the head moving, and a factor earned against the old steps is not a claim about the new ones. The digest is what makes that visible instead of assumed:
+6. **Record.** Post one PR comment (`gh pr comment`) in the stage report `git-pr-labels` defines - each run is a new entry in the log. Name the head SHA **and** the steps digest of what was executed (*Digests* below). The code is not this stage's only input: a PR body can be edited and a standing check added without the head moving, and a factor earned against the old steps is not a claim about the new ones:
 
 ```
 ## Verification - PASS | FAIL | BLOCKED (PROJECT) | BLOCKED (STEP) | BLOCKED (WORKSPACE)
@@ -57,7 +57,7 @@ head: <sha> - steps: <digest> - env: <preview <url> | local | none>
 - Step 2 - expected <x>, observed <y>. Repro: <the exact actions>. Suspect: `path/file:line`.
 ```
 
-7. **Label.** Every step `pass` and no `blocked (workspace)` on the report - add `ai:verified`. A workspace block is not a step's to carry, so rows that all read `pass` do not answer it, and a factor earned from a location nobody could pin is the one this stage must never write. Otherwise write no label at all and return the failures, the blocked steps and any workspace block to the caller: the outcome is `git-complete-pr`'s to write.
+7. **Label.** Every step `pass` and no `blocked (workspace)` on the report - add `ai:verified`. A workspace block is not a step's to carry, so rows that all read `pass` do not answer it. Otherwise write no label at all and return the failures, the blocked steps and any workspace block to the caller: the outcome is `git-complete-pr`'s to write.
 
 ## Digests
 
@@ -69,7 +69,7 @@ The one definition of a digest of a pull request's text, for this stage, `git-re
 
 The verification section runs from the line that is exactly `## <profile verify_section>` to the line before the next line starting `## `, or the end. No such line: the steps digest is `none`, and the body digest covers the whole body.
 
-- **Steps digest** (this stage): the lines of the verification section after its heading, followed by the matched standing checks, in order.
+- **Steps digest** (this stage): the lines of the verification section after its heading, then each matched standing check's lines as the `qa_checks` file writes them - from its glob line to the line before its *Why* line, so the reason stays out - in the file's order.
 - **Body digest** (`git-review-pr`): the whole body without the verification section, heading included. The steps digest already covers it, so a box checked there does not send the diff back to review.
 
 ## Delegation

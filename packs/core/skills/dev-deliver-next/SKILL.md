@@ -31,7 +31,7 @@ is eligible, and when related items ship together are profile `flow_queue`'s.
    pull requests: an item an open pull request now represents is skipped, reported, and replaced by
    the next eligible one. Then create the item's branch from the freshly fetched integration branch,
    with the profile's prefix (the bugfix prefix for a defect), push one empty reservation commit (`Took <item title> into delivery`) and open it as a draft
-   pull request through `git-open-pr`, naming the item and stating that implementation has not
+   pull request through `git-open-pr --draft`, naming the item and stating that implementation has not
    started. The draft is the reservation: work kept only in a local checkout is invisible to every
    other picker.
 6. **Deliver each.** Run `dev-deliver` with the item's path as the task, on its reserved branch and

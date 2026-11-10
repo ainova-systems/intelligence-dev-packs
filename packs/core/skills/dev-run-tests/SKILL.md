@@ -13,7 +13,7 @@ Cheapest-first verification with scope detection. Invoke per task slice, at phas
 
 ## Steps
 
-1. Resolve commands: profile `verify` set - run exactly that single gate-runner command and report what it ran and skipped; the remaining steps are its internals and this skill adds only the failure analysis. Else profile `typecheck` / `lint` / `test`; else detect (`package.json` scripts, `*.sln` - `dotnet test`, `pyproject.toml` - pytest, `go.mod` - `go test ./...`, `Makefile` targets). Name detected commands in one line of the report on the first run.
+1. Resolve commands: profile `verify` set - run exactly that single gate-runner command and report its verdict as printed: the gates that passed, those with nothing to check, and those not run, each with its reason. A `NOTHING CHECKED` or `INCOMPLETE` verdict is never reported as green; core's runner defines its verdicts and exit codes in the header of `scripts/verify-runner.mjs`. The remaining steps are its internals and this skill adds only the failure analysis. Else profile `typecheck` / `lint` / `test`; else detect (`package.json` scripts, `*.sln` - `dotnet test`, `pyproject.toml` - pytest, `go.mod` - `go test ./...`, `Makefile` targets). Name detected commands in one line of the report on the first run.
 2. Detect scope: the change `dev-verification-gates` defines, against the target branch - map changed files to their test areas. Docs/markdown-only change - report "no tests to run" and stop. An explicit argument overrides.
 3. Typecheck first - it fails fastest. On error: report the file and the first error, STOP.
 4. Lint second. On error: report the finding, STOP.
@@ -23,7 +23,7 @@ Cheapest-first verification with scope detection. Invoke per task slice, at phas
 
 ## Verify
 
-- All gates green for the declared scope, or a precise failure analysis delivered - never "mostly passing".
+- All gates green for the declared scope, or a precise failure analysis delivered - never "mostly passing", and never a run that checked nothing or left a gate not run reported as green.
 
 ## Scope / hand-off
 

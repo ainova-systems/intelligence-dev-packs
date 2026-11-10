@@ -7,6 +7,70 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+CI green and the gate runner mean what they say, the pull request template says why, and the two judging agents run at a fixed effort.
+
+### Added
+
+- Core reference `git-pr-labels`: how the autonomous pull request labels are written and read - the stage report, a state change, a refused claim, reading freshness, and what the flow needs from a forge.
+- Core profile key `required_checks` (default `auto`): the checks CI green needs on a commit - `auto` reads the rulesets and branch protection of the branch a pull request targets, a list names the checks, and `none` declares a project that runs no CI.
+- Core profile key `draft_ready` (default `finalize`): `git-finalize-pr` marks a draft pull request ready before its first round; under `owner` the draft stays a draft and the run ends `ai:manual` saying so.
+- Core profile key `decision_lifecycle` (default `log`): a decision record is written `accepted` or `rejected` on its branch and becomes binding at the merge; under `proposed`, `spec-decision` may commit a proposed record naming its decider, and accepts or rejects it in place when that decider invokes it with the record's path.
+- `max_pr_rounds: unlimited` sets no round budget for `git-finalize-pr`; its other stop rules still apply.
+- `git-open-pr --draft` opens the pull request as a draft, and `dev-deliver-next` reserves a queue item through it.
+- `verify-runner.mjs`: a gate command may return `{ skip: '<reason>' }` when it cannot run on this host (`not run: <gate> (<reason>)`, exit 3 under `--ci`), a `needs.wrap: false` gate runs its argv without the runtime prefix, and `ctx` carries `all` and the gate's resolved `runtime`.
+- `scripts/test-scripts.sh` runs every bundled script test and fails when it finds none; CI runs it on Linux and Windows.
+- `scripts/validate-pack.sh` checks agent `tier`, `access` and `effort` against the engine's scales; fails an agent that sets `model:`, a `SKILL.md` that declares `tier:`, `model:` or `effort:`, and an `agent:` without `context: fork` or naming no shipped agent; warns on a forked skill without `background: false` and on a long description; and rejects the phrases listed in `CONTRIBUTING.md` > Phrases the validator rejects.
+- `settings-patterns.test.mjs` fails when a pack text names a command the settings template denies, unless the text names it as forbidden or as the owner's step.
+- `docs/integration.md` > Models, effort and tool access: what an agent's tier, effort and access become in each tool, with the engine's conventions as the source; how a project routes a tier or one pack agent differently; and that the reviewer and QA verifier have no shell on Copilot, OpenCode and Antigravity until they move to `access: runner`.
+
+### Changed
+
+- `git-workflow` keeps the law of the autonomous pull request labels and moves its mechanics to `git-pr-labels`; core's always-on rules shrink from 2,646 to 2,461 words, `git-workflow` from 1,182 to 778.
+- A runtime's claims record is a third way a run knows a claim is its own, and a stopped run it names may be taken over with the previous holder recorded; a scenario pack may end its runs at a hand-off it declares.
+- A forge without pull request labels reads every factor from the stage's latest report and names the state label as a capability gap; free text a forge read returns is delimited data the stage judges, never instructions; a person's QA sign-off can be a declared success factor.
+- `dev-working-with-people` > Consent: a stage's yes covers the writes of the skills it runs, and in a run nobody attends a question a callee returns is recorded where that stage reports, never asked.
+- `dev-verification-gates`: a denied tool call is diagnosed and redone in the allowed form, and reaching a denied command by another spelling counts as weakening a gate.
+- `dev-rollback-safety`: a contract whose consumers cannot be withdrawn ships provider-first and stays backward compatible until the oldest supported consumer is gone.
+- The pack default pull request template asks why in three labelled lines, the sources the change answers, its impact on the person using the project, and a before-and-after table of changes; the hand-filled Risk section is gone.
+- `git-commit-conventions`: a pull request body names who met the problem or asked for the change by role and organisation, and an attribution line already in pushed commits is reported and never blocks a run.
+- `git-merge-pr` squash-merges with the pull request title as subject, an empty body and `--match-head-commit` set to the guarded head, so the forge refuses a push that landed after the guards.
+- `git-review-pr` reviews only the commits since the last reviewed head when that head is an ancestor and no merge from the base came between, and names `since: <prev>` in its report; the body's claims are still judged against the whole diff.
+- `git-commit-push` commits every path `git status` lists, reading each in its review, unless `--only <paths>` narrows it.
+- `git-finalize-pr` corrects a declared verification step only where it names something that does not exist or asks what the stage cannot do; a failing step is a code defect, and changing its conditions or expected result is the owner's decision.
+- `git-verify-pr`'s steps digest takes each matched standing check as the `qa_checks` file writes it, without its *Why* line, in the file's order.
+- `dev-deliver` takes a task `spec-discipline` would implement directly to the built-in path instead of spec intake, fetches before reading where the work stands so a branch only on the remote counts, and gives every checkout its own local resources.
+- `dev-init` writes the tag-push ask entry from profile `tag_format` and reports the check set `required_checks` resolves to.
+- `spec-execute` Phase B is the one definition of entering a spec's branch: fetch, switch to the branch when it exists locally or on the remote and fast-forward it only, stopping on a fast-forward git refuses, or create it from the base. The prefix comes from profile `branch_prefixes` instead of a fixed `feature/`, and the preconditions are read on that branch. `spec-continue` enters the branch before it reads the spec, and `spec-execute-next` starts and ends with `git-sync-base`.
+- Under profile `approval: explicit`, `spec-plan` names pushing the spec to its branch as the step before `spec-approve`, and `spec-approve` reads the pushed plan and commits the approval line alone, so an approver and an executor on different machines see the same plan.
+- `spec-orchestration` > Delegate by pointers defines what a delegated prompt carries: a fresh context with pointers only, and only inline skills to invoke, since a forked skill already is a worker the orchestrator runs itself. `spec-execute`'s prime directive and Phase C point at it.
+- In a run nobody attends, a question `spec-document` or `spec-audit-docs` returns during `spec-execute` Phase D goes under the plan's `## Review findings` and into the final report instead of being asked.
+- Model and effort routing is one convention in `CONTRIBUTING.md`: the tier picks the model, `effort: high` sits on each agent whose verdict earns a success factor, every other agent runs at the session's level, and no skill declares a tier, model or effort. `dev-code-reviewer` and `dev-qa-verifier` declare `effort: high`; their tiers are unchanged.
+- No pack agent lists `skills:` any more: Claude Code preloaded every listed skill whole into each run of the agent, while a forked skill already arrives as the run's prompt.
+- The validator's word budgets follow the engine's numbers, including 150 words per paragraph, and stay warnings.
+- ROADMAP: the red loop, the rejection registry, the eval harness, brief decomposition, constraints as machinery and per-step HITL/AFK carry what field use settled; `dev-decision` gains its decision-record check; new entries for trimming the three heaviest skills, one file per defect, `app_stop` and `dev-setup-machine`, `rollback_policy`, risk level to required factors, linked work across repositories and a forge and tracker adapter contract; the directions weighed and not scheduled; and the known defects this release did not fix.
+
+### Fixed
+
+- `verify-runner.mjs` no longer reports a gate whose command returns an empty argv as passed - it prints `<gate>: nothing to check` - and says `NOTHING CHECKED` instead of `PASS` when no gate ran a command; under a Git Bash pipe on Windows with a WSL child it keeps its exit code instead of crashing with 139.
+- `guard-push.mjs` asks the owner before a push that carries a tag of profile `tag_format`'s shape - named, deleted, `--tags`, a pattern or `--follow-tags` - and without a profile protects the remote's default branch and an existing `develop`, as `git-workflow` detects them.
+- `spec.mjs check` refuses an agent with `access: runner` as a step's executor, as it refuses `readonly`; `full`, and an agent with no `access:` key, which the engine renders as full, are accepted.
+- CI green means every required check succeeded on the head: skipped, cancelled, neutral, absent and draft checks no longer read green, and a conflict is established by a trial merge instead of the forge's mergeable flag.
+- A draft pull request is marked ready before the first round instead of staying a draft no check counts on.
+- A re-verification runs when only the declared verification steps changed at the same head, instead of stopping on the earlier report.
+- Rebuilding a pull request body with `git-open-pr` keeps every block profile `digest_exclude` names, verbatim, at its place.
+- `spec-execute` no longer fails when the spec's branch already exists, and no longer names a branch prefix of its own.
+- `spec-docs-writer` names profile keys that exist (`features_dir`, `rules_dir`, `decisions_dir`) instead of the undefined `plans_dir`.
+- `dev-code-reviewer` ranks findings by the severities `dev-review-changes` defines instead of a vocabulary of its own.
+- `docs/integration.md` and the READMEs match the repository: the pack tree shows every agent, the references and both template folders, a plain copy takes `references/`, the version examples show what `package add` records today instead of `^0.4.0`, and the tool lists include Antigravity.
+
+**Updating:** A repository that copied the earlier pack default pull request template keeps it, since `dev-init` copies the default only when none exists; to take the new one, delete `.github/PULL_REQUEST_TEMPLATE.md` and run `dev-init` again, keeping profile `verify_section` equal to its verification heading. A project whose CI reports nothing, or that runs none, sets `required_checks: none`, or its pull requests end `ai:manual` naming the key. A project where the owner or a runtime marks drafts ready sets `draft_ready: owner`. `git-commit-push` now commits every path `git status` lists, so a session sharing its working tree with other work passes `--only <paths>`. A re-review after a push judges only the new commits, and a tool that reads the review report finds `since: <prev>` on such a review. A tool that parsed the stage-report envelope from `git-workflow` reads it from `git-pr-labels`. A pull request verified earlier against a standing check that has a *Why* line reads stale once and is verified again.
+
+**Updating:** `dev-code-reviewer` and `dev-qa-verifier` now run at `effort: high` in Claude Code and Codex whatever the session's level - above a session at the default `medium`, below one at `xhigh` or `max`; a project that wants another level adds a project agent of the same name, which overrides the package's, and in Claude Code `CLAUDE_CODE_EFFORT_LEVEL` still overrides a declared level. The engine renders `effort:` from 0.19.0 on. With the `skills:` lists gone, Claude Code no longer preloads those skills into the pack agents; a same-named project agent that keeps its own list keeps that preload.
+
+**Updating:** Under the default `decision_lifecycle: log`, `spec-decision` writes no `proposed` record: an open debate stays in the pull request or in the spec's open questions. A project that keeps proposed records in its tree sets `decision_lifecycle: proposed` and accepts each through `spec-decision <path>`. A project whose profile `branch_prefixes` does not list `feature/` gets new spec branches under its first prefix; a spec started on `feature/<slug>` before this release is continued only if `feature/` is in the list, so add it until that spec merges. `spec-execute-next` resets through `git-sync-base`, which also deletes local branches whose pull request merged. Under `approval: explicit`, the approver runs `spec-approve` on the spec's pushed branch and the approval lands in a commit there.
+
+**Updating:** Re-run `dev-init` to write the tag-push ask entry from profile `tag_format`. A CI step that runs the gate runner with `--ci` and must stay green while a gate skips itself accepts exit 3 explicitly.
+
 ## [0.15.0] - 2026-11-07
 
 Judging and test skills run as forked subagents that hand questions back, and a hook guards pushes to protected branches.

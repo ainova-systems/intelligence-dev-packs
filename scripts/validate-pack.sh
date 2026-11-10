@@ -2,7 +2,12 @@
 # Validate every pack under packs/:
 # - every rule / agent / skill / template name carries a known DOMAIN prefix
 #   (dev- | git- | spec-); a pack may hold more than one domain.
-# - rules and agents have description frontmatter; agents have tier + access.
+# - rules and agents have description frontmatter; agents have tier + access, and the two and an
+#   optional effort sit on the engine's scale; an agent sets no model (its tier routes it).
+# - routing: a skill sets no tier, model or effort; `agent:` comes with `context: fork` and names
+#   an agent some pack defines; a forked skill without `background: false` is a warning. A
+#   description stays under the tools' limit.
+# - no pack file carries a phrase CONTRIBUTING.md > Phrases the validator rejects lists.
 # - each skill folder has SKILL.md whose `name` matches the folder.
 # - a templates/ folder, if present, is non-empty.
 # - index.yaml (the registry index) and the packs on disk agree, in both
@@ -12,8 +17,9 @@
 # - every artifact an artifact names actually exists; a pack-level references/ page counts.
 # - each pack's profile schema and its artifacts agree: no schema key nothing reads,
 #   no key an artifact reads that neither its pack's schema nor core's defines.
-# - word budgets: a SKILL.md over SKILL_WORD_BUDGET words, or a paragraph over
-#   PARAGRAPH_WORD_BUDGET, is reported as a warning; warnings do not fail the run.
+# - word budgets: a SKILL.md, reference, rule or agent over its budget, or a paragraph, list item
+#   or table row over PARAGRAPH_WORD_BUDGET, is a warning, as is a description over
+#   DESCRIPTION_TARGET_CHARS; warnings do not fail the run.
 # A pack with its own schema (templates/<prefix>-project-profile.md) stands alone: its checks
 # read only its own folder, plus core's schema and artifacts when core is present.
 # Zero dependencies: bash + awk + grep.
@@ -26,9 +32,20 @@ PACKS_DIR="$PACK_ROOT/packs"
 # Known domain prefixes. Add a row here when a new domain (e.g. react-, sec-) is introduced.
 KNOWN_PREFIXES="dev- git- spec-"
 
-# Word budgets (CONTRIBUTING.md > Writing for current models).
+# The Intelligence engine's scales and limits, restated here only to check them. Their definition
+# is the engine's packages/sync/references/conventions.md (Tier, Effort and Access mappings, the
+# skill field limits, Description budget, and the size limits under Skill body and resources);
+# change a value here when the engine changes it there.
+TIERS="frontier heavy standard light"
+ACCESS_LEVELS="full readonly"
+EFFORT_LEVELS="low medium high xhigh max ultra"
+DESCRIPTION_MAX_CHARS=1024      # the tools reject a longer description
+DESCRIPTION_TARGET_CHARS=250    # a sibling-distinguishing description stays within this
 SKILL_WORD_BUDGET=1500
-PARAGRAPH_WORD_BUDGET=200
+REFERENCE_WORD_BUDGET=3000
+RULE_WORD_BUDGET=2000
+AGENT_WORD_BUDGET=500
+PARAGRAPH_WORD_BUDGET=150       # a paragraph, a list item or a table row
 
 errors=0
 fail() { echo "FAIL: $1" >&2; errors=$((errors + 1)); }
@@ -245,22 +262,110 @@ elif [ -d "$PACKS_DIR/core" ]; then
     fail "[core] the profile schema is missing at packs/core/templates/dev-project-profile.md"
 fi
 
+# Routing (CONTRIBUTING.md > Conventions): a value off the engine's scale renders as if it were
+# absent, an agent is routed by its tier and not by a model, `agent:` without `context: fork`
+# selects nothing, and a skill's `tier:`, `model:` or `effort:` either duplicates its agent's or,
+# inline, switches the whole session for the rest of the turn. One awk pass reads the frontmatter
+# of every agent and skill and prints FAIL or WARN lines, since a process per file is slow on
+# some hosts.
+agent_names="$(find "$PACKS_DIR"/*/agents -maxdepth 1 -name '*.md' 2>/dev/null | sed 's|.*/||; s|\.md$||' | sort -u | tr '\n' ' ' || true)"
+routing_report="$(cd "$PACK_ROOT" && find packs -type f \( -path 'packs/*/agents/*.md' -o -path 'packs/*/skills/*/SKILL.md' \) | sort \
+    | xargs awk -v tiers="$TIERS" -v access="$ACCESS_LEVELS" -v efforts="$EFFORT_LEVELS" -v agents="$agent_names" \
+        -v dmax="$DESCRIPTION_MAX_CHARS" -v dtarget="$DESCRIPTION_TARGET_CHARS" '
+        function scale(list, arr,   n, i, parts) { n = split(list, parts, " "); for (i = 1; i <= n; i++) arr[parts[i]] = 1 }
+        function check(f,   parts, what, forked, k, key) {
+            split(f, parts, "/")
+            if (parts[3] == "agents") { what = "[" parts[2] "] agent '\''" substr(parts[4], 1, length(parts[4]) - 3) "'\''" }
+            else { what = "[" parts[2] "] skill '\''" parts[4] "'\''" }
+            if (("description" in V) && V["description"] !~ /^[|>]/) {
+                if (length(V["description"]) > dmax) print "FAIL\t" what " has a " length(V["description"]) "-character description; the tools reject one over " dmax
+                else if (length(V["description"]) > dtarget) print "WARN\t" what " has a " length(V["description"]) "-character description (target " dtarget ")"
+            }
+            if (parts[3] == "agents") {
+                if (("tier" in V) && !(V["tier"] in TIER)) print "FAIL\t" what " has tier '\''" V["tier"] "'\'', not one of: " tiers
+                if (("access" in V) && !(V["access"] in ACCESS)) print "FAIL\t" what " has access '\''" V["access"] "'\'', not one of: " access
+                if (("effort" in V) && !(V["effort"] in EFFORT)) print "FAIL\t" what " has effort '\''" V["effort"] "'\'', not one of: " efforts
+                if ("model" in V) print "FAIL\t" what " sets model; use tier"
+                return
+            }
+            for (k = 1; k <= 3; k++) {
+                key = (k == 1 ? "tier" : k == 2 ? "model" : "effort")
+                if (key in V) print "FAIL\t" what " declares " key ", which a skill never sets: a forked skill runs at its agent'\''s tier and effort, and an inline one would switch the session'\''s for the rest of the turn"
+            }
+            forked = (("context" in V) && V["context"] == "fork")
+            if (("agent" in V) && !forked) print "FAIL\t" what " names agent '\''" V["agent"] "'\'' without context: fork, so the agent is never used"
+            if (forked && ("agent" in V) && !(V["agent"] in AGENT)) print "FAIL\t" what " runs on agent '\''" V["agent"] "'\'', which no pack here defines"
+            if (forked && !(("background" in V) && V["background"] == "false")) print "WARN\t" what " runs forked without background: false, so its caller may go on before the result arrives"
+        }
+        BEGIN { scale(tiers, TIER); scale(access, ACCESS); scale(efforts, EFFORT); scale(agents, AGENT) }
+        FNR == 1 {
+            if (file != "") check(file)
+            file = FILENAME; split("", V); fm = ($0 == "---"); next
+        }
+        fm && $0 == "---" { fm = 0; next }
+        fm && match($0, /^[a-z][a-z-]*:/) {
+            key = substr($0, 1, RLENGTH - 1); value = substr($0, RLENGTH + 1)
+            gsub(/^[ \t]+|[ \t]+$/, "", value)
+            if (value ~ /^".*"$/) value = substr(value, 2, length(value) - 2)
+            if (!(key in V)) V[key] = value
+        }
+        END { if (file != "") check(file) }
+    ' || true)"
+while IFS="$(printf '\t')" read -r level message; do
+    case "$level" in
+        FAIL) fail "$message" ;;
+        WARN) warn "$message" ;;
+    esac
+done <<< "$routing_report"
+
+# Phrases that instruct what a current model already does (CONTRIBUTING.md > Writing for current
+# models). The list is read from CONTRIBUTING.md, its only definition; a phrase inside backticks is
+# a quotation and passes. A missing list fails rather than skipping, like the label check above.
+CONTRIBUTING_FILE="$PACK_ROOT/CONTRIBUTING.md"
+PHRASES_HEADING="### Phrases the validator rejects"
+phrases=""
+if [ -f "$CONTRIBUTING_FILE" ]; then
+    phrases="$(awk -v heading="$PHRASES_HEADING" '
+        $0 == heading { on = 1; next }
+        on && /^#/ { exit }
+        on && match($0, /^- `[^`]+`/) { print tolower(substr($0, 4, RLENGTH - 4)) }
+    ' "$CONTRIBUTING_FILE")"
+fi
+if [ -z "$phrases" ]; then
+    fail "CONTRIBUTING.md has no '$PHRASES_HEADING' list of backticked phrases, which the phrase check reads"
+else
+    phrase_report="$(cd "$PACK_ROOT" && find packs -type f -name '*.md' | sort | PHRASES="$phrases" xargs awk '
+        BEGIN { n = split(ENVIRON["PHRASES"], P, "\n") }
+        {
+            line = tolower($0); gsub(/`[^`]*`/, "", line)
+            for (i = 1; i <= n; i++) if (P[i] != "" && index(line, P[i])) print FILENAME ":" FNR " carries \"" P[i] "\""
+        }
+    ' || true)"
+    while IFS= read -r line; do
+        if [ -n "$line" ]; then fail "$line, a phrase CONTRIBUTING.md > Phrases the validator rejects lists"; fi
+    done <<< "$phrase_report"
+fi
+
 # Text grows a clause per review finding until nobody reads it whole; the budget makes that
 # growth visible. Several skills are over it today, so an offender warns instead of failing.
-# A paragraph is a run of prose lines; a list item starts a new one, and headings, table rows
-# and fenced blocks belong to none. A skill's total counts everything below its frontmatter.
-# One awk pass over every file, since a process per file is slow on some hosts.
+# A paragraph is a run of prose lines; a list item starts a new one and a table row is one of its
+# own, while headings and fenced blocks belong to none. A file's total counts everything below
+# its frontmatter. One awk pass over every file, since a process per file is slow on some hosts.
 budget_report="$(cd "$PACK_ROOT" && find packs -type f -name '*.md' \( -path '*/rules/*' -o -path '*/agents/*' \
     -o -path '*/skills/*' -o -path '*/templates/*' -o -path '*/references/*' \) | sort \
-    | xargs awk -v skill_max="$SKILL_WORD_BUDGET" -v para_max="$PARAGRAPH_WORD_BUDGET" '
+    | xargs awk -v skill_max="$SKILL_WORD_BUDGET" -v ref_max="$REFERENCE_WORD_BUDGET" -v rule_max="$RULE_WORD_BUDGET" \
+        -v agent_max="$AGENT_WORD_BUDGET" -v para_max="$PARAGRAPH_WORD_BUDGET" '
         function flush() {
             if (n > para_max) print file ":" start " has a " n "-word paragraph (budget " para_max ")"
             n = 0
         }
+        function over(max) { if (total > max) print file " is " total " words (budget " max ")" }
         function close_file() {
             flush()
-            if (file ~ /\/skills\/[^\/]+\/SKILL\.md$/ && total > skill_max)
-                print file " is " total " words (budget " skill_max ")"
+            if (file ~ /\/skills\/[^\/]+\/SKILL\.md$/) over(skill_max)
+            else if (file ~ /\/references\/[^\/]+\.md$/) over(ref_max)
+            else if (file ~ /^packs\/[^\/]+\/rules\/[^\/]+\.md$/) over(rule_max)
+            else if (file ~ /^packs\/[^\/]+\/agents\/[^\/]+\.md$/) over(agent_max)
         }
         FNR == 1 {
             if (file != "") close_file()
@@ -271,7 +376,8 @@ budget_report="$(cd "$PACK_ROOT" && find packs -type f -name '*.md' \( -path '*/
         { total += NF }
         /^[[:space:]]*(```|~~~)/ { flush(); fence = !fence; next }
         fence { next }
-        /^[[:space:]]*$/ || /^[[:space:]]*#/ || /^[[:space:]]*\|/ { flush(); next }
+        /^[[:space:]]*\|/ { flush(); start = FNR; n = NF; flush(); next }
+        /^[[:space:]]*$/ || /^[[:space:]]*#/ { flush(); next }
         /^[[:space:]]*([-*+]|[0-9]+[.)])[[:space:]]/ { flush() }
         { if (n == 0) start = FNR; n += NF }
         END { if (file != "") close_file() }
@@ -288,7 +394,7 @@ fi
 
 echo ""
 if [ "$warnings" -gt 0 ]; then
-    echo "OK: $pack_count pack(s) valid, $warnings word-budget warning(s)."
+    echo "OK: $pack_count pack(s) valid, $warnings warning(s)."
 else
     echo "OK: $pack_count pack(s) valid."
 fi

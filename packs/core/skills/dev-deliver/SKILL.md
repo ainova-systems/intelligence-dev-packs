@@ -14,7 +14,7 @@ Phase A captures what the owner expects to observe. Those criteria are yours for
 
 ## Whose skill runs each phase
 
-Every phase resolves its owner the way the pack resolves anything else: **profile, then the installed catalog, then the built-in behavior here.** A project that already ships a skill for a phase has that skill run it (`dev-skill-first`) - the spec pack's `spec-pull` or `spec-create` / `spec-plan`, and `spec-execute`, are one such project, not the shape this skill assumes. Profile `flow_intake` and `flow_implement` pin the answer where detection would guess. Review and release are the pack's own throughout, each already policy-driven from the profile.
+Every phase resolves its owner the way the pack resolves anything else: **profile, then the installed catalog, then the built-in behavior here.** A project that already ships a skill for a phase has that skill run it (`dev-skill-first`) - the spec pack's `spec-pull` or `spec-create` / `spec-plan`, and `spec-execute`, are one such project, not the shape this skill assumes. Profile `flow_intake` and `flow_implement` pin the answer where detection would guess. With the spec pack installed, detection applies `spec-discipline`'s threshold first: a task with no spec yet that the rule would implement directly takes the built-in interview and Phase B, never spec intake. Review and release are the pack's own throughout, each already policy-driven from the profile.
 
 ## Pre-flight - read where the work already stands
 
@@ -22,7 +22,7 @@ Resumption is derived, never stored: git and the pull request hold every answer 
 
 Resolve the subject - the argument's task, branch name or PR number, otherwise the current branch - and keep the branch **name** as the identity rather than the branch itself: `git-merge-pr` deletes the local branch on a confirmed merge, and the pull request still carries that name as its head ref afterwards.
 
-Then read the ladder from the most advanced signal down. **The first rung that holds is where this run stands**, and nothing below it is consulted. The order is not cosmetic. A rung may stop holding - a push clears the factors that made a pull request accept-ready - and that costs nothing, because the run drops to the rung below, which is still ahead of everything that shipped. What must never happen is a probe that stops holding *because the work advanced past it*: `git-merge-pr` deletes the local branch on a confirmed merge, so branch existence read first would send a run resumed after the merge back to Phase A to re-implement what already shipped.
+Then `git fetch` and read the ladder from the most advanced signal down. **The first rung that holds is where this run stands**, and nothing below it is consulted. The order is not cosmetic. A rung may stop holding - a push clears the factors that made a pull request accept-ready - and that costs nothing, because the run drops to the rung below, which is still ahead of everything that shipped. What must never happen is a probe that stops holding *because the work advanced past it*: `git-merge-pr` deletes the local branch on a confirmed merge, so branch existence read first would send a run resumed after the merge back to Phase A to re-implement what already shipped.
 
 | The first of these that holds | The run stands at |
 |---|---|
@@ -32,14 +32,14 @@ Then read the ladder from the most advanced signal down. **The first rung that h
 | an open pull request for it exists | Phase C |
 | the branch is pushed (`git rev-parse HEAD` equals `@{u}`) with commits over its base | Phase B, at `git-open-pr` |
 | the branch carries commits over its base (`git log <base>..<branch>`) | Phase B, at its commit and push |
-| the branch exists | Phase B |
+| the branch exists, locally or on the remote | Phase B |
 | none of them | Phase A |
 
 Three things the ladder cannot answer, each with one rule:
 
 - **The captured intent, before a pull request exists.** Recover it from the PR body when one exists, or from whatever Phase A's owner wrote when it wrote files. Neither - re-run Phase A. An inherited goal nobody can read is a guess, and every gate after it measures against that guess.
 - **The approvals.** They do not survive the session that received them; a resumed run asks again at the gate it reaches.
-- **Whether the pull request's claim is this run's.** An `ai:processing` on it proves only that some run took it, never which (`git-workflow`), so the answer comes from the prompt that started this run: a handoff naming that pull request as held hands the claim over, and this run continues it. No such sentence - the claim belongs to another run however familiar the branch looks, and Phase C will stop on it rather than take it.
+- **Whether the pull request's claim is this run's.** An `ai:processing` on it proves only that some run took it, never which, so the answer is one `git-workflow` makes knowable: the prompt that started this run carries a handoff naming that pull request as held, or a runtime's claims record names this run. Neither - the claim belongs to another run however familiar the branch looks, and Phase C will stop on it rather than take it.
 
 ## Phase boundaries - the only pauses
 
@@ -53,9 +53,7 @@ Three things the ladder cannot answer, each with one rule:
 
 Profile `flow_approvals` decides *when* the two gates are asked - `per-gate` (default) at the boundary each governs, `upfront` both at the end of Phase A - never *whether*. An approval this run did not receive from the owner does not exist - a run with nobody to ask ends at the gate it reached and reports what it needs. A declined release gate ends the run after the merge with the reason recorded.
 
-`upfront` takes both gates before the work exists, so each is a standing authorization and not a judgement of a diff: the accept gate authorizes merging once the pull request is accept-ready **and nothing has escalated to the owner**, the release gate authorizes cutting the change once it is merged. An upfront grant is permission not to be asked again; it is never permission to proceed past a caveat, and anything that would have reached the owner mid-run still reaches them. It moves when the owner acts, never whether: a host may stop again at the irreversible command itself, and a grant given earlier does not answer that.
-
-A gate declined upfront withholds the boundary it governs and nothing earlier: each still sits where the boundary table puts it, so a refused accept ends the run at C to D and a refused release after the merge, exactly where `per-gate` would have ended it. Asking sooner never shortens the work that reaches the gate - a declined accept is the owner saying this will not merge itself, not that the change goes unwritten and unreviewed.
+An `upfront` grant authorizes the accept once the pull request is accept-ready **and nothing has escalated to the owner**, and the release once the change is merged; it is never permission to proceed past a caveat, and a gate declined upfront still ends the run where `per-gate` would have. What such a grant does and does not answer is `references/upfront-approvals.md`.
 
 ## How the run ends
 
@@ -109,6 +107,8 @@ Its own context because the rounds' CI logs, fixes and stage reports would other
 A run works in the checkout it was invoked in, and one task never makes a worktree at all: a second directory is a cost the owner pays in attention, and nothing buys one for a run that already has somewhere to work. A task arriving while the branch it needs is occupied is the one with nowhere, and it never enters the occupied worktree. Whether it gets its own is profile `worktree_policy` (default `auto` - one here; `never` makes it wait for that branch instead; `always` gives every parallel task one, which is the setting for a project that routinely runs them in batches).
 
 Making one is `git worktree add <root>/<slug> -b <prefix>/<slug> <base>`, `<root>` from profile `worktree_root` (default `auto` - a sibling directory of the repository root); removing it is `git worktree remove`, once `git-merge-pr` confirms the merge landed. A repository where git alone does not leave a directory ready to work in - dependencies to install, env files to link, generated tool files to render - says so in `worktree_create` and `worktree_remove`, and those commands replace both: where a project states how its worktrees are made, that is how they are made.
+
+Every checkout - a worktree a run made or a clone a developer made - owns its local resources: ports, devices, daemons, test identities and env files, derived from its own directory. A project script acts on its own checkout's resources only and never stops what another checkout started; `worktree_create` and `worktree_remove` set up and tear down exactly those.
 
 A worktree is its own instance: its own branch, pull request and position on the ladder, its Phase A still here with the owner, its B and C phases run by a session started in that directory. Claude Code loads project skills from the directory a session starts in, and in a worktree with no rendered skills of its own it loads the main checkout's, so work driven from anywhere else is checked against a layer that branch does not carry. Instances share only you and the owner's attention, so the gates serialize - one question at a time, each naming its instance. Every worktree a run needs is yours to create and to remove, including one a stage needs: a stage works where it was told and never makes its own judging location, so creation and cleanup keep a single owner. The throwaway repository a stage probes in is not one of these and is the stage's own (`git-finalize-pr` > Isolation).
 

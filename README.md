@@ -12,7 +12,7 @@ The packs ship as [Intelligence Packages](https://github.com/ainova-systems/inte
 npm install -g @ainova-systems/intelligence
 
 cd your-project
-intelligence init --targets claude              # claude, cursor, copilot, codex, pi, opencode
+intelligence init --targets claude              # claude, cursor, copilot, codex, pi, opencode, antigravity
 intelligence registry add https://github.com/ainova-systems/intelligence-dev-packs.git
 intelligence package add @ainova-systems/core   # add @ainova-systems/spec for spec-driven projects
 ```
@@ -25,7 +25,7 @@ Then run **`dev-init`** so the agent pins the project profile, creates the `ai:*
 
 | Pack | Install when | Contents |
 |---|---|---|
-| **core** (`dev-`, `git-`)<br>`@ainova-systems/core` | Always - it is universal | 7 always-on rules (skill-first, context engineering, verification gates, rollback safety, commit conventions, git workflow, working with people), 3 agents (code reviewer, QA verifier, test engineer), 17 skills: init, deliver a task end to end, deliver the next queue item, return to the integration branch, tests, diff review, handoff, commit+push, open PR, drive the PR rounds, verify the PR's own steps, review the PR diff, complete the PR, resolve conflicts, merge, release, secret scan; a reference on writes into systems people own |
+| **core** (`dev-`, `git-`)<br>`@ainova-systems/core` | Always - it is universal | 7 always-on rules (skill-first, context engineering, verification gates, rollback safety, commit conventions, git workflow, working with people), 3 agents (code reviewer, QA verifier, test engineer), 17 skills: init, deliver a task end to end, deliver the next queue item, return to the integration branch, tests, diff review, handoff, commit+push, open PR, drive the PR rounds, verify the PR's own steps, review the PR diff, complete the PR, resolve conflicts, merge, release, secret scan; references on writes into systems people own and on the pull request label mechanics |
 | **spec** (`spec-`)<br>`@ainova-systems/spec` | Opt-in, depends on core | The spec-driven lifecycle: 2 rules (spec discipline, multi-agent orchestration), 2 agents (architect, docs writer), 15 skills from tracker intake through plan, adversarial validation, execution, and docs upkeep |
 
 Artifact-by-artifact catalog: [`packs/README.md`](packs/README.md).
@@ -40,13 +40,13 @@ registries:
 
 packages:
   "@ainova-systems/core":
-    version: "^0.4.0"
+    version: "^0.16.0"          # what package add records: ^ and the newest tag
   "@ainova-systems/spec":       # spec-driven projects only
-    version: "^0.4.0"
+    version: "^0.16.0"
 ```
 
 - **The manifest records intent, the lock records the resolution.** A package entry carries only the requested `version:` range (or a deliberate `ref:` pin); the resolved repository URL, subpath, tag and commit SHA live in the committed `intelligence.lock`. After a fresh clone, `intelligence sync` restores exactly that commit without consulting a registry.
-- **Versions are this repository's git tags.** A range like `^0.4.0` matches stable `x.y.z` tags; prerelease tags are invisible to ranges. Read [CHANGELOG.md](CHANGELOG.md) between versions for renamed or removed artifacts.
+- **Versions are this repository's git tags.** A range like `^0.16.0` matches stable `x.y.z` tags; prerelease tags are invisible to ranges. Read [CHANGELOG.md](CHANGELOG.md) between versions for renamed or removed artifacts.
 - **Package content is not vendored into your tree.** It lands in the gitignored store at `.intelligence/packages/@ainova-systems/<name>/`, and the CLI renders it into each tool's own files.
 - **Your artifacts win.** Package sources precede project sources, so a same-named artifact in `intelligence/rules|agents|skills` deliberately overrides package content.
 - **Other modes** - global Claude Code skills (`scripts/claude-install-global.sh`), plain copy, and installing straight from the repository without a registry - are in [docs/integration.md](docs/integration.md), along with uninstall and the migration from intelligence-sync.
@@ -106,7 +106,7 @@ With it, the flow runs in one of two execution modes (profile `execution_mode`):
 
 - **Intelligence CLI**: the packages install with the current CLI (`npm install -g @ainova-systems/intelligence`). `registry add` requires a registry repository to publish an `index.yaml` at its root; this repository does, mapping `@ainova-systems/core` and `@ainova-systems/spec` to their subpaths.
 - **Migrating from intelligence-sync**: that engine is archived at v0.10.4 and replaced by the CLI. Convert an existing project with `intelligence init --preview`, review, then `intelligence init --apply` - it preserves project-owned sources and replaces the vendored engine.
-- **Tools**: Claude Code, Cursor, GitHub Copilot, Codex, Pi, OpenCode, and AGENTS.md readers. The packs also work with no engine at all, consumed directly by any tool that reads `SKILL.md` folders.
+- **Tools**: Claude Code, Cursor, GitHub Copilot, Codex, Pi, OpenCode, Antigravity, and AGENTS.md readers. The packs also work with no engine at all, consumed directly by any tool that reads `SKILL.md` folders.
 - **Naming**: every artifact carries a domain prefix (`dev-`/`git-`/`spec-`), so package content never collides with project artifacts or the reserved `intelligence-` meta-skills.
 
 ## Versioning
@@ -115,7 +115,7 @@ Semantic versioning, history in [CHANGELOG.md](CHANGELOG.md). Pin `ref:` to a ta
 
 ## Related
 
-- **[Intelligence](https://github.com/ainova-systems/intelligence)** - the open-source CLI that versions, distributes and renders these packages into every IDE your team uses (Claude Code, Cursor, GitHub Copilot, Codex, Pi, OpenCode). intelligence-dev-packs is the shared content; Intelligence is how it reaches each tool.
+- **[Intelligence](https://github.com/ainova-systems/intelligence)** - the open-source CLI that versions, distributes and renders these packages into every IDE your team uses (Claude Code, Cursor, GitHub Copilot, Codex, Pi, OpenCode, Antigravity). intelligence-dev-packs is the shared content; Intelligence is how it reaches each tool.
 
 ## License
 

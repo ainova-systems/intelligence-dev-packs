@@ -11,14 +11,14 @@ The owner's gate-1 decision, recorded as a machine-readable signal. In **autonom
 
 ## Steps
 
-1. Resolve the spec (argument, or the most recently created `proposed` spec). Read requirements and plan end-to-end.
+1. Resolve the spec (argument, or the most recently created `proposed` spec). Under profile `approval: explicit`, enter its branch first (`spec-execute` > Phase B, steps 1-3), so the plan approved is the one pushed. Read requirements and plan end-to-end.
 2. Pre-checks before recording approval: `spec.mjs status <spec>` (`spec-validate`) reads `proposed` (autonomous) or `planned` (supervised), `spec.mjs check <spec>` prints `check: ok`, and every element has a `Precedents:` line. Surface anything that should block approval - the owner decides, this skill only records the decision. The owner's invocation after reading the plan is the yes, so nothing is asked again (`dev-working-with-people`).
-3. Record it. Autonomous: set the spec's frontmatter `status: approved` with the date. Supervised: write `approved: <name> <yyyy-mm-dd> <digest>` as the plan's last line, the digest being `git hash-object` of the requirements file (`spec-discipline`). Change nothing else - approval records a decision, it does not edit spec content.
+3. Record it. Autonomous: set the spec's frontmatter `status: approved` with the date. Supervised: write `approved: <name> <yyyy-mm-dd> <digest>` as the plan's last line, the digest being `git hash-object` of the requirements file (`spec-discipline`), and commit the plan file alone through `git-commit-push --only <plan file>`, so the executor reads the approval on any machine. Change nothing else - approval records a decision, it does not edit spec content.
 4. Report (`dev-working-with-people`): the spec is approved; `spec-execute-next` picks it up by value in autonomous mode, or `spec-execute` starts it now.
 
 ## Verify
 
-- When this run recorded an approval, `spec.mjs status <spec>` reads `approved`; nothing else in the spec changed.
+- When this run recorded an approval, `spec.mjs status <spec>` reads `approved`; nothing else in the spec changed; under `approval: explicit`, `origin/<branch>` carries the approval line.
 
 ## Scope / hand-off
 

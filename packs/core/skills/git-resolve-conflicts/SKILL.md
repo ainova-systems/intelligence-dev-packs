@@ -5,7 +5,7 @@ description: "Resolves merge or rebase conflicts by what each side intended, nev
 
 # Resolve Conflicts
 
-The result must preserve the intent of both sides, never just pick one. Invoke when git reports conflicts or a PR shows `CONFLICTING`.
+The result must preserve the intent of both sides, never just pick one. Invoke when git reports conflicts, including the trial merge `git-finalize-pr` > CI green defines.
 
 ## Steps
 

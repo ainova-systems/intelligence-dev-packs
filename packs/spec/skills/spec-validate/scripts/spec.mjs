@@ -627,7 +627,11 @@ export async function main(argv, root = process.cwd()) {
       skillExists: (name) => Boolean(lookup('skills', join(name, 'SKILL.md'))),
       agentWrites: (name) => {
         const path = lookup('agents', `${name}.md`);
-        return Boolean(path) && frontmatter(readFileSync(path, 'utf8')).access !== 'readonly';
+        // readonly and runner agents do not write. full does, and so does an agent with no access,
+        // which the engine renders as full.
+        if (!path) return false;
+        const { access } = frontmatter(readFileSync(path, 'utf8'));
+        return access !== 'readonly' && access !== 'runner';
       },
       remotes,
       itemRef: itemRefPattern(profile.tracker_item_ref),
