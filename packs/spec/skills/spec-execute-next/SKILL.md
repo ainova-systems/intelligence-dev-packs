@@ -10,7 +10,7 @@ Orchestrator-of-orchestrators: select ONE ready item, delegate the whole executi
 
 ## Steps
 
-1. **Preflight.** Run `git-sync-base`: a dirty tree or a base it cannot fast-forward halts this run and is surfaced; never sweep foreign work into a task.
+1. **Preflight.** Run `git-to-base`: a dirty tree or a base it cannot fast-forward halts this run and is surfaced; never sweep foreign work into a task.
 2. **Inventory.**
    - Candidates, by `spec.mjs status` (`spec-validate`): `approved` specs in the project's spec area (profile `specs_dir`; else detect) - the primary pool - plus `in-progress` specs with no open PR (to finish; finishing beats starting). Never `proposed` (unreviewed - the owner approves via `spec-approve` first), `completed`, `cancelled`, or `superseded`. Skip idea-collection notes without a concrete ticket-sized item.
    - In-flight work: `gh pr list --state open --json number,title,headRefName,labels,updatedAt`; per-PR file scope via `gh pr view <n> --json files --jq '.files[].path'`.
@@ -19,7 +19,7 @@ Orchestrator-of-orchestrators: select ONE ready item, delegate the whole executi
    - Conflict gate, skip the candidate if: it already has an open PR (`ai:processing` means another run holds it; `ai:manual` / `ai:failed` need the owner, not a re-run); its file scope overlaps any open PR's files; it needs a decision the spec leaves open (that is `ai:manual` before even starting).
    - Interactive session - confirm the choice plus runner-up in one question (`dev-working-with-people`). Autonomous run - proceed. No eligible candidate - report per-candidate skip reasons and stop (skip step 5's sync, still end clean).
 4. **Execute until outcome.** Mid-flight spec - `spec-continue`; otherwise `spec-execute`. Run until the PR carries an outcome label (`ai:completed` with every declared factor, or `ai:manual` / `ai:failed`). Never merge.
-5. **Reset (runs regardless of outcome).** Run `git-sync-base`. Close any spec whose PR merged since the last run (`spec-close`) so the queue and docs reflect reality. Re-render the project's generated intelligence outputs when it has an engine that produces them, using the command that engine documents; skip when it has none. Report (`dev-working-with-people`): task picked + why; PR URL + outcome label; what needs the owner; runner-up for the next run.
+5. **Reset (runs regardless of outcome).** Run `git-to-base`. Close any spec whose PR merged since the last run (`spec-close`) so the queue and docs reflect reality. Re-render the project's generated intelligence outputs when it has an engine that produces them, using the command that engine documents; skip when it has none. Report (`dev-working-with-people`): task picked + why; PR URL + outcome label; what needs the owner; runner-up for the next run.
 
 ## Verify
 

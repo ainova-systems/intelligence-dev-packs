@@ -166,7 +166,7 @@ Defects found in the pack text and not fixed in the release that found them, eac
 
 **Shape.** One reservation and one conflict gate, defined once and cited by both.
 
-**What blocks it.** Nothing but the work; both pickers already reset through `git-sync-base`.
+**What blocks it.** Nothing but the work; both pickers already reset through `git-to-base`.
 
 ### The review verdict is derived twice
 
