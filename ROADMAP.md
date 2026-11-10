@@ -216,6 +216,14 @@ Defects found in the pack text and not fixed in the release that found them, eac
 
 **What blocks it.** Nothing but the work.
 
+### `git-review-pr` cites "step 4" for the body digest, and two steps carry that number
+
+**Problem.** `git-review-pr` Pre-flight step 2 points at the body digest as "(step 4)". Pre-flight now has its own step 4, the reviewed head, while the digest is defined in Steps step 4, so a forked reviewer can follow the wrong one.
+
+**Shape.** The reference names its section, `Steps` step 4, or the digest's definition site in `git-verify-pr` > Digests.
+
+**What blocks it.** Nothing but the work.
+
 ### This repository's own decision record is still proposed
 
 `docs/decisions/261107-intake-copies-tracker-text-verbatim.md` reads `proposed` and is contradicted by `spec-pull` as it ships; accepting or rejecting it is the owner's, through `spec-decision`.
