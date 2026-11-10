@@ -1,6 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseArgs, remoteTagCommit, sections, sortChecks, title } from './release.mjs';
+import { jsonLines, parseArgs, remoteTagCommit, sections, sortChecks, title } from './release.mjs';
+
+test('jsonLines reads one object per line across pages, either line ending, and nothing from empty output', () => {
+  const out = '{"name":"a","status":"completed","conclusion":"success"}\r\n\n{"name":"b","status":"completed","conclusion":"failure"}\n';
+  assert.deepEqual(jsonLines(out).map((r) => r.name), ['a', 'b']);
+  assert.deepEqual(sortChecks(jsonLines(out)).failed, ['b (failure)']);
+  assert.deepEqual(jsonLines(''), []);
+});
 
 const CHANGELOG = `# Changelog
 

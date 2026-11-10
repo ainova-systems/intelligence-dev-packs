@@ -88,6 +88,11 @@ export function remoteTagCommit(lsRemote, tag) {
   return refs.get(`refs/tags/${tag}^{}`) ?? refs.get(`refs/tags/${tag}`) ?? '';
 }
 
+// One JSON value per non-empty line, as `gh api --paginate --jq` prints them across pages.
+export function jsonLines(text) {
+  return text.split(/\r?\n/).filter((line) => line.trim()).map((line) => JSON.parse(line));
+}
+
 const stop = (reason) => {
   throw new Error(reason);
 };
@@ -166,13 +171,11 @@ async function main(argv) {
   }
 
   const repo = run('gh', ['repo', 'view', '--json', 'nameWithOwner', '--jq', '.nameWithOwner']).out;
+  // Every page, one JSON object per line, so a failure past the first page is still read.
+  const pages = (path, jq) => jsonLines(run('gh', ['api', '--paginate', `repos/${repo}/commits/${commit}/${path}?per_page=100`, '--jq', jq]).out);
   for (let round = 0; ; round++) {
-    const runs = JSON.parse(
-      run('gh', ['api', `repos/${repo}/commits/${commit}/check-runs`, '--jq', '[.check_runs[] | {name, status, conclusion}]']).out || '[]',
-    );
-    const statuses = JSON.parse(
-      run('gh', ['api', `repos/${repo}/commits/${commit}/status`, '--jq', '[.statuses[] | {context, state}]']).out || '[]',
-    );
+    const runs = pages('check-runs', '.check_runs[] | {name, status, conclusion}');
+    const statuses = pages('status', '.statuses[] | {context, state}');
     const { failed, running } = sortChecks(runs, statuses);
     if (failed.length) stop(`checks failed on ${commit.slice(0, 7)}: ${failed.join(', ')}`);
     if (!running.length) break;
