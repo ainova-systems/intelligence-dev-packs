@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.1] - 2026-11-10
+
+A skipped check is green again, and word budgets and an empty gate run warn instead of failing.
+
 ### Fixed
 
 - CI green no longer blocks a pull request whose workflows skip work: a commit is green when no check failed, was cancelled or timed out and none is still running, so a skipped or neutral check, or a commit on which nothing reported, counts as green. Profile `required_checks` is gone with the required set it named.
