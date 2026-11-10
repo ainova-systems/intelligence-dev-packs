@@ -47,7 +47,7 @@ State the resolved policy in one line before acting.
 7. **Tag and publish** the release commit (the *merge* commit for `release-pr` / `gitflow-merge`) with this skill's `scripts/release.mjs <tag> --commit <sha> --branch <target> --artifact <release_artifact> --notes <release_notes>`, adding `--notes-file <path>` for an assembled section outside `CHANGELOG.md` and `--version X.Y.Z` when `tag_format` does not end in it. Run it with `--dry-run` first and state its plan line - tag, commit, target, release kind - then without. Its header lists its checks; an `-rc.1` version becomes a prerelease, and a rerun finishes a partial one.
    - `tagger: maintainer` → the script tags and pushes.
    - `tagger: ci` → do not tag locally; the merge triggers the CI tagger - verify it ran. For `github-release` or `github-release-draft`, then run the script, which finds the pushed tag and only creates the release; for `tag-only` the CI tag is the release.
-   - Another forge uses its own CLI (`glab release create`, …).
+   - Another forge uses its CLI (`glab release create`, …).
 8. **Publish the release object** - step 7's script, for `github-release` and `github-release-draft`; for `tag-only` the tag is the release.
 9. **Watch** the deploy/release pipeline to completion when one exists.
 10. **Close out.** Re-present the post-release steps the owner accepted in step 3 and confirm each is applied; re-run `drift_check` where it covers one. Report the tag, the changelog section, the release-object URL (if any), the pipeline outcome, and the checklist with every item closed.
