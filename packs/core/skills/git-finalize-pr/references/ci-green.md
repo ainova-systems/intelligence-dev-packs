@@ -22,3 +22,7 @@ An unprotected branch answers an empty list from both, which is an answer: nothi
 ## The trial merge
 
 `git fetch origin <base>`, then `git merge-tree --write-tree origin/<base> <sha>` (git 2.38 or later). It writes only objects - no ref, index or working tree moves. Exit 0 with a single tree id is no conflict; exit 1 with a `CONFLICT` line is a conflict; anything else, an exit 1 that names no conflict included (a ref git cannot resolve), is a stop. `git-finalize-pr` runs it at step 2, before the round's stages start, because its fetch moves a ref a stage resolves its base by.
+
+## Tracing a failure
+
+`git-finalize-pr` > The round, step 2, drills into every failure on the head being judged, required or not. Its run comes from `gh run list --commit <HEAD_SHA> --json databaseId,name,conclusion`, the failed step from `gh run view <run_id> --json jobs --jq '.jobs[] | select(.conclusion == "failure")'`, and the log from `gh run view --job <job_id> --log` - or `gh api repos/{owner}/{repo}/actions/jobs/<job_id>/logs` while sibling jobs still run. Find the root-cause file:line, read it and the surrounding code, and queue the defect.

@@ -10,6 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `git-sync-base` is renamed `git-to-base`, since it returns the checkout to the base rather than bringing the base into a branch, and its profile key `sync_base_command` is renamed `to_base_command`. The name leaves the domain-verb-object pattern of the other skills on purpose; a new skill does not take it as a model.
+- `dev-deliver`, `git-verify-pr` and `git-finalize-pr` fit the skill word budget, their detail moved into each skill's `references/` with every cited section kept in place, and `scripts/validate-pack.sh` now fails a skill, reference, rule or agent over its word budget and any paragraph over 150 words instead of warning.
+- ROADMAP: epic planning replaces brief decomposition, Risk and Size as pull request labels replaces risk-driven factors, `rollback_policy: forward-fix` covers a project that fixes forward after release, `app_stop` is needed only for what outlives the command that started it, and one folder of defect records also keeps the defects that cannot be fixed; the CI gate wiring skill, the rejected-decisions registry and per-step HITL/AFK marking are dropped.
+
+### Fixed
+
+- `verify-runner.mjs` under `--ci` exits 3 when no gate ran a command (`NOTHING CHECKED`), instead of 0, so a CI step that checked nothing no longer reads green.
+- `git-review-pr` names the step that defines the body digest unambiguously (Steps, step 4).
+
+**Updating:** A CI step that runs the gate runner with `--ci` on changes where every applicable gate can have nothing to check either makes a gate run a command there or accepts exit 3 explicitly.
 
 **Updating:** Invoke `git-to-base` where a prompt, a handoff or a project skill named `git-sync-base`. A profile that sets `sync_base_command` renames it to `to_base_command`; until the next minor release `git-to-base` still reads the old key and says so in its report.
 
