@@ -32,14 +32,6 @@ The reference comes first precisely so the pack's strongest new word is defined 
 
 **What blocks it.** The tracker path needs a `tracker_writes` kind for creating items and a tracker command that honours `dev-external-writes` (Tracker write kinds, below); the spec-folder path, nothing.
 
-### Trimming the three heaviest skills, then budgets as failures
-
-**Problem.** `dev-deliver`, `git-verify-pr` and `git-finalize-pr` are over the skill word budget, one paragraph is over its own, and the validator only warns, so a fix round can grow a file further with nothing to stop it. Field use shows exactly that: across eight review rounds on a downstream layer, fixers pushed files past their caps unnoticed.
-
-**Shape.** Trim the three in a change of their own, moving procedure into each skill's `references/` and keeping in place every named section another artifact cites; in the change that makes the tree pass, turn the budget warnings into failures. The limits are the ones `scripts/validate-pack.sh` cites from the engine.
-
-**What blocks it.** Only sequence: a release that adds to these skills cannot also trim them without mixing two changes.
-
 ### One file per defect, with a record template
 
 **Problem.** Profile `defect_log` names the tracker, the roadmap, the specs area or a single file, but gives no record shape and no folder mode. A single file kept by several sessions loses its statuses and drifts in format; two downstream layers independently settled on one dated file per defect, and one of them wrote about forty in a week.
@@ -189,14 +181,6 @@ Defects found in the pack text and not fixed in the release that found them, eac
 **Problem.** Without a profile, `guard-push.mjs` reads the default and integration branches from the pushed remote's tracking refs. A push that names a URL no configured remote carries has no such refs, so the guard falls back to `main` and lets a push to any other default branch through.
 
 **Shape.** When the pushed remote is not a configured one, detect through `origin`, with a test for a repository whose default branch is not `main`.
-
-**What blocks it.** Nothing but the work.
-
-### `git-review-pr` cites "step 4" for the body digest, and two steps carry that number
-
-**Problem.** `git-review-pr` Pre-flight step 2 points at the body digest as "(step 4)". Pre-flight now has its own step 4, the reviewed head, while the digest is defined in Steps step 4, so a forked reviewer can follow the wrong one.
-
-**Shape.** The reference names its section, `Steps` step 4, or the digest's definition site in `git-verify-pr` > Digests.
 
 **What blocks it.** Nothing but the work.
 

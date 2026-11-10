@@ -14,7 +14,7 @@ An independent read of the whole diff from a context that never watched it being
 ## Pre-flight
 
 1. Resolve the PR, its base, its head and its body: `gh pr view <pr> --json number,baseRefName,headRefOid,body`. Every finding is bound to that SHA and that body.
-2. A review report for this exact SHA and body digest (step 4) already exists - report it and stop.
+2. A review report for this exact SHA and body digest (Steps, step 4) already exists - report it and stop.
 3. The record: the Unresolved and Resolved lists of this PR's latest review report (`gh pr view <pr> --json comments`), empty when there is none.
 4. **The reviewed head** - that report's `head:`, `<prev>`. When `<prev>` is an ancestor of the head (`git merge-base --is-ancestor <prev> HEAD`) and no merge commit lies between them (`git rev-list --merges <prev>..HEAD` prints nothing), this is a delta review of `<prev>...HEAD`. Otherwise - the first review, a rebase, a merge from the base - it reviews the whole diff, `<base>...HEAD`.
 

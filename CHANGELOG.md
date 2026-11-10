@@ -9,7 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `dev-deliver`, `git-verify-pr` and `git-finalize-pr` fit the skill word budget, their detail moved into each skill's `references/` with every cited section kept in place, and `scripts/validate-pack.sh` now fails a skill, reference, rule or agent over its word budget and any paragraph over 150 words instead of warning.
 - ROADMAP: epic planning replaces brief decomposition, Risk and Size as pull request labels replaces risk-driven factors, `rollback_policy: forward-fix` covers a project that fixes forward after release, `app_stop` is needed only for what outlives the command that started it, and one folder of defect records also keeps the defects that cannot be fixed; the CI gate wiring skill, the rejected-decisions registry and per-step HITL/AFK marking are dropped.
+
+### Fixed
+
+- `verify-runner.mjs` under `--ci` exits 3 when no gate ran a command (`NOTHING CHECKED`), instead of 0, so a CI step that checked nothing no longer reads green.
+- `git-review-pr` names the step that defines the body digest unambiguously (Steps, step 4).
+
+**Updating:** A CI step that runs the gate runner with `--ci` on changes where every applicable gate can have nothing to check either makes a gate run a command there or accepts exit 3 explicitly.
 
 ## [0.16.0] - 2026-11-10
 
