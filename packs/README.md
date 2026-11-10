@@ -39,20 +39,21 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 | Artifact | Kind | Role |
 |---|---|---|
 | `git-commit-conventions` | rule | Commit message format, PR body audience, push discipline, forbidden trailers |
-| `git-workflow` | rule | Branch model, protected branches, feature-branch flow |
+| `git-workflow` | rule | Branch model, protected branches, feature-branch flow, and the law of the autonomous PR labels |
+| `git-pr-labels` | reference | How the autonomous PR labels are written and read: the stage report, a state change, a refused claim, freshness, the forge's capabilities |
 | `git-commit-push` | skill | Verified milestone commit and fast-forward push |
 | `git-open-pr` | skill | Open a PR for the branch, filling the repo's template or the pack default; profile-driven target and Risk/Size |
 | `git-resolve-conflicts` | skill | Semantic conflict resolution, full gates after |
 | `git-finalize-pr` | skill | Orchestrates the PR rounds: CI to green, verification, review, fixes - until every success factor holds on one commit |
 | `git-verify-pr` | skill | Executes the PR's own verification steps against the running change (`ai:verified`) |
-| `git-review-pr` | skill | Reviews the PR diff against the rules and against what the PR claims (`ai:reviewed`) |
+| `git-review-pr` | skill | Reviews the PR diff against the rules and against what the PR claims (`ai:reviewed`); a re-review after a push judges only the new commits when no rebase or base merge intervened |
 | `git-complete-pr` | skill | Answers and resolves every review thread, then records the one outcome (`ai:completed` / `ai:manual` / `ai:failed`) |
 | `git-merge-pr` | skill | After owner accept: guard-checked squash-merge, base sync, cleanup; the merge command itself prompts the owner |
 | `git-create-release` | skill | Pending-step review, owner gate, version, changelog, tag per the project's release flow; the tag push and the release object prompt the owner |
 | `git-scan-secrets` | skill | Credential scan over diff, tree, or history |
 | `git-sync-base` | skill | Return to the integration branch and clean away merged local branches and worktrees |
 
-The pack also ships two templates besides the profile schema. `dev-init` merges `packs/core/templates/claude-settings.json` into the project's committed `.claude/settings.json` so the invariants the rules state in prose are machinery too: force-push, blanket staging, `--no-verify` and commands that discard uncommitted work are denied outright, a `PreToolUse` hook (`dev-init`'s `scripts/guard-push.mjs`) denies a push to a protected branch unless every path it changes matches the profile's `direct_lane`, tool attribution is off, and the merge, the tag push and the release object prompt the owner at the command rather than relying on who invoked the skill. `packs/core/templates/dev-qa-checks.md` is the schema for the optional standing-checks file the profile's `qa_checks` points at - what `git-verify-pr` adds for any change touching an area, whatever that change says about itself.
+The pack also ships two templates besides the profile schema. `dev-init` merges `packs/core/templates/claude-settings.json` into the project's committed `.claude/settings.json` so the invariants the rules state in prose are machinery too: force-push, blanket staging, `--no-verify` and commands that discard uncommitted work are denied outright, a `PreToolUse` hook (`dev-init`'s `scripts/guard-push.mjs`) denies a push to a protected branch unless every path it changes matches the profile's `direct_lane` and asks before a push that carries a release tag, tool attribution is off, and the merge, the tag push and the release object prompt the owner at the command rather than relying on who invoked the skill. `packs/core/templates/dev-qa-checks.md` is the schema for the optional standing-checks file the profile's `qa_checks` points at - what `git-verify-pr` adds for any change touching an area, whatever that change says about itself.
 
 ### spec - `spec-` domain (depends on core)
 
@@ -70,12 +71,12 @@ The pack also ships two templates besides the profile schema. `dev-init` merges 
 | `spec-answer` | skill | Resolve a blocked spec's open questions with the developer; answers move with a `Changed:` line |
 | `spec-approve` | skill | Record the owner's gate-1 decision: `status: approved` entering the autonomous queue, or the supervised approval line under profile `approval: explicit` |
 | `spec-execute` | skill | Planned spec executed via parallel subagents; supervised - ends unstaged for developer review, autonomous - to an outcome-labeled PR |
-| `spec-continue` | skill | Resume a mid-flight spec: inherited-work drift audit, then execution |
+| `spec-continue` | skill | Resume a mid-flight spec from its branch, on any machine: inherited-work drift audit, then execution |
 | `spec-execute-next` | skill | Autonomous mode: drain the approved queue - pick the highest-value spec, drive it end-to-end, close merged specs, reset |
 | `spec-close` | skill | Post-merge: confirm shipped and docs reconciled, archive per convention |
 | `spec-cancel` | skill | Retire a spec (cancelled / superseded) with a recorded reason; reconcile its draft docs |
 | `spec-document` | skill | Write/update one docs artifact (feature, rule, glossary, model, architecture) from code |
-| `spec-decision` | skill | ADR behind a three-condition gate, date-named by default |
+| `spec-decision` | skill | ADR behind a three-condition gate, date-named by default; binding on merge, or accepted in place later where profile `decision_lifecycle` allows a proposed record |
 | `spec-audit-docs` | skill | Docs claims audited against code: drift vs violation |
 
 ## Selecting a pack

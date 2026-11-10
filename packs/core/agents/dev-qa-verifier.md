@@ -3,7 +3,7 @@ name: dev-qa-verifier
 description: Executes a change's declared verification steps against the running software and reports what was observed. Read-only.
 tier: standard
 access: readonly
-skills: git-verify-pr
+effort: high
 ---
 
 # dev-qa-verifier

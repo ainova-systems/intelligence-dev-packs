@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// A Claude Code PreToolUse hook that keeps an agent from pushing to a protected branch.
+// A Claude Code PreToolUse hook that keeps an agent from pushing to a protected branch, and that
+// hands a push carrying a release tag to the owner.
 //
 //   node guard-push.mjs        reads the hook input JSON on stdin
 //
@@ -17,9 +18,17 @@
 // that can reach a protected branch, and deleting one are denied outright. A push whose targets it
 // cannot resolve is denied with the reason; it fails closed for pushes only.
 //
+// A push that is not denied asks the owner when it carries a tag profile `tag_format` describes
+// (X, Y and Z stand for numbers; a `-` or `+` suffix also matches): a refspec naming one,
+// `tag <name>`, a tag deletion, `--tags` or a tag pattern while a local tag matches, and under
+// `--follow-tags` or `push.followTags` an annotated one on a pushed commit the remote's branches
+// lack or on the pushed commit itself.
+//
 // The profile is read from intelligence/rules/dev-project-profile.md, else the rendered
-// .claude/rules/dev-project-profile.md, in the repository the push runs in; without one the
-// schema's defaults apply. A deny is printed as PreToolUse JSON and the exit code is 0
+// .claude/rules/dev-project-profile.md, in the repository the push runs in. Without one the
+// schema's defaults apply, except that the default branch is the one `refs/remotes/<remote>/HEAD`
+// names and an existing `<remote>/develop` is the integration branch, as git-workflow detects
+// them. A deny or an ask is printed as PreToolUse JSON and the exit code is 0
 // (code.claude.com/docs/en/hooks, "PreToolUse decision control").
 
 import { spawnSync } from 'node:child_process';
@@ -30,10 +39,10 @@ import { fileURLToPath } from 'node:url';
 
 class Unresolved extends Error {}
 
-const PREFIX = 'Protected-branch push guard (dev-init): ';
+const PREFIX = 'Push guard (dev-init): ';
 const MARK = '\u0000';
 const PROFILE_FILES = ['intelligence/rules/dev-project-profile.md', '.claude/rules/dev-project-profile.md'];
-const DEFAULTS = { default_branch: 'main', integration_branch: 'none', protected_branches: 'main', direct_lane: 'none' };
+const DEFAULTS = { default_branch: 'main', integration_branch: 'none', protected_branches: 'main', direct_lane: 'none', tag_format: 'vX.Y.Z' };
 
 // Words that only lead into the command they precede.
 const LEAD = new Set(['!', '{', 'then', 'do', 'else', 'elif', 'if', 'while', 'until', 'time', 'coproc', 'exec', 'command', 'builtin', 'nohup', 'noglob']);
@@ -653,7 +662,7 @@ export function findPushes(command, dialect, cwd) {
 
 function parsePushArgs(args) {
   if (args.includes(null)) throw new Unresolved('a push argument comes from a variable or a command it cannot read');
-  const p = { repo: null, refspecs: [], all: false, mirror: false, tags: false, dryRun: false, del: false };
+  const p = { repo: null, refspecs: [], all: false, mirror: false, tags: false, followTags: null, dryRun: false, del: false };
   const positional = [];
   let options = true;
   for (let i = 0; i < args.length; i += 1) {
@@ -668,6 +677,8 @@ function parsePushArgs(args) {
       if (name === '--all' || name === '--branches') p.all = true;
       else if (name === '--mirror') p.mirror = true;
       else if (name === '--tags') p.tags = true;
+      else if (name === '--follow-tags') p.followTags = true;
+      else if (name === '--no-follow-tags') p.followTags = false;
       else if (name === '--dry-run') p.dryRun = true;
       else if (name === '--delete') p.del = true;
       else if (name === '--repo') {
@@ -687,8 +698,10 @@ function parsePushArgs(args) {
   }
   if (positional.length) p.repo = positional[0];
   for (let i = 1; i < positional.length; i += 1) {
-    if (positional[i] === 'tag' && i + 1 < positional.length) i += 1;
-    else p.refspecs.push(positional[i]);
+    if (positional[i] === 'tag' && i + 1 < positional.length) {
+      i += 1;
+      p.refspecs.push(`refs/tags/${positional[i]}`);
+    } else p.refspecs.push(positional[i]);
   }
   return p;
 }
@@ -716,7 +729,29 @@ export function readProfile(top) {
     }
     return values;
   }
-  return { ...DEFAULTS };
+  return null;
+}
+
+// With no profile, the branches git-workflow detects: the default from the remote's HEAD, and
+// `develop` as the integration branch when the remote has one.
+function detectedProfile(git, remote) {
+  const head = git(['symbolic-ref', '-q', `refs/remotes/${remote}/HEAD`])?.trim();
+  const prefix = `refs/remotes/${remote}/`;
+  const develop = git(['rev-parse', '--verify', '-q', `${prefix}develop`]);
+  return {
+    ...DEFAULTS,
+    default_branch: head?.startsWith(prefix) ? head.slice(prefix.length) : DEFAULTS.default_branch,
+    integration_branch: develop ? 'develop' : 'none',
+  };
+}
+
+// Profile `tag_format`: X, Y and Z each stand for a number, everything else is literal, and a
+// pre-release or build suffix (`-rc.1`, `+build.5`) also matches. `none` or empty matches nothing.
+export function tagPattern(format) {
+  const f = String(format ?? '').trim();
+  if (!f || f === 'none') return null;
+  const body = [...f].map((c) => (/[XYZ]/.test(c) ? '\\d+' : escapeRegExp(c))).join('');
+  return new RegExp(`^${body}(?:[-+][0-9A-Za-z.+-]*)?$`);
 }
 
 function protectedBranches(profile) {
@@ -795,6 +830,8 @@ export function compileLane(value) {
   };
 }
 
+const deny = (reason) => ({ decision: 'deny', reason });
+
 function evaluatePush(push) {
   const { dir, env, globals } = push;
   if (dir == null) throw new Unresolved('it cannot tell which directory the push runs in');
@@ -806,13 +843,10 @@ function evaluatePush(push) {
   if (!isDir) throw new Unresolved(`the push runs in ${dir}, which does not exist`);
   const p = parsePushArgs(push.args);
   if (p.dryRun) return null;
-  if (p.all || p.mirror) return `\`${p.all ? '--all' : '--mirror'}\` pushes every branch, the protected ones included. Push one named branch instead.`;
+  if (p.all || p.mirror) return deny(`\`${p.all ? '--all' : '--mirror'}\` pushes every branch, the protected ones included. Push one named branch instead.`);
   const git = (args) => gitOutput(dir, env, [...globals, ...args]);
   const top = git(['rev-parse', '--show-toplevel']);
   if (top == null) throw new Unresolved('it does not run inside a git work tree');
-  const profile = readProfile(top.trim());
-  const guarded = protectedBranches(profile);
-  const lane = compileLane(profile.direct_lane);
   const cfg = readConfig(git);
   const head = git(['symbolic-ref', '-q', '--short', 'HEAD']);
   const current = head ? head.trim() : null;
@@ -823,9 +857,12 @@ function evaluatePush(push) {
     const m = /^remote\.(.+)\.(url|pushurl)$/.exec(key);
     if (m && cfg.all(key).includes(remoteArg)) remote = m[1];
   }
+  const profile = readProfile(top.trim()) ?? detectedProfile(git, remote ?? remoteArg);
+  const guarded = protectedBranches(profile);
+  const lane = compileLane(profile.direct_lane);
   const mirror = remote ? cfg.get(`remote.${remote}.mirror`) : null;
   if (!p.refspecs.length && !p.tags && mirror != null && /^(|true|yes|on|1)$/i.test(mirror)) {
-    return `\`${remote}\` is configured as a mirror, so a push to it updates every branch, the protected ones included.`;
+    return deny(`\`${remote}\` is configured as a mirror, so a push to it updates every branch, the protected ones included.`);
   }
   const pushConfig = remote ? cfg.all(`remote.${remote}.push`) : [];
 
@@ -900,14 +937,14 @@ function evaluatePush(push) {
         const ref = `refs/heads/${name}`;
         return ref.length >= a.length + b.length && ref.startsWith(a) && ref.endsWith(b);
       });
-      if (hit) return `the refspec \`${u.raw}\` can update the protected branch \`${hit}\`. Name the branches it should push instead.`;
+      if (hit) return deny(`the refspec \`${u.raw}\` can update the protected branch \`${hit}\`. Name the branches it should push instead.`);
       continue;
     }
     const hit = u.names.find((name) => guarded.has(name));
     if (!hit) continue;
-    if (u.deletion) return `this push would delete the protected branch \`${hit}\`.`;
+    if (u.deletion) return deny(`this push would delete the protected branch \`${hit}\`.`);
     if (lane.empty) {
-      return `this push would update the protected branch \`${hit}\`, and profile \`direct_lane\` is none, so no path may be pushed there directly. Push a feature branch and open a pull request instead.`;
+      return deny(`this push would update the protected branch \`${hit}\`, and profile \`direct_lane\` is none, so no path may be pushed there directly. Push a feature branch and open a pull request instead.`);
     }
     const commit = git(['rev-parse', '--verify', '-q', `${u.src}^{commit}`])?.trim();
     if (!commit) throw new Unresolved(`\`${u.src}\` does not name a commit`);
@@ -919,20 +956,74 @@ function evaluatePush(push) {
     const outside = listed.split('\0').filter(Boolean).filter((path) => !lane.matches(path));
     if (outside.length) {
       const shown = outside.slice(0, 5).map((path) => `\`${path}\``).join(', ');
-      return `this push would update the protected branch \`${hit}\` with ${outside.length} path(s) outside profile \`direct_lane\` (${shown}${outside.length > 5 ? ', ...' : ''}). Push a feature branch and open a pull request instead.`;
+      return deny(`this push would update the protected branch \`${hit}\` with ${outside.length} path(s) outside profile \`direct_lane\` (${shown}${outside.length > 5 ? ', ...' : ''}). Push a feature branch and open a pull request instead.`);
     }
   }
-  return null;
+
+  const release = releaseTags({ p, git, cfg, remote, updates, pattern: tagPattern(profile.tag_format) });
+  if (!release.length) return null;
+  const named = release.map((name) => `\`${name}\``).join(', ');
+  return { decision: 'ask', reason: `this push carries ${named}, which profile \`tag_format\` (\`${profile.tag_format}\`) marks as a release tag; pushing one is the owner's step (\`git-create-release\`).` };
 }
 
-// The reason a call is denied, or null to let it through.
+// The tags matching profile `tag_format` that the push would create, move or delete on the remote.
+function releaseTags({ p, git, cfg, remote, updates, pattern }) {
+  if (!pattern) return [];
+  const local = (git(['for-each-ref', '--format=%(refname:strip=2)%09%(objecttype)%09%(*objectname)', 'refs/tags/']) ?? '')
+    .split('\n').filter(Boolean).map((line) => {
+      const [name, type, peeled] = line.split('\t');
+      return { name, annotated: type === 'tag', peeled };
+    });
+  const found = new Set();
+  const add = (name) => {
+    if (name && pattern.test(name)) found.add(name);
+  };
+  const everyLocal = () => local.forEach((t) => add(t.name));
+  const asTag = (ref) => {
+    if (ref.startsWith('refs/tags/')) return ref.slice(10);
+    if (ref.startsWith('refs/') || !local.some((t) => t.name === ref)) return null;
+    return git(['rev-parse', '--verify', '-q', `refs/heads/${ref}`]) == null ? ref : null;
+  };
+  if (p.tags) everyLocal();
+  for (const raw of p.refspecs) {
+    const rs = raw.replace(/^\+/, '');
+    const colon = rs.indexOf(':');
+    const src = colon < 0 ? rs : rs.slice(0, colon);
+    const dst = colon < 0 ? '' : rs.slice(colon + 1);
+    const target = dst || src;
+    if (target.includes('*')) {
+      if (target.startsWith('refs/tags/')) everyLocal();
+    } else if (p.del || !src) {
+      add(target.replace(/^refs\/tags\//, ''));
+    } else if (dst) {
+      add(dst.startsWith('refs/tags/') ? dst.slice(10) : asTag(src) && dst);
+    } else {
+      add(asTag(src));
+    }
+  }
+  const follow = p.followTags ?? /^(true|yes|on|1)$/i.test(cfg.get('push.followtags') ?? '');
+  if (follow) {
+    for (const u of updates) {
+      if (!u.src || u.deletion) continue;
+      const commit = git(['rev-parse', '--verify', '-q', `${u.src}^{commit}`])?.trim();
+      if (!commit) continue;
+      const fresh = new Set((git(['rev-list', commit, '--not', remote ? `--remotes=${remote}` : '--remotes']) ?? '').split('\n').filter(Boolean));
+      fresh.add(commit);
+      for (const t of local) if (t.annotated && fresh.has(t.peeled)) add(t.name);
+    }
+  }
+  return [...found].sort();
+}
+
+// The decision for a call - { decision: 'deny' | 'ask', reason } - or null to let it through.
+// A deny anywhere in the command wins over an ask.
 export function decide(input, options = {}) {
   baseEnv = options.env ?? process.env;
   if (!input || (input.tool_name !== 'Bash' && input.tool_name !== 'PowerShell')) return null;
   const command = input.tool_input?.command;
   if (typeof command !== 'string' || !/git|-e\w*\s+[A-Za-z0-9+/=]{16,}/i.test(command)) return null;
   const dialect = input.tool_name === 'PowerShell' ? 'pwsh' : 'bash';
-  const unresolved = (why) => `${PREFIX}it cannot tell which branches this push updates: ${why}. Name the remote and the branch, as in \`git push origin <branch>\`.`;
+  const unresolved = (why) => deny(`${PREFIX}it cannot tell which branches this push updates: ${why}. Name the remote and the branch, as in \`git push origin <branch>\`.`);
   let found;
   try {
     found = findPushes(command, dialect, toNative(input.cwd || process.cwd()));
@@ -940,15 +1031,17 @@ export function decide(input, options = {}) {
     return /\bgit\b[\s\S]*\bpush\b/i.test(command) ? unresolved(`the guard failed (${err.message})`) : null;
   }
   if (found.unresolved.length) return unresolved(found.unresolved[0]);
+  let ask = null;
   for (const push of found.pushes) {
     try {
-      const reason = evaluatePush(push);
-      if (reason) return `${PREFIX}${reason}`;
+      const result = evaluatePush(push);
+      if (result?.decision === 'deny') return { decision: 'deny', reason: `${PREFIX}${result.reason}` };
+      if (result && !ask) ask = { decision: 'ask', reason: `${PREFIX}${result.reason}` };
     } catch (err) {
       return unresolved(err instanceof Unresolved ? err.message : `the guard failed (${err.message})`);
     }
   }
-  return null;
+  return ask;
 }
 
 function main() {
@@ -958,9 +1051,9 @@ function main() {
   } catch {
     return;
   }
-  const reason = decide(input);
-  if (reason) {
-    process.stdout.write(`${JSON.stringify({ hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: 'deny', permissionDecisionReason: reason } })}\n`);
+  const result = decide(input);
+  if (result) {
+    process.stdout.write(`${JSON.stringify({ hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: result.decision, permissionDecisionReason: result.reason } })}\n`);
   }
 }
 

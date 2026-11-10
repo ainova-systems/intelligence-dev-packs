@@ -10,16 +10,18 @@ Content is organized into **packs** (adoption units) under `packs/`, and each ar
 packs/
 ├── core/            # @ainova-systems/core - universal, install everywhere
 │   ├── rules/       #   dev-* (discipline) + git-* (vcs)
-│   ├── agents/      #   dev-code-reviewer, dev-test-engineer
-│   ├── skills/      #   dev-* + git-*
-│   └── templates/   #   dev-project-profile.md, claude-settings.json
+│   ├── agents/      #   dev-* personas
+│   ├── skills/      #   dev-* + git-*, each with the scripts/, references/ or assets/ it needs
+│   ├── references/  #   dev-external-writes, git-pr-labels: detail rules and skills need only sometimes
+│   └── templates/   #   the profile schema, the QA-checks schema, the Claude Code settings
 └── spec/            # @ainova-systems/spec - opt-in, depends on core
     ├── rules/       #   spec-*
-    ├── agents/      #   spec-architect, spec-docs-writer
-    └── skills/      #   spec-*
+    ├── agents/      #   spec-* personas
+    ├── skills/      #   spec-* (spec-validate carries scripts/spec.mjs)
+    └── templates/   #   spec-retired-conventions.md
 ```
 
-A package's top-level `rules/`, `agents/` and `skills/` directories are what the engine wires into the matching manifest sources; `templates/` rides along in the store for an agent to read. Always take `core`; add `spec` only for spec-driven projects.
+A package's top-level `rules/`, `agents/` and `skills/` directories are what the engine wires into the matching manifest sources; `templates/` and `references/` ride along in the store for an agent to read. Every artifact by name: [`packs/README.md`](../packs/README.md). Always take `core`; add `spec` only for spec-driven projects.
 
 ## Choosing a mode
 
@@ -37,7 +39,7 @@ Modes A and B need the [Intelligence CLI](https://github.com/ainova-systems/inte
 Trust the registry once, then install either package by name:
 
 ```bash
-intelligence init --targets claude              # claude, cursor, copilot, codex, pi, opencode
+intelligence init --targets claude              # claude, cursor, copilot, codex, pi, opencode, antigravity
 intelligence registry add https://github.com/ainova-systems/intelligence-dev-packs.git
 intelligence package add @ainova-systems/core
 intelligence package add @ainova-systems/spec   # spec-driven projects only
@@ -51,16 +53,16 @@ registries:
 
 packages:
   "@ainova-systems/core":
-    version: "^0.4.0"
+    version: "^0.16.0"          # what package add records: ^ and the newest tag
   "@ainova-systems/spec":
-    version: "^0.4.0"
+    version: "^0.16.0"
 ```
 
 ### How resolution works
 
 - **A registry is the only resolver for a name.** There is no built-in catalog and no name-to-repository guessing, so a name nobody explicitly trusted can never turn into an install from a guessed URL. `registry add` verifies the repository publishes an `index.yaml` at its root - this repository's maps both package names to their `packs/<name>` subpath.
 - **Registries are an ordered trust list**; the first one declaring a name wins.
-- **Versions are stable git tags** (`x.y.z`, optionally `v`-prefixed). A range (`^0.4.0`, `~0.4.0`, an exact version, or `latest`) selects the highest matching stable tag; prerelease tags are invisible to ranges, and GitHub Releases are not consulted.
+- **Versions are stable git tags** (`x.y.z`, optionally `v`-prefixed). A range (`^0.16.0`, `~0.16.0`, an exact version, or `latest`) selects the highest matching stable tag; prerelease tags are invisible to ranges, and GitHub Releases are not consulted.
 - **Intent and resolution live in different files.** The manifest holds only the requested range or `ref:`; `intelligence.lock` holds the resolved URL, subpath, tag and commit SHA. Restoration after a fresh clone reads the lock alone - it never re-resolves or silently picks a newer tag.
 - **Package content is not vendored.** It lands in the gitignored store at `.intelligence/packages/@ainova-systems/<name>/`, and each enabled adapter renders it into that tool's own files.
 - **Package sources precede project sources**, so a same-named artifact in your own `intelligence/rules|agents|skills` overrides package content deliberately.
@@ -115,6 +117,7 @@ cp -r intelligence-dev-packs/packs/core/rules/*      my-project/intelligence/rul
 cp -r intelligence-dev-packs/packs/core/agents/*     my-project/intelligence/agents/
 cp -r intelligence-dev-packs/packs/core/skills/*     my-project/intelligence/skills/
 cp -r intelligence-dev-packs/packs/core/templates    my-project/intelligence/templates
+cp -r intelligence-dev-packs/packs/core/references   my-project/intelligence/references
 # add packs/spec/* the same way for spec-driven projects
 ```
 
@@ -140,6 +143,15 @@ Review and commit the resulting diff. In CI, an alignment that has not been appl
 Skills work with no profile: they auto-detect the branch model from git and the commands from the project manifests, and ask once when something is genuinely ambiguous. That alone makes one set of packs serve a `main`-only trunk repo, a `master`-only repo, and a `master` + `develop` gitflow repo without editing any artifact.
 
 To pin those answers (so nothing is re-detected or re-asked), run `dev-init`. It reads this pack's `templates/dev-project-profile.md` as the schema (in this repository: [`packs/core/templates/dev-project-profile.md`](../packs/core/templates/dev-project-profile.md)), inspects the repo, and writes a filled `dev-project-profile.md` into a rules source, where it then rides as an always-on rule. The user never copies or hand-edits it; auto-detection is the fallback for any project that has none.
+
+## Models, effort and tool access
+
+The packs name no model. Each agent declares a `tier:`, and an `effort:` where the routing convention in [CONTRIBUTING.md](../CONTRIBUTING.md) calls for one; the engine turns both, and `access:`, into each tool's own fields. Its conventions are the source for what every value becomes: [Tier mappings](https://github.com/ainova-systems/intelligence/blob/main/packages/sync/references/conventions.md#tier-mappings), [Effort mappings](https://github.com/ainova-systems/intelligence/blob/main/packages/sync/references/conventions.md#effort-mappings), [Access mappings](https://github.com/ainova-systems/intelligence/blob/main/packages/sync/references/conventions.md#access-mappings).
+
+- **A different model for a tier.** Set `models.<tool>.<tier>` in `intelligence.yaml`, for example `models.claude.light: <model id>`. It applies to every agent of that tier in the project, package agents included - there is no per-agent override - and sync reports it whenever it differs from the engine's default. To route one pack agent differently, add a project agent with the same name: project sources override package content.
+- **Effort reaches Claude Code and Codex.** Copilot, Cursor, OpenCode, Antigravity and Pi keep their own setting. An agent without `effort:` runs at the level of the session that started it, and in Claude Code the `CLAUDE_CODE_EFFORT_LEVEL` environment variable overrides a declared level. The engine renders `effort:` from version 0.19.0.
+- **Forked skills.** A skill with `context: fork` runs in Claude Code as a subagent of its `agent:`, at that agent's tier and effort. A tool that does not fork skills runs it in the calling session, at the session's own model and effort.
+- **Read-only agents that run commands.** `dev-code-reviewer` and `dev-qa-verifier` are `access: readonly` but need a shell: the reviewer reads the change with git, and the verifier runs the declared steps. An `access: readonly` agent has no shell in Copilot, OpenCode and Antigravity, so the pack's reviewer and QA verifier cannot run commands there. They move to `access: runner` in the pack release that requires the CLI version shipping engine [decision 0026](https://github.com/ainova-systems/intelligence/blob/main/decisions/0026-one-access-vocabulary-across-tools.md). Claude Code and Codex keep their shell today, so until that release run `git-review-pr` and `git-verify-pr` from one of those two.
 
 ## Naming and collision guarantees
 

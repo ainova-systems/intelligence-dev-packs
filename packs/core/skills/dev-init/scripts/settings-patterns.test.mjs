@@ -3,9 +3,11 @@
 // shows what each rule shape matches under the documented semantics, not what a given Claude Code
 // release does. Not simulated: the stripped process wrappers, commands nested in subshells or
 // substitutions, and redirections. Pushes to protected branches are the hook's (guard-push.mjs).
+// It also checks that no command a pack text names is denied, except the ones named as forbidden
+// or as the owner's step.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -111,6 +113,36 @@ test('a push to a protected branch is left to the hook, which runs the rendered 
   }
   assert.ok(existsSync(join(here, 'guard-push.mjs')), 'the script the hook names ships in this skill');
   assert.ok(skill.includes('`scripts/guard-push.mjs`'), 'dev-init names the guard');
+});
+
+// A command a pack text names that the template denies is one of these: named as forbidden, or
+// as the owner's step. Keyed by the file under packs/ and the command as the text writes it.
+const NAMED_AND_DENIED = {
+  'core/skills/dev-init/SKILL.md': ['git clean -n', 'git stash list', 'git restore --staged'],
+  'core/skills/dev-init/references/line-endings.md': ['git rm --cached -r . && git reset --hard'],
+  'core/skills/git-commit-push/SKILL.md': ['git add -A'],
+  'spec/skills/spec-continue/SKILL.md': ['git add -A'],
+};
+
+test('no command a pack text names is one the template denies, except those named as forbidden or as the owner\'s step', () => {
+  const packs = join(here, '..', '..', '..', '..');
+  const programs = new Set(templateDeny.map((rule) => rule.split(' ')[0]));
+  const found = {};
+  for (const file of readdirSync(packs, { recursive: true }).map((f) => f.split('\\').join('/')).filter((f) => f.endsWith('.md')).sort()) {
+    for (const [, command] of readFileSync(join(packs, file), 'utf8').matchAll(/`([^`\n]+)`/g)) {
+      if (!programs.has(command.split(' ')[0]) || !denied(templateDeny, command)) continue;
+      (found[file] ??= []).push(command);
+    }
+  }
+  assert.deepEqual(found, NAMED_AND_DENIED, 'a command the template denies is named outside the list above: change the text, or add it with why it is named');
+});
+
+test('the tag ask entry is the one dev-init derives from the schema default of tag_format', () => {
+  const format = profile.match(/^- tag_format: (\S+)/m)?.[1];
+  assert.ok(format, 'tag_format is in the profile schema');
+  const prefix = format.split(/[XYZ]/)[0];
+  assert.ok(prefix, 'the default tag_format starts with text a rule can match');
+  assert.ok(settings.permissions.ask.includes(`Bash(git push origin ${prefix}*)`), `Bash(git push origin ${prefix}*) is asked`);
 });
 
 test('the template sets attribution off and denies reading the default secrets file', () => {

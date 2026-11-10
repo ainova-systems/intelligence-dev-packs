@@ -41,7 +41,7 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 - app_url: none                     <!-- base URL once it is up, e.g. http://localhost:3000 -->
 - code_review_skill: auto           <!-- reviewer git-review-pr invokes: auto = the host's own code-review skill when it ships one, else dev-review-changes | <skill name> -->
 - qa_checks: auto                   <!-- standing checks git-verify-pr adds for the areas a PR touched (schema: templates/dev-qa-checks.md): auto = docs/qa-checks.md when it exists | <repo-relative file> | none -->
-- digest_exclude: none               <!-- blocks removed from a pull request body before a digest is computed: each block a backticked start marker, `..`, a backticked end marker, blocks separated by `;` - format and example in git-verify-pr > Digests; any other tool that computes these digests for the same pull requests must strip the same blocks; none = nothing removed -->
+- digest_exclude: none               <!-- blocks another writer owns in a pull request body (a CI status table, a bot's summary): git-open-pr carries them over verbatim when it rebuilds a body, and every digest removes them first. Each block a backticked start marker, `..`, a backticked end marker, blocks separated by `;` - format and example in git-verify-pr > Digests; any other tool that computes these digests for the same pull requests must strip the same blocks; none = nothing removed -->
 
 ## Workspace
 
@@ -54,8 +54,8 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 > Its four phases resolve their owner in the pack's usual order - these keys, then the
 > installed skill catalog, then its own built-in behavior.
 
-- flow_intake: auto                  <!-- the skill dev-deliver's interview phase hands to: auto = the project's own intake skill when one is installed, which with the spec pack means spec-pull when the task names a tracker item and spec-create then spec-plan when it does not; else the built-in interview | <skill name> -->
-- flow_implement: auto               <!-- the skill dev-deliver's implement phase hands to: auto = the project's own execution skill when one is installed (spec-execute with the spec pack), else one subagent working to the phase's criteria | <skill name> -->
+- flow_intake: auto                  <!-- the skill dev-deliver's interview phase hands to: auto = the project's own intake skill when one is installed, which with the spec pack means spec-pull when the task names a tracker item and spec-create then spec-plan when it does not, except for a task spec-discipline would implement directly; else the built-in interview | <skill name> -->
+- flow_implement: auto               <!-- the skill dev-deliver's implement phase hands to: auto = the project's own execution skill when one is installed (spec-execute with the spec pack, except for a task spec-discipline would implement directly), else one subagent working to the phase's criteria | <skill name> -->
 - flow_approvals: per-gate           <!-- WHEN the owner's two gates are taken, never whether: per-gate (each asked at the boundary it governs) | upfront (both asked once at the end of the interview) -->
 - worktree_policy: auto              <!-- when a parallel task gets its own git worktree: auto = only when the branch it needs is already occupied | never = it waits for the occupied branch instead | always = every parallel task gets one -->
 - worktree_root: auto                <!-- where a parallel task's git worktree is created: auto = a sibling directory of the repository root | <path> -->
@@ -74,7 +74,9 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 - pr_size_thresholds: small <= 5 files & 50 lines; large >= 20 files or 400 lines; else medium
 - pr_risk_globs: none               <!-- e.g. high: **/Migrations/**, **/*Permission*; medium: src/shared/**; low: **/*.md ; none = skip Risk -->
 - pr_success_factors: ai:verified, ai:reviewed   <!-- factors a PR must carry fresh at head besides ai:completed, written as the label names themselves; the pack writes the first two, add any that an external agent, worker or pipeline applies; none = state label only -->
-- max_pr_rounds: 3                  <!-- fix/verify/review rounds git-finalize-pr may spend before escalating to ai:manual -->
+- max_pr_rounds: 3                  <!-- fix/verify/review rounds git-finalize-pr may spend before escalating to ai:manual; unlimited = no round budget, the other stop rules still apply -->
+- required_checks: auto             <!-- the checks CI green needs on a commit (git-finalize-pr > CI green): auto = the rulesets and branch protection of the branch it is headed to, every reported check when they require none | <comma-separated check names> | none = the project runs no CI, and the outcome report says so -->
+- draft_ready: finalize             <!-- who marks a draft pull request ready for review: finalize = git-finalize-pr, before its first round | owner = not this run - the owner, or a runtime that owns readiness, marks it; the run then ends ai:manual saying so -->
 - delete_local_branch: true         <!-- delete the local branch after a confirmed merge -->
 - delete_remote_branch: false       <!-- pass --delete-branch on merge -->
 - post_merge: none                  <!-- command git-merge-pr runs after a confirmed merge, e.g. to regenerate committed generated outputs; none -->
@@ -103,7 +105,7 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 - release_notes: changelog-section  <!-- changelog-section | generated | none -->
 - tagger: maintainer                <!-- maintainer (local tag + push origin vX.Y.Z) | ci (Action tags on merge) -->
 - version_source: changelog         <!-- changelog | tags | package.json | <manifest> -->
-- tag_format: vX.Y.Z
+- tag_format: vX.Y.Z               <!-- X, Y and Z stand for numbers; a -rc.1 or +build suffix also matches. dev-init's push guard asks before a push that carries a tag of this shape -->
 
 ## Documentation
 
@@ -118,6 +120,7 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 - rules_dir: docs/rules             <!-- business rules as contracts -->
 - decisions_dir: docs/decisions     <!-- ADRs -->
 - adr_naming: date                  <!-- date (yyMMdd-<slug>.md, collision-free across branches) | numbered (NNNN-<slug>.md, MADR) ; an existing ADR folder's convention always wins -->
+- decision_lifecycle: log          <!-- how a decision record becomes binding: log = a record is written as accepted or rejected on its branch - the pull request proposes it and the merge accepts it, so the tree holds no proposed record | proposed = a record may be committed as proposed, naming who decides, and spec-decision accepts or rejects it in place later -->
 - defect_log: auto                  <!-- where a defect found but not fixed in the same change is recorded (dev-context-engineering): auto = the tracker unless `tracker` is none, in which case ask once | tracker | roadmap | specs (a finding under specs_dir) | <repo-relative file, e.g. docs/known-issues.md> -->
 
 ## Tracker

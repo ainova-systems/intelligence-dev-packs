@@ -11,8 +11,8 @@ Source of truth: `intelligence/` | Sync: `intelligence sync`
 
 | Agent | Tier | Access | Description |
 |-------|------|--------|-------------|
-| [intelligence-architect](.intelligence/packages/@ainova-systems/sync/agents/intelligence-architect.md) | heavy | full | Design and prune the intelligence layer - rule vs skill vs agent, split what grew, remove duplication and hardcoded paths |
-| [intelligence-operator](.intelligence/packages/@ainova-systems/sync/agents/intelligence-operator.md) | standard | full | Interpret CLI plans and operate sync, update, and adapter flows |
+| intelligence-architect | heavy | full | Design and prune the intelligence layer - rule vs skill vs agent, split what grew, remove duplication and hardcoded paths |
+| intelligence-operator | standard | full | Interpret CLI plans and operate sync, update, and adapter flows |
 | [dev-code-reviewer](packs/core/agents/dev-code-reviewer.md) | standard | readonly | Reviews pending changes and pull requests for correctness, conventions, boundaries, tests, and security. Read-only. |
 | [dev-qa-verifier](packs/core/agents/dev-qa-verifier.md) | standard | readonly | Executes a change's declared verification steps against the running software and reports what was observed. Read-only. |
 | [dev-test-engineer](packs/core/agents/dev-test-engineer.md) | standard | full | Test strategy and coverage across unit, integration, contract, and end-to-end levels. Builds the net that makes AI-paced change safe. |
@@ -21,13 +21,13 @@ Source of truth: `intelligence/` | Sync: `intelligence sync`
 
 | Skill | Description |
 |-------|-------------|
-| [intelligence-learn-from-repository](.intelligence/packages/@ainova-systems/sync/skills/intelligence-learn-from-repository/SKILL.md) | Recover and complete first-time Intelligence repository onboarding |
-| [intelligence-learn-from-session](.intelligence/packages/@ainova-systems/sync/skills/intelligence-learn-from-session/SKILL.md) | Capture session lessons and workflows in project context |
-| [intelligence-manage-adapters](.intelligence/packages/@ainova-systems/sync/skills/intelligence-manage-adapters/SKILL.md) | Enable, disable, or remove adapters and assess generated-output cleanup |
-| [intelligence-review-context](.intelligence/packages/@ainova-systems/sync/skills/intelligence-review-context/SKILL.md) | Audit rules, agents, and skills and propose behavior-preserving reductions |
-| [intelligence-sync](.intelligence/packages/@ainova-systems/sync/skills/intelligence-sync/SKILL.md) | Sync intelligence to enabled adapters |
-| [intelligence-update-context](.intelligence/packages/@ainova-systems/sync/skills/intelligence-update-context/SKILL.md) | Create, revise, or remove project rules, agents, and skills |
-| [intelligence-upgrade](.intelligence/packages/@ainova-systems/sync/skills/intelligence-upgrade/SKILL.md) | Upgrade Intelligence and installed packages with migration checks |
+| intelligence-learn-from-repository | Recover and complete first-time Intelligence repository onboarding |
+| intelligence-learn-from-session | Capture session lessons and workflows in project context |
+| intelligence-manage-adapters | Enable, disable, or remove adapters and assess generated-output cleanup |
+| intelligence-review-context | Audit rules, agents, and skills and propose behavior-preserving reductions |
+| intelligence-sync | Sync intelligence to enabled adapters |
+| intelligence-update-context | Create, revise, or remove project rules, agents, and skills |
+| intelligence-upgrade | Upgrade Intelligence and installed packages with migration checks |
 | [dev-deliver](packs/core/skills/dev-deliver/SKILL.md) | Runs one task from the owner's first sentence to a released change through whichever skills the project ships for each phase, pausing only at phase boundaries. Executing an already-planned spec, and stopping at the pull request, is spec-execute. |
 | [dev-deliver-next](packs/core/skills/dev-deliver-next/SKILL.md) | Picks the next non-conflicting item from the project's work queue - or the next N, each in its own worktree - and runs dev-deliver on it, then returns the checkout to the integration branch. |
 | [dev-handoff](packs/core/skills/dev-handoff/SKILL.md) | Writes a self-contained prompt a fresh session pastes to continue this work, for when context runs short or a session ends. |
@@ -48,7 +48,7 @@ Source of truth: `intelligence/` | Sync: `intelligence sync`
 
 ### Rules
 
-- [intelligence-authoring](.intelligence/packages/@ainova-systems/sync/rules/intelligence-authoring.md) (scoped)
+- intelligence-authoring (scoped)
 - [dev-context-engineering](packs/core/rules/dev-context-engineering.md) (global)
 - [dev-rollback-safety](packs/core/rules/dev-rollback-safety.md) (global)
 - [dev-skill-first](packs/core/rules/dev-skill-first.md) (global)
@@ -84,6 +84,7 @@ At AI pace, mean time to restore beats mean time between failures.
 - Risky or new user-facing paths sit behind a feature flag when the project has one; otherwise they must be revertible in one commit.
 - Destructive operations (data deletion, irreversible transforms, breaking removals) state a backout plan in the PR before merge.
 - Breaking changes follow expand-contract: add the new path, migrate consumers, then remove the old.
+- A contract whose consumers cannot be withdrawn - a published API, a released client, a format another system reads - ships provider-first and stays backward compatible until the oldest supported consumer is gone.
 - Never combine a migration with an irreversible cleanup in the same deploy step.
 
 
@@ -104,9 +105,10 @@ The gates are what make AI-paced change safe: AI amplifies whatever system it la
 - **When the profile sets `verify`, that single command is the definition of done**: it reads the change, decides which gates apply, runs them cheapest-first, and prints what it skipped - nobody picks gates by hand, and CI runs exactly the same command, so local and CI cannot drift. Adding a gate means editing that runner's gate table, never the CI file; core ships a stack-neutral runner for a table the project owns, `skills/dev-run-tests/scripts/verify-runner.mjs`.
 - **The change is everything between the merge-base with its base branch and the working tree**: committed, staged, unstaged and untracked, deletions, and both sides of a rename. Gate runners and reviews judge that one set, and a failure to answer is a refusal: a base that does not resolve, an empty merge-base, or version control failing to report changed files means STOP, never "nothing changed, all green" - a run that verified nothing must not print success.
 - New logic ships with tests in the same change; a bug fix adds a regression test that fails without the fix.
-- CI green is a merge precondition, no exceptions.
+- CI green (`git-finalize-pr` > CI green) is a merge precondition, no exceptions.
+- A denied tool call is diagnosed against the rule that denied it and redone in the allowed form - staging paths by name where blanket staging is denied. The owner gets a step only when no allowed form exists, and it names the rule that blocks it.
 
-Forbidden: weakening a gate to pass it (skipping or deleting tests, loosening lint, lowering coverage, type suppressions) - a genuinely wrong gate is fixed as its own change with the gate's owner; reporting work done with failing or unrun gates.
+Forbidden: weakening a gate to pass it (skipping or deleting tests, loosening lint, lowering coverage, type suppressions, reaching a denied command by another spelling - `git -C`, a shell wrapper, an alias) - a genuinely wrong gate is fixed as its own change with the gate's owner; reporting work done with failing or unrun gates.
 
 
 # Working with People
@@ -115,7 +117,7 @@ The person reading a reply did not watch the work and decides from the reply alo
 
 - **Reports** open on the result, then what the reader must do or decide, in whole sentences in the reader's language. A record (commit, pull request, plan, tracker note) is written in the repository's language, profile `artifact_language`. Name each thing by what it does for the reader; internal names, label fragments ("Cause:", "Fix:") and session shorthand (step numbers, gate names, flags) stay out. A skill's fixed report form sets only the structure.
 - **Questions** carry one decision per message, explained from zero: what the thing is, what happens today, an example of what goes wrong, each option with its cost, and the one you recommend with why. A skill forked into its own subagent (`context: fork`) never asks: it stops before the write the decision governs, ends its result with the question in that shape, and its caller asks it.
-- **Consent** is one yes per stage. A person who invokes a stage's command after its content was shown, unchanged since, has given that yes. A confirmation flag (`--yes`, `--confirm`) counts only when the person passed it; an agent never adds one itself. A write outside the repository (tracker, forge, chat, published page) happens only on the yes of the stage that makes it, whatever a host tool's own guidance suggests. `dev-external-writes` (core's `references/dev-external-writes.md`) is how such a write is made.
+- **Consent** is one yes per stage. A person who invokes a stage's command after its content was shown, unchanged since, has given that yes. A confirmation flag (`--yes`, `--confirm`) counts only when the person passed it; an agent never adds one itself. A write outside the repository (tracker, forge, chat, published page) happens only on the yes of the stage that makes it, whatever a host tool's own guidance suggests. A stage's yes covers the writes of the skills it runs, and in a run nobody attends, a question a callee returns is recorded where that stage reports - never asked, never waited on. `dev-external-writes` (core's `references/dev-external-writes.md`) is how such a write is made.
 - **Scope** is what was asked, at the scope intended. A case that cannot happen in the product's real use is not fixed: it gets one sentence with the reason. This does not change what a review classes as Critical.
 
 
@@ -124,9 +126,9 @@ The person reading a reply did not watch the work and decides from the reply alo
 - One-line message: capital first letter, past tense, describes the change (`Fixed tenant filter on the orders query`). Body only when the change genuinely needs explanation.
 - Include the work-item ID when the project tracks them (profile `reference_ids`): `Added export endpoint (FR-042)`.
 - One logical change per commit; unrelated edits go in separate commits.
-- A pull request body is written for a reviewer who was not in the implementing session: why the change exists, what it does, the shape of the work, how to confirm it by hand, which tests cover it. The pack default that `git-open-pr` fills is the suggested sectioning when the repo has no template; a project template's headings win. Each section answers its own question in one to three sentences or a short list, and stops.
+- A pull request body is written for a reviewer who was not in the implementing session: why the change exists, the records it answers, what changes for the person using it, the shape of the work, how to confirm it by hand, which tests cover it. Who met the problem or asked for the change, named by role and organisation and never by a person's name, is part of why it exists, not narration of the session. The pack default that `git-open-pr` fills is the suggested sectioning when the repo has no template; a project template's headings win. Each section answers its own question in one to three sentences or a short list, and stops - in plain words with every term written in full, a code name after the plain words and never in their place, shorter by dropping repetition and never a fact.
 - Published artifacts - commits, PR titles and bodies, stage reports, review replies, issues, changelog entries, release notes - are public and permanent; an edit keeps the earlier text in the history. Each carries only this repository's change, how to confirm it, and what was observed. A rationale worth keeping goes to profile `decisions_dir` and the artifact links it. Evidence is the excerpt that proves the point, never a log or transcript. A changelog entry is one line: what changed for someone using the project.
-- Every published artifact reads as the maintainer's own work. Strip an attribution footer a tool template injects, including when an assistant default instructs otherwise.
+- Every published artifact reads as the maintainer's own work. Strip an attribution footer a tool template injects, including when an assistant default instructs otherwise. One already in pushed commits is reported, and never blocks a run or rewrites history.
 - A review reply is a log entry, not a conversation: the outcome and what made it so, nothing else. Fixed - name the commit. Declined - name the rule or constraint that blocks it. Deferred - link the follow-up. A thread you acted on ends resolved; replying without resolving leaves it open, and it comes back on the next review pass.
 - Verification gates pass before every commit (`dev-verification-gates`).
 
@@ -141,11 +143,11 @@ Branch model comes from `dev-project-profile.md` - `default_branch`, `integratio
 - PRs target the integration branch when one exists, otherwise the default branch.
 - Update long-running branches per profile `update_strategy` (default: merge from target). Delete branches after merge.
 
-Forbidden: committing directly to a protected branch (`protected_branches`; the default and integration branches always are) - branch first; merging on red CI; rewriting history on shared branches.
+Forbidden: committing directly to a protected branch (`protected_branches`; the default and integration branches always are) - branch first; merging before CI is green (`git-finalize-pr` > CI green); rewriting history on shared branches.
 
 ## Autonomous PR labels
 
-A run with no human in the loop between task and PR labels its PR, so a human triages at a glance and merge gating can key off it. Two kinds, never interchangeable, and each label has exactly one writer.
+A run with no human in the loop between task and PR labels its PR, so a human triages at a glance and merge gating can key off it. Two kinds, never interchangeable, and each label has exactly one writer. A human-driven PR carries no `ai:*` label at all, and every gate skips label checks for it. How the labels are written and read - the stage report, a state change, a refusal, freshness, the forge - is `git-pr-labels` (core's `references/git-pr-labels.md`).
 
 **State** - exactly one at a time, written by the actor doing the work:
 
@@ -154,28 +156,18 @@ A run with no human in the loop between task and PR labels its PR, so a human tr
 - `ai:manual` - the run ended needing an owner decision; name precisely what (`git-complete-pr`).
 - `ai:failed` - the run ended unable to reach green; name the blocking failure and what was tried (`git-complete-pr`).
 
-The last three are terminal and `ai:processing` is not, so a run is over when it is gone: a PR left on it by a run that has stopped reads exactly like one an agent is still working, and both triage and merge gating believe that.
+The last three are terminal and `ai:processing` is not, so a run is over when it is gone: a PR left on it by a run that has stopped reads exactly like one an agent is still working. Every run therefore ends at a terminal label - or, where a scenario pack declares one, at a hand-off that removes the claim in the same edit; that pack's state page is authoritative for its own runs.
 
-**It is a claim, not a lock**, and nothing about it makes one: no run id, no expiry, no way for a second run to take it atomically. So a run cannot tell a claim it did not write from a live one, and does not guess - it takes a pull request only when no `ai:processing` stands on it, or when the claim is its own. Its own means one of two things, and both are knowable rather than felt: the run took the PR itself, or a handoff handed the claim over in writing (`dev-handoff` names the held pull request), which is what makes a resumed session the same run continuing instead of a second actor. Anyone else's claim stops it where it stands: no factors cleared, no stage run, no outcome written, none of those being its to write for a PR it does not hold.
-
-**A refusal is recorded, not just returned.** The stopped run posts one comment in the envelope below saying it found the PR held and took nothing - additive, so it cannot race the holder the way writing a label would - and that comment is the whole of the owner's signal that two actors wanted one pull request. Without it the refusal is visible only to whoever invoked the losing run, which on a PR that nobody is watching is the same as silence.
-
-That restriction is affordable only because every run ends at a terminal label. A pull request still claimed with no run behind it therefore means a run died rather than a run working, and the way out is stated rather than taken: the owner clears the claim, or hands it to a run through a handoff. Rare enough that no takeover rule has to serve it, and never so rare that nobody wrote down how it ends.
+**It is a claim, not a lock**: no expiry, no atomic takeover. A run takes a pull request only when no `ai:processing` stands on it, or when the claim is its own, which is one of three knowable things: the run took it itself; a handoff handed the claim over in writing (`dev-handoff` names the held pull request); or a runtime's claims record names this run - or names a run that runtime reports neither queued nor running, a claim this run may then take over, recording the previous holder. Anyone else's claim stops the run where it stands: it takes nothing, clears no factor, runs no stage, writes no outcome, and records its refusal on the PR. Without a claims record, a claim no run is behind means a run died; the owner clears it, or hands it to a run through a handoff.
 
 **Success factors** - additive, each written by the stage that judged it and never by the actor that did the work:
 
 - `ai:verified` - the PR's own verification steps were executed against the running change and passed (`git-verify-pr`).
 - `ai:reviewed` - the diff passed review against the rules and against what the PR claims (`git-review-pr`).
 
-Profile `pr_success_factors` declares the set a PR must carry (default: both). A project adds factors that external agents, workers or pipelines apply - a security scan, a performance budget, a design sign-off - and the gates that read it - `git-finalize-pr`'s rounds and `git-merge-pr`'s guard - cover them unchanged.
+Profile `pr_success_factors` declares the set a PR must carry (default: both). A project adds factors that external agents, workers, pipelines or people apply - a security scan, a performance budget, a design or QA sign-off - and the gates that read it - `git-finalize-pr`'s rounds and `git-merge-pr`'s guard - cover them unchanged.
 
-**A factor is a claim about one commit, not about the PR.** It counts only while *fresh*: the report comment that earned it names the current head SHA, or - for a factor this pack does not write - the label was applied after the head commit landed. A stage judging something other than the code alone is fresh only while *that* input is unchanged too, and says so in its report: the pull request's declared verification steps, and the body whose claims a review judged, can be edited without moving the head, and a factor earned against the old text is not a claim about the new one. A push therefore invalidates every factor whether or not anyone removed it. Clearing them is housekeeping the pusher does so the PR does not read as green; correctness never depends on it, because no gate trusts a label without checking freshness. A stale factor means one thing only: that stage must run again.
-
-**Every stage records its verdict as one PR comment and never edits an earlier one** - the comments are the log a later reader replays. First line `## <Stage> - <VERDICT>`; second line starts `head: <sha>`, the commit that was judged, followed by whatever else the stage judged (a stage that executes the PR's declared steps names their digest there too, and one that judges the body's claims names the body's digest); the stage's own findings follow, within what `git-commit-conventions` allows a published artifact. That second line is what makes a factor checkable at all: a gate reads the stage's latest comment and compares every input it names against the current one.
+**A factor is a claim about one commit, not about the PR.** It counts only while *fresh*: the stage report that earned it names the current head, and every other input it judged is unchanged - the declared verification steps, and the body whose claims a review judged, can be edited without moving the head. A factor this pack does not write is fresh when it was applied after the head commit landed. A review of only the commits since an earlier reviewed head - that head an ancestor, no merge from the base between them - carries the earlier verdict forward to the new head. A push invalidates every factor whether or not anyone removed it; no gate trusts a label without checking freshness, and a stale factor means one thing only: that stage must run again.
 
 Accept-ready = `ai:completed` plus every declared factor fresh at head. Autonomous runs never merge themselves.
-
-**The commands in these skills are the GitHub (`gh`) shapes - the reference implementation, not the requirement.** On another forge, resolve each through profile `cli`; what the flow actually needs is a small set of capabilities: find the open PR for a branch, read its checks for one commit, read and write its labels, read its review threads and their resolved flag, and comment on it. A forge that cannot do one of them is named as a capability gap in the report - never worked around silently, and never faked, because a factor nobody can check is not a factor. The same rule applies to the label mechanics below.
-
-The labels must exist in the repository. `dev-init` creates them; otherwise create once via profile `cli` (`gh label create` on GitHub). State labels are mutually exclusive, so a state change is one `gh pr edit <pr> --add-label <new> --remove-label <the others>` call, never an add now and a removal a later step can skip. A human-driven PR carries no `ai:*` label at all, and every gate skips label checks for it.
 

@@ -1,7 +1,7 @@
 ---
 name: git-open-pr
 description: "Opens a pull request for the current branch against its target, filling the repo's template, or rebuilds the body of the one already open. Driving it to green afterwards is git-finalize-pr."
-argument-hint: "[title override]"
+argument-hint: "[--draft] [title override]"
 ---
 
 # Open a PR
@@ -12,17 +12,19 @@ Turn a pushed feature branch into a reviewable PR. Idempotent: when a PR already
 
 1. `git branch --show-current` - on a protected branch (default/integration), STOP; a PR is opened FROM a feature branch.
 2. Confirm the branch is pushed and current: `git rev-parse HEAD` equals `git rev-parse @{u}` - unpushed work goes through `git-commit-push` first.
-3. Existing-PR check: `gh pr list --head <branch> --state open --json number,url --jq '.[0]'`. Non-empty - rebuild its body: steps 4 and 6 from the current diff and the plan or task behind it, the verification steps it declares carried over unless the caller supplies corrected ones, then `gh pr edit <pr> --body-file <file>`; report the URL and STOP. A body is always written whole from those sources, never patched by hand, because a patched body keeps whatever the earlier one got wrong.
+3. Existing-PR check: `gh pr list --head <branch> --state open --json number,url --jq '.[0]'`. Non-empty - rebuild its body: steps 4 and 6 from the current diff and the plan or task behind it, the verification steps it declares carried over unless the caller supplies corrected ones. Read the live body first (`gh pr view <pr> --json body`): every block profile `digest_exclude` names belongs to another writer and is carried over verbatim, each after the same heading it followed before (the top of the body when it stood above the first one, the end when that heading is gone). Then `gh pr edit <pr> --body-file <file>`; report the URL and STOP. Everything else is written whole from those sources, never patched by hand, because a patched body keeps whatever the earlier one got wrong.
 4. Resolve the target from profile `pr_target` (default `auto` - the integration branch when one exists, else the default branch).
 5. Title: an explicit argument wins; else the latest commit subject (`git log -1 --pretty=%s`). Honor profile `artifact_language` for title and body when set (e.g. write them in English even when the working language differs).
 6. Body: profile `pr_template` decides which template applies - `auto` (default) fills the repo's own (`.github/PULL_REQUEST_TEMPLATE.md` or `.github/pull_request_template.md`) when one exists, `none` skips it even when present, which is the setting for a repo whose template is written for a human filling a web form. Either way, with no template in play use the pack default `assets/pr-template.md`. Fill the chosen template's sections honestly - real content per section, "None" where one genuinely does not apply; never leave its hint comments. Write for the audience `git-commit-conventions` states - a reviewer who was not in the implementing session - and in the register it sets: each section answers its own question and stops. When the pack default is in play, fill every section per its comments; each comment sets that section's ceiling, and a small change stays well under it. When profile `pr_risk_size: on`, prepend the deterministic Risk/Size line (below).
+
+   A sources section lists every record the task, the plan or the commit subjects name (profile `reference_ids`, `tracker_item_ref`) and every record the diff closes where profile `defect_log` points.
 
    The section profile `verify_section` names (default `Manual Verification`) is not optional: it states what a reviewer or QA runs to validate the **result**, not that CI passed, and it is the input `git-verify-pr` executes. Automated coverage belongs in its own section; it does not fill this one. A step also has to be runnable by the stage, which holds the workspace still for as long as it judges (`git-finalize-pr` > Isolation): a step never moves that workspace, so one needing a branch or a commit makes them in a throwaway repository. A PR that leaves the verification section empty cannot earn `ai:verified` - it never declared what "working" means.
 
    A step is written so that two readers perform the same actions. It names the state it starts from - including what the environment does by **default**, whenever that default is not where the step wants the reader to be - and, for behaviour that differs by role, permission or tenant, which one each step runs as, plus what the others must NOT see. A step that leaves either implicit is executed differently by whoever reads it, and what comes back describes a different run: the owner following it lands somewhere the change never claimed to alter, sees the old behaviour, and reports the feature broken.
 
    Its expected result has to survive the change it verifies. A step that asserts a count - four files, two matches, eighty entries - is falsified by the next commit of the same pull request that adds a fifth, and the verification fails on the arithmetic while the behaviour it was written for is fine. State the property instead, and give the command whose output proves it: the filter whose result must be empty, the invariant that holds however many files grow around it. A count is only safe where the number IS the behaviour.
-7. Open it: `gh pr create --base <target> --title <title> --body-file <file>` (`--body-file` avoids shell-quoting traps). On non-GitHub platforms use the profile `cli` (`glab mr create`, ...).
+7. Open it: `gh pr create --base <target> --title <title> --body-file <file>` (`--body-file` avoids shell-quoting traps), adding `--draft` when the caller passed it. On non-GitHub platforms use the profile `cli` (`glab mr create`, ...).
 8. Report the PR URL and number.
 
 ## Risk & Size (only when profile `pr_risk_size: on`)
@@ -37,7 +39,7 @@ State one value each, e.g. `Risk: low | Size: small`.
 ## Verify
 
 - What it published holds nothing `git-commit-conventions` forbids in a published artifact.
-- Exactly one open PR for the branch; it targets the resolved base; the body has real content (no template hint comments left); every step in the verification section states the state it starts from and an expected result the change itself cannot falsify. When the pack default was used, Why and What each answer within the ceiling their comments set, and neither restates Changes.
+- Exactly one open PR for the branch; it targets the resolved base; the body has real content (no template hint comments left); every step in the verification section states the state it starts from and an expected result the change itself cannot falsify. When the pack default was used, Why carries its three labelled lines, Impact says what a person using the project notices, each section stays within the ceiling its comment sets, and none restates Changes. Every `digest_exclude` block the live body held before a rebuild is in the new body, byte for byte.
 
 ## Scope / hand-off
 

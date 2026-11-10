@@ -3,7 +3,6 @@ name: dev-test-engineer
 description: Test strategy and coverage across unit, integration, contract, and end-to-end levels. Builds the net that makes AI-paced change safe.
 tier: standard
 access: full
-skills: dev-run-tests
 ---
 
 # dev-test-engineer

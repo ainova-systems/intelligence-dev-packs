@@ -10,8 +10,8 @@ Resume a spec started in another session. **Read `spec-execute` first - all its 
 
 ## Resume protocol
 
-1. Read the spec end-to-end; find where work actually paused - from the last ticked work step and last commit, not from the top.
-2. Rebuild repo state: `git status`, `git log --oneline -20`, `git branch --show-current`, `gh pr list --head <branch>`.
+1. Enter the spec's branch (`spec-execute` > Phase B, steps 1-3): on another machine the spec and its inherited work exist only there.
+2. Read the spec end-to-end; find where work actually paused - from the last ticked work step and last commit, not from the top. Rebuild repo state: `git status`, `git log --oneline -20`, `gh pr list --head <branch>`.
 3. Triage uncommitted working-tree changes not made by this session: diff each file against the spec's target shape, not against the last commit. Aligned - absorb and say so. Divergent - present an A-vs-B choice (revert to spec shape vs fix in place, asked per `dev-working-with-people`); never silently absorb, never revert someone's work without approval. Stage selectively (`git add <file>`), never `git add -A` on resume. In `supervised` mode an uncommitted tree is the expected end state of the previous run, not foreign work - check the ticked steps before treating it as drift.
 4. Drain unacked PR feedback first (when a PR exists): `gh pr checks <pr>` + `gh pr view <pr> --json reviews,comments`, then `git-complete-pr`. Red lights before new work.
 5. Reconcile the plan's `## Work steps` vs reality: tick what shipped; a `[x]` whose gate does not re-run dry is a regression to investigate, and the investigation lands in `## Corrections`.

@@ -278,6 +278,23 @@ test('check finds executors in the project and the package store and compares th
   assert.match(res.out, /step 3: `code-reviewer` is neither a skill, an agent that can write, nor `subagent`/);
 });
 
+test('a readonly or runner agent never executes a step, while a full agent and one with no access, which the engine renders as full, do', (t) => {
+  const { write, spec } = repo(t);
+  write('intelligence/agents/qa-runner.md', '---\naccess: runner\n---\n');
+  write('intelligence/agents/unstated.md', '---\nname: unstated\n---\n');
+  const by = (executor) => plan({ 'Work steps': SECTIONS['Work steps'].replace('`app-developer`', `\`${executor}\``) });
+  for (const executor of ['code-reviewer', 'qa-runner']) {
+    write('doc/specs/001-export/001-plan.md', by(executor));
+    const res = spec('check', '001');
+    assert.equal(res.code, 1, executor);
+    assert.match(res.out, new RegExp(`step 1: \`${executor}\` is neither a skill, an agent that can write, nor \`subagent\``), executor);
+  }
+  for (const executor of ['app-developer', 'unstated']) {
+    write('doc/specs/001-export/001-plan.md', by(executor));
+    assert.deepEqual(spec('check', '001'), { code: 0, out: 'check: ok\n', err: '' }, executor);
+  }
+});
+
 test('delivered lists the specs whose steps the change ticks, untracked plans included, and refuses a base git cannot find', (t) => {
   const { write, spec } = repo(t);
   write('doc/specs/001-export/001-plan.md', `${plan()}\nA note.\n`);

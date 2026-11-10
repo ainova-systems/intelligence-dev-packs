@@ -5,7 +5,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { compileLane, decide, findPushes } from './guard-push.mjs';
+import { compileLane, decide, findPushes, tagPattern } from './guard-push.mjs';
 
 const GUARD = fileURLToPath(new URL('./guard-push.mjs', import.meta.url));
 
@@ -39,7 +39,11 @@ function fixture(t, profile = { protected_branches: 'main, develop', integration
   git('push', '-q', '-u', 'origin', 'feature/x');
   const lines = Object.entries({ default_branch: 'main', ...profile }).map(([k, v]) => `- ${k}: ${v}   <!-- note -->`);
   write('intelligence/rules/dev-project-profile.md', `# Project Profile\n\n${lines.join('\n')}\n`);
-  const check = (command, { tool = 'Bash', cwd = dir } = {}) => decide({ tool_name: tool, tool_input: { command }, cwd }, { env });
+  // A deny reads as its reason, an ask as `ask: <reason>`, a call let through as null.
+  const check = (command, { tool = 'Bash', cwd = dir } = {}) => {
+    const result = decide({ tool_name: tool, tool_input: { command }, cwd }, { env });
+    return result && (result.decision === 'deny' ? result.reason : `${result.decision}: ${result.reason}`);
+  };
   return { root, dir, env, git, write, check, posix: dir.replace(/\\/g, '/') };
 }
 
@@ -147,13 +151,67 @@ test('with direct_lane set, a push to a protected branch passes only when every 
   assert.match(check('git push origin :develop'), /delete the protected branch `develop`/);
 });
 
-test('a missing profile falls back to the schema defaults, and other tools are ignored', (t) => {
-  const { check, dir } = fixture(t);
+test('without a profile the default branch comes from the remote HEAD and an existing develop is the integration branch, and other tools are ignored', (t) => {
+  const { check, dir, git } = fixture(t);
   rmSync(join(dir, 'intelligence'), { recursive: true, force: true });
   assert.match(check('git push origin main'), /protected branch `main`/);
+  assert.match(check('git push origin develop'), /protected branch `develop`/);
+  git('update-ref', '-d', 'refs/remotes/origin/develop');
   assert.equal(check('git push origin develop'), null);
+  git('push', '-q', 'origin', 'main:trunk');
+  assert.equal(check('git push origin trunk'), null);
+  git('symbolic-ref', 'refs/remotes/origin/HEAD', 'refs/remotes/origin/trunk');
+  assert.match(check('git push origin trunk'), /protected branch `trunk`/);
+  assert.match(check('git push origin main'), /protected branch `main`/, "the schema's protected_branches default still holds");
   assert.equal(decide({ tool_name: 'Write', tool_input: { file_path: 'x', content: 'git push origin main' } }), null);
   assert.equal(decide({ tool_name: 'Bash', tool_input: {} }), null);
+});
+
+test('a push that carries a tag profile tag_format describes asks the owner, in every spelling, and a deny still wins', (t) => {
+  const { check, git } = fixture(t);
+  git('tag', '-a', 'v1.2.0', '-m', 'release');
+  git('tag', 'v1.3.0-rc.1');
+  for (const command of [
+    'git push origin v1.2.0', 'git push origin tag v1.2.0', 'git push origin refs/tags/v1.2.0', 'git push origin HEAD:refs/tags/v1.4.0',
+    'git push origin v1.3.0-rc.1', 'git push --tags', 'git push origin "refs/tags/*:refs/tags/*"', 'git push origin --delete v1.2.0',
+    'git push origin :refs/tags/v1.2.0', 'git push --follow-tags origin feature/x',
+  ]) assert.match(check(command) ?? '', /^ask: .*`v1\.[234]\.0(-rc\.1)?`.*profile `tag_format` \(`vX\.Y\.Z`\)/, command);
+  assert.match(check('git push --tags'), /`v1\.2\.0`, `v1\.3\.0-rc\.1`/);
+  assert.match(check('git push origin main v1.2.0'), /^Push guard \(dev-init\): this push would update the protected branch `main`/);
+  assert.match(check('git push origin v1.2.0', { tool: 'PowerShell' }), /^ask: /);
+  for (const command of ['git push origin v1.0', 'git push origin tag v1.0', 'git push origin feature/x', 'git push --dry-run origin v1.2.0']) {
+    assert.equal(check(command), null, command);
+  }
+  git('commit', '-q', '--allow-empty', '-m', 'after the release');
+  assert.equal(check('git push --follow-tags origin feature/x'), null, 'a tag on a commit the remote already has and the push does not end on');
+  git('tag', '-a', 'v1.5.0', '-m', 'release');
+  assert.match(check('git push --follow-tags origin feature/x'), /^ask: .*`v1\.5\.0`/);
+  git('config', 'push.followTags', 'true');
+  assert.match(check('git push'), /^ask: .*`v1\.5\.0`/);
+  assert.equal(check('git push --no-follow-tags'), null);
+});
+
+test('tag_format decides which tags are release tags, and none turns the ask off', (t) => {
+  const { check, git } = fixture(t, { protected_branches: 'main', tag_format: 'release-X.Y' });
+  git('tag', 'release-2.1');
+  git('tag', 'v1.2.0');
+  assert.match(check('git push origin release-2.1'), /^ask: .*`release-2\.1`/);
+  assert.equal(check('git push origin v1.2.0'), null);
+  const off = fixture(t, { protected_branches: 'main', tag_format: 'none' });
+  off.git('tag', 'v1.2.0');
+  assert.equal(off.check('git push origin v1.2.0'), null);
+  assert.equal(off.check('git push --tags'), null);
+});
+
+test('tagPattern reads X, Y and Z as numbers and allows a pre-release or build suffix', () => {
+  assert.equal(tagPattern('vX.Y.Z').test('v10.0.3'), true);
+  assert.equal(tagPattern('vX.Y.Z').test('v1.2.0-rc.1'), true);
+  assert.equal(tagPattern('vX.Y.Z').test('v1.2.0+build.5'), true);
+  assert.equal(tagPattern('vX.Y.Z').test('v1.2'), false);
+  assert.equal(tagPattern('vX.Y.Z').test('xv1.2.0'), false);
+  assert.equal(tagPattern('X.Y.Z').test('1.2.3'), true);
+  assert.equal(tagPattern('none'), null);
+  assert.equal(tagPattern(''), null);
 });
 
 test('direct_lane matches gitignore-style patterns', () => {
@@ -177,7 +235,7 @@ test('the parser finds every push and nothing else', () => {
 });
 
 test('the hook prints a PreToolUse deny on stdout and nothing for a command it lets through', (t) => {
-  const { dir, env } = fixture(t);
+  const { dir, env, git } = fixture(t);
   const hook = (input) => spawnSync(process.execPath, [GUARD], { input, env, encoding: 'utf8' });
   const denied = hook(JSON.stringify({ tool_name: 'Bash', tool_input: { command: 'git push origin main' }, cwd: dir }));
   assert.equal(denied.status, 0);
@@ -188,6 +246,10 @@ test('the hook prints a PreToolUse deny on stdout and nothing for a command it l
   const passed = hook(JSON.stringify({ tool_name: 'Bash', tool_input: { command: 'git push origin feature/x' }, cwd: dir }));
   assert.equal(passed.status, 0);
   assert.equal(passed.stdout, '');
+  git('tag', 'v1.2.0');
+  const asked = hook(JSON.stringify({ tool_name: 'Bash', tool_input: { command: 'git push origin v1.2.0' }, cwd: dir }));
+  assert.equal(asked.status, 0);
+  assert.equal(JSON.parse(asked.stdout).hookSpecificOutput.permissionDecision, 'ask');
   const garbage = hook('not json');
   assert.equal(garbage.status, 0);
   assert.equal(garbage.stdout, '');

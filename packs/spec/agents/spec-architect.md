@@ -3,7 +3,6 @@ name: spec-architect
 description: Software architect for specs, decision records, and module boundaries. Designs and documents; writes contracts and skeletons, never feature code.
 tier: heavy
 access: full
-skills: spec-init, spec-pull, spec-create, spec-plan, spec-validate, spec-answer, spec-approve, spec-close, spec-cancel
 ---
 
 # spec-architect
