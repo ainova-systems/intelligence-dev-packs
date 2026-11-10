@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `dev-deliver`, `git-verify-pr` and `git-finalize-pr` fit the skill word budget, their detail moved into each skill's `references/` with every cited section kept in place, and `scripts/validate-pack.sh` now fails a skill, reference, rule or agent over its word budget and any paragraph over 150 words instead of warning.
+
+### Fixed
+
+- `verify-runner.mjs` under `--ci` exits 3 when no gate ran a command (`NOTHING CHECKED`), instead of 0, so a CI step that checked nothing no longer reads green.
+- `git-review-pr` names the step that defines the body digest unambiguously (Steps, step 4).
+
+**Updating:** A CI step that runs the gate runner with `--ci` on changes where every applicable gate can have nothing to check either makes a gate run a command there or accepts exit 3 explicitly.
+
 ## [0.16.0] - 2026-11-10
 
 CI green and the gate runner mean what they say, the pull request template says why, and the two judging agents run at a fixed effort.

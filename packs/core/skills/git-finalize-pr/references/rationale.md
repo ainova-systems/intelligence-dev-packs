@@ -10,9 +10,13 @@ A run that reports progress and waits to be invoked again leaves the pull reques
 
 A run never grants itself another round because the judgement whether one more would help is the thing a budget exists to bound. The count belongs to the run rather than to either skill so that a hand-off to `git-complete-pr` and back cannot reset it.
 
+## One commit per round
+
+Fixing per defect makes every stage re-run per defect, and the cost becomes fixes x stages instead of rounds x stages.
+
 ## Judging apart, and never merging
 
-A judge that inherits the author's rationale confirms it instead of testing it, which is why each judging stage runs forked and sees only its arguments. A run that both does the work and approves it has no gate at all, which is why accepting the pull request stays the owner's.
+Both judging agents are `access: readonly` because a judge that can edit the code can make its own verdict come true. A judge that inherits the author's rationale confirms it instead of testing it, which is why each judging stage runs forked and sees only its arguments. A run that both does the work and approves it has no gate at all, which is why accepting the pull request stays the owner's.
 
 ## Holding the workspace still
 

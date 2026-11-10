@@ -10,118 +10,76 @@ One invocation, one task, from what the owner said to a released change. **You o
 
 ## Prime directive - the owner's expectation is the contract
 
-Phase A captures what the owner expects to observe. Those criteria are yours for the whole run: they fill the pull request's verification section verbatim, `git-verify-pr` executes them later against the running change, and the run is delivered only when each was observed passing on the commit that shipped. Criteria written after the code describe what got built rather than what was asked for - that is the failure this directive exists to prevent.
+Phase A captures what the owner expects to observe, and those criteria bind the whole run: they fill the pull request's verification section verbatim, `git-verify-pr` executes them against the running change, and the run is delivered only when each was observed passing on the commit that shipped. Criteria written after the code describe what got built, not what was asked.
 
 ## Whose skill runs each phase
 
-Every phase resolves its owner the way the pack resolves anything else: **profile, then the installed catalog, then the built-in behavior here.** A project that already ships a skill for a phase has that skill run it (`dev-skill-first`) - the spec pack's `spec-pull` or `spec-create` / `spec-plan`, and `spec-execute`, are one such project, not the shape this skill assumes. Profile `flow_intake` and `flow_implement` pin the answer where detection would guess. With the spec pack installed, detection applies `spec-discipline`'s threshold first: a task with no spec yet that the rule would implement directly takes the built-in interview and Phase B, never spec intake. Review and release are the pack's own throughout, each already policy-driven from the profile.
+Each phase's owner resolves as anything in the pack does: **profile, then installed catalog, then the built-in behavior here.** A project that ships a skill for a phase has that skill run it (`dev-skill-first`); profile `flow_intake` and `flow_implement` pin the answer where detection would guess. With the spec pack installed, a task without a spec that `spec-discipline`'s threshold would implement directly takes the built-in interview and Phase B, not spec intake. Review and release are the pack's own, policy-driven from the profile.
 
 ## Pre-flight - read where the work already stands
 
-Resumption is derived, never stored: git and the pull request hold every answer a state file would, and cannot drift from the work the way a file can. That holds because every phase, subagents included, leaves its work in the tree, its commits and the pull request as it goes; after an interrupted subagent the ladder is read again, never its outcome assumed. `git status --porcelain` dirty on a protected branch is a stop. On a feature branch it establishes that uncommitted work exists, never that this run produced it: an instance owns its worktree, so a run that did not dirty the tree itself reports what is uncommitted and asks before Phase B continues into it.
+Resumption is derived from git and the pull request, never stored: every phase, subagents included, leaves its work in the tree, commits and pull request as it goes; after an interrupted subagent the ladder is read again. A dirty tree on a protected branch is a stop; on a feature branch, uncommitted work this run did not produce is reported and the owner asked before Phase B continues into it.
 
-Resolve the subject - the argument's task, branch name or PR number, otherwise the current branch - and keep the branch **name** as the identity rather than the branch itself: `git-merge-pr` deletes the local branch on a confirmed merge, and the pull request still carries that name as its head ref afterwards.
-
-Then `git fetch` and read the ladder from the most advanced signal down. **The first rung that holds is where this run stands**, and nothing below it is consulted. The order is not cosmetic. A rung may stop holding - a push clears the factors that made a pull request accept-ready - and that costs nothing, because the run drops to the rung below, which is still ahead of everything that shipped. What must never happen is a probe that stops holding *because the work advanced past it*: `git-merge-pr` deletes the local branch on a confirmed merge, so branch existence read first would send a run resumed after the merge back to Phase A to re-implement what already shipped.
-
-| The first of these that holds | The run stands at |
-|---|---|
-| a tag contains the merge commit (`git tag --contains <sha>`) | delivered - report and stop |
-| the pull request for that head ref is `MERGED` | Phase D |
-| an open pull request for it is accept-ready as `git-workflow` defines it | the accept gate |
-| an open pull request for it exists | Phase C |
-| the branch is pushed (`git rev-parse HEAD` equals `@{u}`) with commits over its base | Phase B, at `git-open-pr` |
-| the branch carries commits over its base (`git log <base>..<branch>`) | Phase B, at its commit and push |
-| the branch exists, locally or on the remote | Phase B |
-| none of them | Phase A |
-
-Three things the ladder cannot answer, each with one rule:
-
-- **The captured intent, before a pull request exists.** Recover it from the PR body when one exists, or from whatever Phase A's owner wrote when it wrote files. Neither - re-run Phase A. An inherited goal nobody can read is a guess, and every gate after it measures against that guess.
-- **The approvals.** They do not survive the session that received them; a resumed run asks again at the gate it reaches.
-- **Whether the pull request's claim is this run's.** An `ai:processing` on it proves only that some run took it, never which, so the answer is one `git-workflow` makes knowable: the prompt that started this run carries a handoff naming that pull request as held, or a runtime's claims record names this run. Neither - the claim belongs to another run however familiar the branch looks, and Phase C will stop on it rather than take it.
+Resolve the subject - the argument's task, branch name or PR number, otherwise the current branch - and keep its branch **name** as the identity. Then `git fetch` and read the ladder in `references/resuming-a-run.md`, most advanced signal first: **the first rung that holds is where this run stands**, nothing below it consulted. That page also rules on what the ladder cannot answer - the intent before a pull request exists, the approvals, and whether the pull request's claim is this run's.
 
 ## Phase boundaries - the only pauses
 
-| Boundary | What happens there |
-|---|---|
-| start to A | nothing, unless pre-flight found uncommitted work this run did not produce |
-| A to B | nothing, unless the interview left the owner a question |
-| B to C | nothing, unless Phase B returned a question it could not answer from the repository |
-| C to D | **Accept** - the owner accepts the pull request, and `git-merge-pr` runs on that accept |
-| D | **Release** - the owner authorizes cutting this change, and `git-create-release` runs on that authorization |
+The run pauses only before Phase A for uncommitted work it did not produce; after Phase A or B for a question the phase left the owner; at the owner's **Accept** of the pull request, between C and D, on which `git-merge-pr` runs; and at the owner's **Release** authorization, in D, on which `git-create-release` runs.
 
-Profile `flow_approvals` decides *when* the two gates are asked - `per-gate` (default) at the boundary each governs, `upfront` both at the end of Phase A - never *whether*. An approval this run did not receive from the owner does not exist - a run with nobody to ask ends at the gate it reached and reports what it needs. A declined release gate ends the run after the merge with the reason recorded.
-
-An `upfront` grant authorizes the accept once the pull request is accept-ready **and nothing has escalated to the owner**, and the release once the change is merged; it is never permission to proceed past a caveat, and a gate declined upfront still ends the run where `per-gate` would have. What such a grant does and does not answer is `references/upfront-approvals.md`.
+Profile `flow_approvals` decides *when* the two gates are asked - `per-gate` (default) at the boundary each governs, `upfront` both at the end of Phase A - never *whether*; what an `upfront` grant authorizes, and what not, is `references/upfront-approvals.md`. A run with nobody to ask ends at the gate it reached and reports what it needs; a declined release gate ends it after the merge with the reason recorded.
 
 ## How the run ends
 
-Five endings, each stated to the owner (`dev-working-with-people`) rather than left to be read out of silence:
-
-| Ending | What the owner is left with |
-|---|---|
-| delivered | the closing report - the tag, the merge commit, each criterion against what was observed for it |
-| a gate the owner did not give | the gate named, and the pull request carrying the outcome label Phase C wrote |
-| Phase C reached `ai:manual` or `ai:failed` | that outcome's list of what the owner has to decide or what blocked it |
-| a phase raised a question | the question, and which phase it ended |
-| the pull request was already another run's | the `Finalize - HELD` comment naming what this run wanted, and the holder's claim untouched |
-
-Past Phase C every one of them leaves the pull request carrying exactly one outcome label - except the last, which leaves the holder's label exactly as it found it, that pull request never having been this run's to end. `ai:processing` left on a PR this run did take says an agent holds it right now (`git-workflow`), so a run that stops there has told the owner's triage view and the merge gate the opposite of what is true - and it is the state a resumed run cannot distinguish from a sibling instance working the same branch, which is why the claim travels in the handoff rather than being inferred from the label.
+Each of the five endings in `references/run-endings.md` is stated to the owner with what it leaves them. Past Phase C each leaves exactly one outcome label and no `ai:processing`, except a pull request another run holds, whose label is left exactly as found.
 
 ## Phase A - Interview (main session)
 
-It talks to the owner, so it stays where the owner is; it is never a subagent. A forked intake skill (`spec-pull`, `spec-plan`) ends with its questions, and they are asked here.
+It talks to the owner, so it is never a subagent; a forked intake skill (`spec-pull`, `spec-plan`) ends with its questions, and they are asked here.
 
-1. Read first: the profile, the rules, the area the task touches. A question the repository answers is answered there, never asked.
-2. The phase's owner per the resolution above runs it, and this step ends when nothing about the goal is still open. Nothing installed covers the phase - interview here, dependencies first, each question put as `dev-working-with-people` describes.
+1. Read the profile, the rules and the area the task touches first; a question the repository answers is never asked.
+2. The phase's owner runs it until nothing about the goal is open. Nothing installed covers it - interview here, dependencies first, each question per `dev-working-with-people`.
 3. **Exit condition**: the goal in one sentence, what the owner will see when it is done, and what is out of scope - all three stated without hedging.
-4. **The acceptance criteria** are the phase's product: each an action plus the result the owner expects to observe, carrying what `git-open-pr` requires of a declared step - the state it starts from, including what the environment does by default where that is not where the step wants the reader and which role it runs as where behaviour differs by one, and an expected result the change itself cannot falsify. Phase B fills the verification section with these verbatim, so a criterion missing either half is a pull request that cannot satisfy `git-open-pr`'s own gate. Every one must be executable read-only against a running change; one needing a live pull request, a credential only a person holds, or state only the author can create is rewritten now. Left as written it returns in Phase C as `blocked (step)`, after the code exists.
+4. **The acceptance criteria** are the phase's product: each an action plus the result the owner expects to observe, carrying what `references/acceptance-criteria.md` requires - one not executable read-only against a running change is rewritten now.
 5. `flow_approvals: upfront` - take both gates now.
 
 ## Phase B - Implement (one subagent)
 
-Its own context because it is the largest one of the run, and because nothing after it should remember why the code was written.
+Its own context: it is the run's largest, and nothing after it should remember why the code was written.
 
-1. **The phase's owner per the resolution above does the work**, and keeps whatever part of the git lifecycle it performs - the branch it names, its commits, the pull request it opens. How much that is varies by skill and by its own mode, so it is never assumed: **re-read the ladder when it returns.** The ladder says what the owner did and what is left, and the branch it chose becomes this run's identity.
-2. Everything the ladder still leaves unmet, this phase does: branch per `git-workflow` with its slug from the task, one subagent implementing against the criteria and the scope fence and nothing else, `git-commit-push` at the milestone, then `git-open-pr`.
-3. The verification section is filled with the Phase A criteria verbatim. You supply them; whoever wrote the code does not author them.
+1. **The phase's owner does the work**, and keeps whatever part of the git lifecycle it performs - its branch, commits, pull request. That is never assumed: **re-read the ladder when it returns**; it says what is left, and the owner's branch becomes this run's identity.
+2. Everything the ladder still leaves unmet, this phase does: branch per `git-workflow` with its slug from the task, one subagent implementing against the criteria and the scope fence alone, `git-commit-push` at the milestone, then `git-open-pr`.
+3. You supply the Phase A criteria verbatim for the verification section; whoever wrote the code does not author them.
 4. A question that cannot be answered from the repository comes back unanswered and ends the phase.
 
 ## Phase C - Review (one subagent)
 
-Its own context because the rounds' CI logs, fixes and stage reports would otherwise fill the session the owner talks in; the judging stages fork their own (`git-finalize-pr` > Isolation).
+Its own context, so the rounds' CI logs, fixes and stage reports stay out of the owner's session; the judging stages fork their own (`git-finalize-pr` > Isolation).
 
-1. `git-finalize-pr`, then `git-complete-pr`. The rounds, the factors and the outcome belong to them; nothing here re-decides any of it. When pre-flight established the claim as this run's, the prompt says so - that sentence is what separates this phase from a second actor, and without it `git-finalize-pr` refuses the very pull request the phase was spawned to finish.
-2. The phase ends at exactly one outcome label. `ai:manual` or `ai:failed` ends the run there, reporting the owner's list - there is no merge on a caveat. The one ending without a label is a pull request another run holds (*How the run ends*).
+1. `git-finalize-pr`, then `git-complete-pr`; the rounds, factors and outcome are theirs, never re-decided here. When pre-flight established the claim as this run's, the prompt says so, or `git-finalize-pr` refuses the very pull request the phase was spawned to finish.
+2. The phase ends at exactly one outcome label, unless another run holds the pull request (*How the run ends*). `ai:manual` or `ai:failed` ends the run there, reporting the owner's list - there is no merge on a caveat.
 3. Accept-ready reaches the accept gate.
 
 ## Phase D - Release (main session)
 
 1. `git-create-release` runs on the release gate.
-2. Its own owner gate - the pending-step checklist, the tag confirmation - is about facts discovered at release time, so an upfront release approval never answers it. Reaching it is the skill working, not a run that stalled.
-3. Closing report: the goal as captured, each acceptance criterion against the result observed for it, the pull request, the merge commit, and the tag.
+2. Its own owner gate - the pending-step checklist, the tag confirmation - is about facts discovered at release time, so an upfront release approval never answers it; reaching it is not a stall.
+3. Closing report: the goal as captured, each acceptance criterion against its observed result, the pull request, the merge commit and the tag.
 
 ## Parallel tasks
 
-A run works in the checkout it was invoked in, and one task never makes a worktree at all: a second directory is a cost the owner pays in attention, and nothing buys one for a run that already has somewhere to work. A task arriving while the branch it needs is occupied is the one with nowhere, and it never enters the occupied worktree. Whether it gets its own is profile `worktree_policy` (default `auto` - one here; `never` makes it wait for that branch instead; `always` gives every parallel task one, which is the setting for a project that routinely runs them in batches).
+A run works in the checkout it was invoked in, and one task never makes a worktree. A task whose branch is occupied never enters that worktree; profile `worktree_policy` decides whether it gets its own, made, removed and run as `references/parallel-tasks.md` describes.
 
-Making one is `git worktree add <root>/<slug> -b <prefix>/<slug> <base>`, `<root>` from profile `worktree_root` (default `auto` - a sibling directory of the repository root); removing it is `git worktree remove`, once `git-merge-pr` confirms the merge landed. A repository where git alone does not leave a directory ready to work in - dependencies to install, env files to link, generated tool files to render - says so in `worktree_create` and `worktree_remove`, and those commands replace both: where a project states how its worktrees are made, that is how they are made.
-
-Every checkout - a worktree a run made or a clone a developer made - owns its local resources: ports, devices, daemons, test identities and env files, derived from its own directory. A project script acts on its own checkout's resources only and never stops what another checkout started; `worktree_create` and `worktree_remove` set up and tear down exactly those.
-
-A worktree is its own instance: its own branch, pull request and position on the ladder, its Phase A still here with the owner, its B and C phases run by a session started in that directory. Claude Code loads project skills from the directory a session starts in, and in a worktree with no rendered skills of its own it loads the main checkout's, so work driven from anywhere else is checked against a layer that branch does not carry. Instances share only you and the owner's attention, so the gates serialize - one question at a time, each naming its instance. Every worktree a run needs is yours to create and to remove, including one a stage needs: a stage works where it was told and never makes its own judging location, so creation and cleanup keep a single owner. The throwaway repository a stage probes in is not one of these and is the stage's own (`git-finalize-pr` > Isolation).
+A worktree is its own instance - its own branch, pull request and ladder position. Instances share only you and the owner's attention, so the gates serialize, one question at a time naming its instance. Every worktree a run needs, including one a stage needs, is yours to create and remove; a stage works where it was told and never makes its own judging location. The throwaway repository a stage probes in is not one of these and is the stage's own (`git-finalize-pr` > Isolation).
 
 ## Verify
 
-- Every Phase A criterion carries what `git-open-pr` requires of a declared step - the state it starts from, and an expected result the change itself cannot falsify - before Phase B copies it into the section. Every one appears in the merged pull request's verification section and carries a `pass` in the report that earned `ai:verified` at the merged head; the closing report maps each criterion to the result observed for it and names any that never reached an observation.
-- Re-reading the pre-flight ladder at the end reports the phase the run actually reached.
+- Every Phase A criterion meets `references/acceptance-criteria.md` before Phase B copies it, appears in the merged pull request's verification section, and carries a `pass` in the report that earned `ai:verified` at the merged head; the closing report maps each to its observed result and names any never observed.
+- Re-reading the pre-flight ladder at the end reports the phase the run reached.
 - Every instance that took its pull request ends with one outcome label on it and no `ai:processing`; one refused the claim ends with its `Finalize - HELD` comment and no label of its own.
 
 ## Scope / hand-off
 
 - A planned spec executed to a pull request and no further - `spec-execute`; intake and planning on the spec substrate - `spec-pull` or `spec-create`, then `spec-plan`.
-- Each phase's work belongs to the skill that owns it: `git-commit-push`, `git-open-pr`, `git-finalize-pr`, `git-complete-pr`, `git-merge-pr`, `git-create-release`, plus whatever the project ships for intake and implementation.
 - Conflicts - profile `conflict_skill`. Continuing after a session ends - `dev-handoff` writes the prompt, and this skill's pre-flight recovers the rest.
 
 ## Constraints
@@ -129,7 +87,7 @@ A worktree is its own instance: its own branch, pull request and position on the
 - The acceptance criteria are authored in Phase A and by nobody else; one appearing later is a changed contract and goes back to the owner.
 - Both gates are the owner's words in this run - never inferred from a label, a green pipeline, or an earlier session.
 - A phase the project already ships a skill for is handed to that skill; this run finishes what that skill left and never redoes what it did.
-- One instance, one branch, one pull request - and never more than one worktree, which profile `worktree_policy` decides an instance gets at all.
+- One instance, one branch, one pull request - and never more than one worktree, only when profile `worktree_policy` gives it one.
 - Resumption never re-enters a phase the forge already shows as past.
 - A question inside a phase ends that phase; it never pauses inside one.
-- Subagent prompts are pointers - the phase's goal, what to read, which skills to invoke, the scope fence, and any claim this run holds on the pull request. A judging stage never receives this run's reasoning about the code; a claim is not reasoning, it is the operational fact without which the phase cannot act on its own pull request.
+- Subagent prompts are pointers - the phase's goal, what to read, which skills to invoke, the scope fence, and any claim this run holds on the pull request. A judging stage never receives this run's reasoning about the code; a claim is not reasoning but the fact the phase needs to act on its own pull request.
