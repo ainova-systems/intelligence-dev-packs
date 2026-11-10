@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- CI green reads a workflow that failed to start (`STARTUP_FAILURE`) or a stale check run as failed, instead of as neither failed nor passed.
+- `git-finalize-pr` says why it marks a draft ready under the new CI green: many workflows skip a draft, and a skip reads as green.
+
 ## [0.17.1] - 2026-11-10
 
 A skipped check is green again, and word budgets and an empty gate run warn instead of failing.
