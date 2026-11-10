@@ -8,8 +8,10 @@
 //
 // The version defaults to the newest `## [X.Y.Z]` section in CHANGELOG.md at the commit, and the
 // commit to origin/main. It stops before tagging when the checkout is not a clean main equal to
-// origin/main, the section is missing or empty, the tag already exists, or a check on the commit
-// failed; it waits while checks are still running. A skipped or neutral check passes.
+// origin/main, the section is missing or empty, the tag names another commit, or a check run or
+// commit status on the commit failed; it waits while checks are still running. A skipped or
+// neutral check passes. Run again after a partial failure, it pushes a tag it made earlier and
+// creates a release that is still missing.
 //
 // Exit codes: 0 released (or, with --dry-run, would release); 1 stopped, with the reason.
 
@@ -52,13 +54,18 @@ export function title(version, headline) {
   return `v${version} - ${clause}`;
 }
 
-// Check runs of one commit sorted into the ones that failed and the ones still running.
-export function sortChecks(runs) {
+// Check runs and commit statuses of one commit sorted into the ones that failed and the ones
+// still running; a status context's `state` is `success`, `pending`, `failure` or `error`.
+export function sortChecks(runs, statuses = []) {
   const failed = [];
   const running = [];
   for (const run of runs) {
     if (run.status !== 'completed') running.push(run.name);
     else if (FAILED.has(String(run.conclusion).toLowerCase())) failed.push(`${run.name} (${run.conclusion})`);
+  }
+  for (const status of statuses) {
+    if (status.state === 'pending') running.push(status.context);
+    else if (status.state === 'failure' || status.state === 'error') failed.push(`${status.context} (${status.state})`);
   }
   return { failed, running };
 }
@@ -77,13 +84,23 @@ const stop = (reason) => {
   throw new Error(reason);
 };
 
-function parseArgs(argv) {
+// The commit a tag names in `git ls-remote --tags` output: the peeled `^{}` line of an annotated
+// tag, else the tag's own line; empty when the remote has no such tag.
+export function remoteTagCommit(lsRemote, tag) {
+  const refs = new Map(lsRemote.split('\n').filter(Boolean).map((line) => line.split(/\s+/).reverse()));
+  return refs.get(`refs/tags/${tag}^{}`) ?? refs.get(`refs/tags/${tag}`) ?? '';
+}
+
+export function parseArgs(argv) {
   const opts = { version: null, commit: null, dryRun: false };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === '--dry-run') opts.dryRun = true;
-    else if (arg === '--commit') opts.commit = argv[++i] ?? stop('--commit needs a sha');
-    else if (/^v?\d+\.\d+\.\d+$/.test(arg)) opts.version = arg.replace(/^v/, '');
+    else if (arg === '--commit') {
+      const sha = argv[++i];
+      if (!sha || sha.startsWith('-')) stop('--commit needs a sha');
+      opts.commit = sha;
+    } else if (/^v?\d+\.\d+\.\d+$/.test(arg)) opts.version = arg.replace(/^v/, '');
     else stop(`unknown argument: ${arg}`);
   }
   return opts;
@@ -109,16 +126,23 @@ async function main(argv) {
   if (!section.headline) stop(`the [${section.version}] section has no one-line headline under its heading`);
   const tag = `v${section.version}`;
 
-  if (git('tag', '--list', tag).out) stop(`${tag} already exists locally`);
-  if (git('ls-remote', '--tags', 'origin', `refs/tags/${tag}`).out) stop(`${tag} already exists on origin`);
+  // A tag from an earlier run is resumed only when it names this commit.
+  const localTag = git('tag', '--list', tag).out ? git('rev-parse', `${tag}^{commit}`).out : '';
+  const remoteTag = remoteTagCommit(git('ls-remote', '--tags', 'origin').out, tag);
+  if (localTag && localTag !== commit) stop(`${tag} already exists locally on ${localTag.slice(0, 7)}, not ${commit.slice(0, 7)}`);
+  if (remoteTag && remoteTag !== commit) stop(`${tag} already exists on origin on ${remoteTag.slice(0, 7)}, not ${commit.slice(0, 7)}`);
+  const released = run('gh', ['release', 'view', tag, '--json', 'url', '--jq', '.url'], { allowFail: true });
+  if (remoteTag && released.code === 0) stop(`${tag} is already released: ${released.out}`);
 
   const repo = run('gh', ['repo', 'view', '--json', 'nameWithOwner', '--jq', '.nameWithOwner']).out;
   for (let round = 0; ; round++) {
     const runs = JSON.parse(
-      run('gh', ['api', `repos/${repo}/commits/${commit}/check-runs`, '--paginate', '--jq', '[.check_runs[] | {name, status, conclusion}]']).out ||
-        '[]',
+      run('gh', ['api', `repos/${repo}/commits/${commit}/check-runs`, '--jq', '[.check_runs[] | {name, status, conclusion}]']).out || '[]',
     );
-    const { failed, running } = sortChecks(runs);
+    const statuses = JSON.parse(
+      run('gh', ['api', `repos/${repo}/commits/${commit}/status`, '--jq', '[.statuses[] | {context, state}]']).out || '[]',
+    );
+    const { failed, running } = sortChecks(runs, statuses);
     if (failed.length) stop(`checks failed on ${commit.slice(0, 7)}: ${failed.join(', ')}`);
     if (!running.length) break;
     if (round >= WAIT_ROUNDS) stop(`checks still running on ${commit.slice(0, 7)}: ${running.join(', ')}`);
@@ -138,8 +162,8 @@ async function main(argv) {
   try {
     const notes = join(dir, 'notes.md');
     writeFileSync(notes, `${section.body}\n`);
-    git('tag', '-a', tag, commit, '-m', message);
-    git('push', 'origin', `refs/tags/${tag}`);
+    if (!localTag && !remoteTag) git('tag', '-a', tag, commit, '-m', message);
+    if (!remoteTag) git('push', 'origin', `refs/tags/${tag}`);
     const url = run('gh', ['release', 'create', tag, '--verify-tag', '--title', releaseTitle, '--notes-file', notes]).out;
     console.log(`released ${url}`);
   } finally {

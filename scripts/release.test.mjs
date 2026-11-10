@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { sections, sortChecks, title } from './release.mjs';
+import { parseArgs, remoteTagCommit, sections, sortChecks, title } from './release.mjs';
 
 const CHANGELOG = `# Changelog
 
@@ -54,4 +54,31 @@ test('sortChecks fails on a failed, cancelled or never-started run, waits on a r
   assert.deepEqual(running, ['busy']);
   assert.deepEqual(sortChecks([{ name: 'skip', status: 'completed', conclusion: 'skipped' }]), { failed: [], running: [] });
   assert.deepEqual(sortChecks([]), { failed: [], running: [] });
+});
+
+test('sortChecks reads commit statuses too: failure and error fail, pending waits, success passes', () => {
+  const { failed, running } = sortChecks([], [
+    { context: 'ok', state: 'success' },
+    { context: 'red', state: 'failure' },
+    { context: 'broken', state: 'error' },
+    { context: 'later', state: 'pending' },
+  ]);
+  assert.deepEqual(failed, ['red (failure)', 'broken (error)']);
+  assert.deepEqual(running, ['later']);
+});
+
+test('remoteTagCommit takes the peeled commit of an annotated tag, the tag line of a lightweight one, and nothing for a missing tag', () => {
+  const out = ['aaa\trefs/tags/v1.0.0', 'bbb\trefs/tags/v1.0.0^{}', 'ccc\trefs/tags/v1.0.1', 'ddd\trefs/tags/v1.0.10^{}'].join('\n');
+  assert.equal(remoteTagCommit(out, 'v1.0.0'), 'bbb');
+  assert.equal(remoteTagCommit(out, 'v1.0.1'), 'ccc');
+  assert.equal(remoteTagCommit(out, 'v2.0.0'), '');
+  assert.equal(remoteTagCommit('', 'v1.0.0'), '');
+});
+
+test('parseArgs reads a version, --commit with its sha and --dry-run, and refuses a missing sha or an unknown argument', () => {
+  assert.deepEqual(parseArgs(['v1.2.3', '--commit', 'abc123', '--dry-run']), { version: '1.2.3', commit: 'abc123', dryRun: true });
+  assert.deepEqual(parseArgs([]), { version: null, commit: null, dryRun: false });
+  assert.throws(() => parseArgs(['--commit', '--dry-run']), /--commit needs a sha/);
+  assert.throws(() => parseArgs(['--commit']), /--commit needs a sha/);
+  assert.throws(() => parseArgs(['--force']), /unknown argument: --force/);
 });
