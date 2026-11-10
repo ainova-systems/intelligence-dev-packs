@@ -53,16 +53,16 @@ registries:
 
 packages:
   "@ainova-systems/core":
-    version: "^0.17.0"          # what package add records: ^ and the newest tag
+    version: "^0.18.0"          # what package add records: ^ and the newest tag
   "@ainova-systems/spec":
-    version: "^0.17.0"
+    version: "^0.18.0"
 ```
 
 ### How resolution works
 
 - **A registry is the only resolver for a name.** There is no built-in catalog and no name-to-repository guessing, so a name nobody explicitly trusted can never turn into an install from a guessed URL. `registry add` verifies the repository publishes an `index.yaml` at its root - this repository's maps both package names to their `packs/<name>` subpath.
 - **Registries are an ordered trust list**; the first one declaring a name wins.
-- **Versions are stable git tags** (`x.y.z`, optionally `v`-prefixed). A range (`^0.17.0`, `~0.17.0`, an exact version, or `latest`) selects the highest matching stable tag; prerelease tags are invisible to ranges, and GitHub Releases are not consulted.
+- **Versions are stable git tags** (`x.y.z`, optionally `v`-prefixed). A range (`^0.18.0`, `~0.18.0`, an exact version, or `latest`) selects the highest matching stable tag; prerelease tags are invisible to ranges, and GitHub Releases are not consulted.
 - **Intent and resolution live in different files.** The manifest holds only the requested range or `ref:`; `intelligence.lock` holds the resolved URL, subpath, tag and commit SHA. Restoration after a fresh clone reads the lock alone - it never re-resolves or silently picks a newer tag.
 - **Package content is not vendored.** It lands in the gitignored store at `.intelligence/packages/@ainova-systems/<name>/`, and each enabled adapter renders it into that tool's own files.
 - **Package sources precede project sources**, so a same-named artifact in your own `intelligence/rules|agents|skills` overrides package content deliberately.
