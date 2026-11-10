@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-11-10
+
 CI green and the gate runner mean what they say, the pull request template says why, and the two judging agents run at a fixed effort.
 
 ### Added
