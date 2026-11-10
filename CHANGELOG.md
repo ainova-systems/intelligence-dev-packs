@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.2] - 2026-11-10
+
+A workflow that failed to start no longer reads as green.
+
 ### Fixed
 
 - CI green reads a workflow that failed to start (`STARTUP_FAILURE`) or a stale check run as failed, instead of as neither failed nor passed.
