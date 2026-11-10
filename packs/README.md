@@ -49,7 +49,7 @@ A pack may hold more than one domain, and a domain stays stable even if packs ar
 | `git-review-pr` | skill | Reviews the PR diff against the rules and against what the PR claims (`ai:reviewed`); a re-review after a push judges only the new commits when no rebase or base merge intervened |
 | `git-complete-pr` | skill | Answers and resolves every review thread, then records the one outcome (`ai:completed` / `ai:manual` / `ai:failed`) |
 | `git-merge-pr` | skill | After owner accept: guard-checked squash-merge, base sync, cleanup; the merge command itself prompts the owner |
-| `git-create-release` | skill | Pending-step review, owner gate, version, changelog, tag per the project's release flow; the tag push and the release object prompt the owner |
+| `git-create-release` | skill | Pending-step review, owner gate, version, changelog, tag per the project's release flow; its bundled script tags and publishes on the owner gate |
 | `git-scan-secrets` | skill | Credential scan over diff, tree, or history |
 | `git-to-base` | skill | Return to the integration branch and clean away merged local branches and worktrees |
 
