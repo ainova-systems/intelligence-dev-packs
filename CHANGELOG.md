@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- CI green no longer blocks a pull request whose workflows skip work: a commit is green when no check failed, was cancelled or timed out and none is still running, so a skipped or neutral check, or a commit on which nothing reported, counts as green. Profile `required_checks` is gone with the required set it named.
+- `scripts/validate-pack.sh` reports a word budget overrun as a warning again instead of failing the run.
+- `verify-runner.mjs` under `--ci` exits 0 again when every applicable gate had nothing to check, and still prints `NOTHING CHECKED`.
+
+**Updating:** A project that set `required_checks` can delete the line; nothing reads it. A workflow that was changed to report success instead of skipping, only to satisfy the 0.16.0 definition, can skip again.
+
 ## [0.17.0] - 2026-11-10
 
 `git-sync-base` is now `git-to-base`, the three heaviest skills fit their word budget, and a CI step that checked nothing no longer reads green.

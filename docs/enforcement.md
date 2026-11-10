@@ -19,7 +19,7 @@ This layer is also the part of an install that survives a model change: settings
 | Never commit to a protected branch (`git-commit-push` guard) | `PreToolUse` hook | Match `Bash\|PowerShell` on `git commit`; compare `git branch --show-current` against the profile's protected branches |
 | Secrets never committed (`git-scan-secrets` inside the commit flow) | `PreToolUse` hook | Run the scan over staged files before `git commit`; block on a live match |
 | Merge/release timing is the owner's (`git-merge-pr`, `git-create-release`) | `permissions.ask` and the push guard | `Bash(gh pr merge:*)`, `Bash(gh release create:*)`, `Bash(git push origin v*)` with `v` replaced by profile `tag_format`'s text before its first `X`, `Y` or `Z`; the push guard also asks before any push that carries a tag of that format - named, deleted, `--tags`, a tag pattern, or `--follow-tags` with an annotated one on the pushed commits - so the prompt lands on the irreversible command itself, after the guards have run |
-| CI green before merge (`git-finalize-pr` > CI green, profile `required_checks`) | Forge branch protection | The base branch's rulesets or protection name the required checks; `git-finalize-pr` reads green from that set, and `dev-init` reports it and never applies one |
+| CI green before merge (`git-finalize-pr` > CI green) | Forge branch protection | `git-finalize-pr` reads green as no check failed and none still running, a skipped one included; which checks the forge itself requires is the base branch's rulesets or protection, which `dev-init` never applies |
 | Everything else (review verdicts, spec doctrine, delegation rules) | Prose | Judgment calls; no deterministic rule can decide them |
 
 ## Installing

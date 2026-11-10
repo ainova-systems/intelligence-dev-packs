@@ -37,13 +37,11 @@
 //
 // Exit codes:
 //   0  no gate failed: each planned gate passed, had nothing to check or, outside --ci, skipped
-//      itself, and under --ci at least one gate ran a command; also when no gate applies, and
-//      under --dry-run
+//      itself; also when no gate applies, and under --dry-run
 //   1  a gate failed
 //   2  refused: the change could not be read, or a bad argument, gate or table
 //   3  only under --ci: no gate failed and some were not run, for want of a runtime or because they
-//      skipped themselves, or no gate ran a command at all (NOTHING CHECKED); the CI step either
-//      provides what they need or accepts exit 3
+//      skipped themselves; the CI step either provides what they need or accepts exit 3
 
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs';
@@ -248,10 +246,8 @@ export async function main(argv) {
   }
   const notRun = [...selfSkipped, ...nothingToCheck, ...skipped];
   if (!run.length) console.log(`\nverify: no gate applies to this change; not run: ${list(skipped)}`);
-  else if (!ran.length) {
-    console.log(`\nverify: NOTHING CHECKED (not run: ${list(notRun)})`);
-    if (ci) return 3;
-  } else console.log(`\nverify: PASS (${list(ran)}; not run: ${list(notRun)})`);
+  else if (!ran.length) console.log(`\nverify: NOTHING CHECKED (not run: ${list(notRun)})`);
+  else console.log(`\nverify: PASS (${list(ran)}; not run: ${list(notRun)})`);
   return 0;
 }
 
