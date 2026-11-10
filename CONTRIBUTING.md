@@ -65,7 +65,7 @@ Cut by the maintainer, from `main`, tagged `vX.Y.Z`. Every PR fills `[Unreleased
 
 1. Promote `## [Unreleased]` to `## [X.Y.Z] - YYYY-MM-DD`, keeping the one-line headline under the heading. SemVer; pre-1.0, breaking changes bump the minor.
 2. Land the promotion on `main` through a `release/X.Y.Z` pull request.
-3. `node scripts/release.mjs` on an up-to-date `main`: it checks the commit, tags it annotated (`vX.Y.Z`, message `X.Y.Z - <headline>`), pushes the tag and creates the GitHub release from the section. `--commit <sha>` releases an earlier commit on `main`, `--dry-run` shows the plan. `.claude/settings.json` allows the repository's scripts, so a session runs it without a prompt.
+3. `node packs/core/skills/git-create-release/scripts/release.mjs` - the script `git-create-release` ships - tags the merged cut annotated (`vX.Y.Z`, message `X.Y.Z - <headline>`), pushes the tag and creates the GitHub release from the section. `--commit <sha>` releases an earlier commit on `main`, `--dry-run` shows the plan. `.claude/settings.json` allows the repository's and the packs' scripts, so a session runs it without a prompt.
 
 ## Code of conduct
 

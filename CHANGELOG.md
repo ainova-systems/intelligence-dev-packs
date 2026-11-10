@@ -9,7 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `scripts/release.mjs` publishes a release whose changelog section has merged - it checks a clean, current `main`, the section and its headline, the tag and CI on the commit, then tags, pushes and creates the GitHub release, and resumes after a partial failure - and `.claude/settings.json` lets a Claude Code session run the repository's scripts without a prompt.
+- `git-create-release` > `scripts/release.mjs` tags and publishes a release that has landed, on Linux, macOS and Windows alike: it checks the commit is on the release target, the changelog section the notes need, the tag and every check run and commit status on the commit, then tags annotated, pushes the tag and creates the GitHub release - a draft, a prerelease for an `-rc.N` version, or no release object for `tag-only` - and finishes what is missing when run again after a partial failure. Steps 7-8 of the skill run it with the profile's `tag_format`, `release_artifact` and `release_notes`, and a custom tag format passes its tag and `--version`.
+- The settings template allows the scripts the pack's skills bundle (`Bash(node .claude/skills/*/scripts/*)`), and `dev-init` merges `allow` with the other entries; in this repository `.claude/settings.json` allows its own and the packs' scripts.
+
+**Updating:** Re-run `dev-init` to add the `allow` entry, or `git-create-release` asks at its script like any other command. A project with its own `git-create-release` skill keeps it: a project skill of the same name overrides the package's.
 
 ## [0.17.2] - 2026-11-10
 
