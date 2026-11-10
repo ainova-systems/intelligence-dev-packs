@@ -4,12 +4,14 @@
 // steps; this script only publishes what landed. Node, git and gh only, with no shell, so it runs
 // the same on Linux, macOS and Windows.
 //
-//   node release.mjs [tag] [--version X.Y.Z] [--commit <sha>] [--branch <name>]
+//   node release.mjs [X.Y.Z | tag] [--tag <tag>] [--version X.Y.Z] [--commit <sha>] [--branch <name>]
 //                    [--artifact github-release|github-release-draft|tag-only]
 //                    [--notes changelog-section|generated|none] [--notes-file <path>] [--dry-run]
 //
-// tag        default: `v` plus the newest `## [X.Y.Z]` section of CHANGELOG.md at the commit
-//            (profile `tag_format` default); any other format is passed as the tag itself.
+// X.Y.Z      a bare version, released as tag `vX.Y.Z` (profile `tag_format` default); with no
+//            argument, the newest `## [X.Y.Z]` section of CHANGELOG.md at the commit.
+// tag        anything else is the tag itself, for another `tag_format`; `--tag` names one that
+//            looks like a bare version, such as `1.2.3` under `tag_format: X.Y.Z`.
 // --version  the changelog section to read; default: the `X.Y.Z[-pre]` the tag ends with.
 // --branch   the release target (profile `default_branch`); default: origin's HEAD branch.
 // --commit   default: the target's tip on origin; it must be reachable from it.
@@ -59,10 +61,10 @@ export function sections(changelog) {
   });
 }
 
-// The release title: the tag, and the headline's first clause without its closing period.
+// The release title: the tag, and the headline without its closing period.
 export function title(tag, headline) {
   if (!headline) return tag;
-  return `${tag} - ${headline.split(/,| and /)[0].replace(/\.$/, '').trim()}`;
+  return `${tag} - ${headline.replace(/\.$/, '').trim()}`;
 }
 
 // Check runs and commit statuses of one commit sorted into the ones that failed and the ones
@@ -110,6 +112,10 @@ export function parseArgs(argv) {
     else if (arg === '--commit') opts.commit = value(++i, arg);
     else if (arg === '--branch') opts.branch = value(++i, arg);
     else if (arg === '--version') opts.version = value(++i, arg).replace(/^v/, '');
+    else if (arg === '--tag') {
+      if (opts.tag) stop(`a second tag: ${argv[i + 1]}`);
+      opts.tag = value(++i, arg);
+    }
     else if (arg === '--notes-file') opts.notesFile = value(++i, arg);
     else if (arg === '--artifact') {
       opts.artifact = value(++i, arg);
@@ -119,7 +125,10 @@ export function parseArgs(argv) {
       if (!NOTES.includes(opts.notes)) stop(`--notes is one of ${NOTES.join(', ')}`);
     } else if (arg.startsWith('--')) stop(`unknown argument: ${arg}`);
     else if (opts.tag) stop(`a second tag: ${arg}`);
-    else opts.tag = arg;
+    else if (/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(arg)) {
+      opts.tag = `v${arg}`;
+      opts.version ??= arg;
+    } else opts.tag = arg;
   }
   return opts;
 }

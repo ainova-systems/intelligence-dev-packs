@@ -47,8 +47,9 @@ test('sections reads a file with Windows line endings the same way', () => {
   assert.deepEqual(sections(CHANGELOG.replace(/\n/g, '\r\n')), sections(CHANGELOG));
 });
 
-test('title is the tag and the headline up to its first clause, or the tag alone without a headline', () => {
-  assert.equal(title('v0.2.0', 'A skipped check is green again, and word budgets warn.'), 'v0.2.0 - A skipped check is green again');
+test('title is the tag and the whole headline without its closing period, or the tag alone without a headline', () => {
+  assert.equal(title('v0.2.0', 'A skipped check is green again, and word budgets warn.'), 'v0.2.0 - A skipped check is green again, and word budgets warn');
+  assert.equal(title('v0.18.0', '`git-create-release` tags and publishes a release.'), 'v0.18.0 - `git-create-release` tags and publishes a release');
   assert.equal(title('v0.2.1', 'A workflow that failed to start no longer reads as green.'), 'v0.2.1 - A workflow that failed to start no longer reads as green');
   assert.equal(title('release-42', ''), 'release-42');
 });
@@ -97,6 +98,14 @@ test('parseArgs reads the tag and every option, with the profile defaults when t
   );
 });
 
+test('parseArgs reads a bare version as tag vX.Y.Z and its changelog section, and --tag as the tag itself', () => {
+  assert.deepEqual([parseArgs(['0.18.0']).tag, parseArgs(['0.18.0']).version], ['v0.18.0', '0.18.0']);
+  assert.deepEqual([parseArgs(['2.0.0-rc.1']).tag, parseArgs(['2.0.0-rc.1']).version], ['v2.0.0-rc.1', '2.0.0-rc.1']);
+  assert.equal(parseArgs(['v0.18.0']).tag, 'v0.18.0');
+  assert.equal(parseArgs(['--tag', '1.2.3']).tag, '1.2.3');
+  assert.equal(parseArgs(['0.18.0', '--version', '0.18.1']).version, '0.18.1');
+});
+
 test('parseArgs refuses a missing value, a value outside its profile set, an unknown flag and a second tag', () => {
   assert.throws(() => parseArgs(['--commit', '--dry-run']), /--commit needs a value/);
   assert.throws(() => parseArgs(['--commit']), /--commit needs a value/);
@@ -104,4 +113,5 @@ test('parseArgs refuses a missing value, a value outside its profile set, an unk
   assert.throws(() => parseArgs(['--notes', 'commit-log']), /--notes is one of/);
   assert.throws(() => parseArgs(['--force']), /unknown argument: --force/);
   assert.throws(() => parseArgs(['v1.0.0', 'v1.0.1']), /a second tag: v1.0.1/);
+  assert.throws(() => parseArgs(['0.18.0', '--tag', 'x']), /a second tag: x/);
 });
