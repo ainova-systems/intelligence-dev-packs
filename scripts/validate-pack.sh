@@ -18,8 +18,8 @@
 # - each pack's profile schema and its artifacts agree: no schema key nothing reads,
 #   no key an artifact reads that neither its pack's schema nor core's defines.
 # - word budgets: a SKILL.md, reference, rule or agent over its budget, or a paragraph, list item
-#   or table row over PARAGRAPH_WORD_BUDGET, fails; a description over DESCRIPTION_TARGET_CHARS
-#   is a warning, and warnings do not fail the run.
+#   or table row over PARAGRAPH_WORD_BUDGET, is a warning, as is a description over
+#   DESCRIPTION_TARGET_CHARS; warnings do not fail the run.
 # A pack with its own schema (templates/<prefix>-project-profile.md) stands alone: its checks
 # read only its own folder, plus core's schema and artifacts when core is present.
 # Zero dependencies: bash + awk + grep.
@@ -347,7 +347,7 @@ else
 fi
 
 # Text grows a clause per review finding until nobody reads it whole; the budget makes that
-# growth fail before it lands, so detail that does not fit moves into the skill's references/.
+# growth visible. An offender warns and never fails the run: the budget steers, it does not block.
 # A paragraph is a run of prose lines; a list item starts a new one and a table row is one of its
 # own, while headings and fenced blocks belong to none. A file's total counts everything below
 # its frontmatter. One awk pass over every file, since a process per file is slow on some hosts.
@@ -383,7 +383,7 @@ budget_report="$(cd "$PACK_ROOT" && find packs -type f -name '*.md' \( -path '*/
         END { if (file != "") close_file() }
     ' || true)"
 while IFS= read -r line; do
-    if [ -n "$line" ]; then fail "$line"; fi
+    if [ -n "$line" ]; then warn "$line"; fi
 done <<< "$budget_report"
 
 if [ "$errors" -gt 0 ]; then

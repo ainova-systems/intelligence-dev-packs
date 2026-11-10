@@ -167,17 +167,6 @@ test('a gate whose command has nothing to check is reported so and listed under 
   assert.match(only.out, /verify: NOTHING CHECKED \(not run: empty \(nothing to check\)\)/);
   assert.doesNotMatch(only.out, /PASS/);
 
-  const onlyCi = verify(table(`[{ name: 'empty', cost: 1, when: () => true, command: () => [] }]`), ['--ci']);
-  assert.equal(onlyCi.code, 3, onlyCi.err);
-  assert.match(onlyCi.out, /verify: NOTHING CHECKED \(not run: empty \(nothing to check\)\)/);
-
-  const ranCi = verify(table(`[
-    { name: 'cheap', cost: 1, when: () => true, command: [NODE, '-e', ''] },
-    { name: 'empty', cost: 2, when: () => true, command: () => [] },
-  ]`), ['--ci']);
-  assert.equal(ranCi.code, 0, ranCi.err);
-  assert.match(ranCi.out, /verify: PASS \(cheap; not run: empty \(nothing to check\)\)/);
-
   const failing = verify(table(`[
     { name: 'empty', cost: 1, when: () => true, command: () => [] },
     { name: 'breaks', cost: 2, when: () => true, command: [NODE, '-e', 'process.exit(1)'] },

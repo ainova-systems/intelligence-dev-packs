@@ -75,7 +75,6 @@ description: Project-specific configuration consumed by the intelligence-dev-pac
 - pr_risk_globs: none               <!-- e.g. high: **/Migrations/**, **/*Permission*; medium: src/shared/**; low: **/*.md ; none = skip Risk -->
 - pr_success_factors: ai:verified, ai:reviewed   <!-- factors a PR must carry fresh at head besides ai:completed, written as the label names themselves; the pack writes the first two, add any that an external agent, worker or pipeline applies; none = state label only -->
 - max_pr_rounds: 3                  <!-- fix/verify/review rounds git-finalize-pr may spend before escalating to ai:manual; unlimited = no round budget, the other stop rules still apply -->
-- required_checks: auto             <!-- the checks CI green needs on a commit (git-finalize-pr > CI green): auto = the rulesets and branch protection of the branch it is headed to, every reported check when they require none | <comma-separated check names> | none = the project runs no CI, and the outcome report says so -->
 - draft_ready: finalize             <!-- who marks a draft pull request ready for review: finalize = git-finalize-pr, before its first round | owner = not this run - the owner, or a runtime that owns readiness, marks it; the run then ends ai:manual saying so -->
 - delete_local_branch: true         <!-- delete the local branch after a confirmed merge -->
 - delete_remote_branch: false       <!-- pass --delete-branch on merge -->
