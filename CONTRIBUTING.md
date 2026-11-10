@@ -64,9 +64,8 @@ Split by adoption boundary, not by concern: a new pack is justified only when so
 Cut by the maintainer, from `main`, tagged `vX.Y.Z`. Every PR fills `[Unreleased]`, so a release mostly promotes it - but the section is first reconciled against `git log <last-tag>..HEAD`, so nothing that shipped is missing from it.
 
 1. Promote `## [Unreleased]` to `## [X.Y.Z] - YYYY-MM-DD`, keeping the one-line headline under the heading. SemVer; pre-1.0, breaking changes bump the minor.
-2. Commit the promotion to `main`.
-3. Tag it annotated (`vX.Y.Z`, message `X.Y.Z - <headline>`) and push the tag.
-4. `gh release create vX.Y.Z --verify-tag --notes-file <the new section>`.
+2. Land the promotion on `main` through a `release/X.Y.Z` pull request.
+3. `node scripts/release.mjs` on an up-to-date `main`: it checks the commit, tags it annotated (`vX.Y.Z`, message `X.Y.Z - <headline>`), pushes the tag and creates the GitHub release from the section. `--commit <sha>` releases an earlier commit on `main`, `--dry-run` shows the plan. `.claude/settings.json` allows the repository's scripts, so a session runs it without a prompt.
 
 ## Code of conduct
 

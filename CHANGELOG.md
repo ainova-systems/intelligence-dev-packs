@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `scripts/release.mjs` publishes a release whose changelog section has merged - it checks a clean, current `main`, the section and its headline, the tag and CI on the commit, then tags, pushes and creates the GitHub release, and resumes after a partial failure - and `.claude/settings.json` lets a Claude Code session run the repository's scripts without a prompt.
+
 ## [0.17.2] - 2026-11-10
 
 A workflow that failed to start no longer reads as green.

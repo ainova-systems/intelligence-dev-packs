@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node scripts/*)",
+      "Bash(node --test scripts/*)",
+      "Bash(bash scripts/*)"
+    ]
+  }
+}
