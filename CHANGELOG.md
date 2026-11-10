@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-11-11
+
+`git-create-release` tags and publishes a release with one cross-platform script, and the settings template lets it run without a prompt.
+
 ### Added
 
 - `git-create-release` > `scripts/release.mjs` tags and publishes a release that has landed, on Linux, macOS and Windows alike: it checks the commit is on the release target, the changelog section the notes need, the tag and every check run and commit status on the commit, then tags annotated, pushes the tag and creates the GitHub release - a draft, a prerelease for an `-rc.N` version, or no release object for `tag-only` - and finishes what is missing when run again after a partial failure. Steps 7-8 of the skill run it with the profile's `tag_format`, `release_artifact` and `release_notes`, and a custom tag format passes its tag and `--version`.
