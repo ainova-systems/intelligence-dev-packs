@@ -40,13 +40,13 @@ registries:
 
 packages:
   "@ainova-systems/core":
-    version: "^0.16.0"          # what package add records: ^ and the newest tag
+    version: "^0.17.0"          # what package add records: ^ and the newest tag
   "@ainova-systems/spec":       # spec-driven projects only
-    version: "^0.16.0"
+    version: "^0.17.0"
 ```
 
 - **The manifest records intent, the lock records the resolution.** A package entry carries only the requested `version:` range (or a deliberate `ref:` pin); the resolved repository URL, subpath, tag and commit SHA live in the committed `intelligence.lock`. After a fresh clone, `intelligence sync` restores exactly that commit without consulting a registry.
-- **Versions are this repository's git tags.** A range like `^0.16.0` matches stable `x.y.z` tags; prerelease tags are invisible to ranges. Read [CHANGELOG.md](CHANGELOG.md) between versions for renamed or removed artifacts.
+- **Versions are this repository's git tags.** A range like `^0.17.0` matches stable `x.y.z` tags; prerelease tags are invisible to ranges. Read [CHANGELOG.md](CHANGELOG.md) between versions for renamed or removed artifacts.
 - **Package content is not vendored into your tree.** It lands in the gitignored store at `.intelligence/packages/@ainova-systems/<name>/`, and the CLI renders it into each tool's own files.
 - **Your artifacts win.** Package sources precede project sources, so a same-named artifact in `intelligence/rules|agents|skills` deliberately overrides package content.
 - **Other modes** - global Claude Code skills (`scripts/claude-install-global.sh`), plain copy, and installing straight from the repository without a registry - are in [docs/integration.md](docs/integration.md), along with uninstall and the migration from intelligence-sync.

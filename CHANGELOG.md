@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-11-10
+
+`git-sync-base` is now `git-to-base`, the three heaviest skills fit their word budget, and a CI step that checked nothing no longer reads green.
+
 ### Changed
 
 - `git-sync-base` is renamed `git-to-base`, since it returns the checkout to the base rather than bringing the base into a branch, and its profile key `sync_base_command` is renamed `to_base_command`. The name leaves the domain-verb-object pattern of the other skills on purpose; a new skill does not take it as a model.
