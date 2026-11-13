@@ -7,8 +7,10 @@ argument-hint: "[branch-name ...]"
 # Return to the integration branch
 
 Leave the checkout on a current integration branch (profile `integration_branch`, else the default
-branch), with merged local work cleaned away and everything unmerged kept. It never merges, never
-closes a pull request and never touches a remote branch.
+branch), with merged local work cleaned away and everything unmerged kept. Git lets one worktree hold
+a branch, and the main checkout keeps the integration branch, so a linked worktree - a pipeline slot, a
+parallel task - waits detached at its remote head instead. It never merges, never closes a pull
+request and never touches a remote branch.
 
 ## Steps
 
@@ -19,14 +21,17 @@ closes a pull request and never touches a remote branch.
    same way until the next minor release, and the report says to rename it.
 2. **Check the checkout.** Uncommitted work in it is a stop: list the files and let the owner
    commit, stash or discard. Check out the integration branch and `git pull --ff-only`; a diverged
-   integration branch goes to profile `conflict_skill` through the owner, never a reset.
+   integration branch goes to profile `conflict_skill` through the owner, never a reset. In a linked
+   worktree, `git fetch` and `git switch --detach origin/<integration>` instead; a detached HEAD
+   carrying commits the remote lacks is a stop, because leaving it loses them.
 3. **Prune.** `git fetch --prune` and `git worktree prune`.
 4. **Clean what merged.** For each local branch (all non-protected ones, or only those named),
    delete it with `git branch -D` only when its pull request is `MERGED`, the PR head SHA equals the
-   local branch SHA, and the merge commit is an ancestor of the integration branch; record the SHA
-   first. A worktree holding such a branch is removed first (profile `worktree_remove`, else
-   `git worktree remove`) only when it has no uncommitted changes. Everything else is retained with
-   its reason.
+   local branch SHA, and the merge commit is an ancestor of the integration branch - its remote head,
+   in a linked worktree; record the SHA first. A worktree holding such a branch is removed first (profile `worktree_remove`, else
+   `git worktree remove`) only when it has no uncommitted changes and is not locked: a locked worktree
+   outlives its tasks and leaves the branch on its own run. Everything else is retained with its
+   reason.
 5. **Finish** with profile `post_merge` when it is set, and report.
 
 ## Status
@@ -48,12 +53,13 @@ Re-run only after the cause is fixed, and at most once.
 
 The integration branch and its SHA; each deleted branch with its PR, branch SHA and merge SHA; each
 removed worktree; each retained branch with its reason (`no-pr`, `pr-not-merged`, `head-mismatch`,
-`merge-not-on-integration`, `worktree-dirty`, `checked-out-elsewhere`) - a retention is a normal
-outcome, not a failure.
+`merge-not-on-integration`, `worktree-dirty`, `worktree-locked`, `checked-out-elsewhere`) - a
+retention is a normal outcome, not a failure.
 
 ## Verify
 
-- `git branch --show-current` names the integration branch, it equals its remote, and the report
+- `git branch --show-current` names the integration branch and it equals its remote - in a linked
+  worktree, HEAD is detached at that remote head - and the report
   lists every deleted branch with its merged pull request and every retained one with its reason.
 
 ## Scope / hand-off
