@@ -27,8 +27,8 @@ request and never touches a remote branch.
 3. **Prune.** `git fetch --prune` and `git worktree prune`.
 4. **Clean what merged.** For each local branch (all non-protected ones, or only those named),
    delete it with `git branch -D` only when its pull request is `MERGED`, the PR head SHA equals the
-   local branch SHA, and the merge commit is an ancestor of the integration branch; record the SHA
-   first. A worktree holding such a branch is removed first (profile `worktree_remove`, else
+   local branch SHA, and the merge commit is an ancestor of the integration branch - its remote head,
+   in a linked worktree; record the SHA first. A worktree holding such a branch is removed first (profile `worktree_remove`, else
    `git worktree remove`) only when it has no uncommitted changes and is not locked: a locked worktree
    outlives its tasks and leaves the branch on its own run. Everything else is retained with its
    reason.

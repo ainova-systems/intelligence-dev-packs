@@ -20,7 +20,7 @@ Land the pending work as one verified, cleanly described commit. Invoke at miles
 ## Verify
 
 - What it published holds nothing `git-commit-conventions` forbids in a published artifact.
-- `git log --oneline -1` shows the message; `git status` reports up to date with origin; gates were green on the pushed tree.
+- `git log --oneline -1` shows the message; `git status` reports up to date with origin - from a detached HEAD, `HEAD` equals the `origin/<branch>` it was pushed to; gates were green on the pushed tree.
 - `git show --name-only --no-renames --format= HEAD` lists exactly the step-3 paths; with `regenerate` set, running it again leaves `git status --porcelain` unchanged.
 
 ## Scope / hand-off
