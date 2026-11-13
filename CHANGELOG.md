@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.1] - 2026-11-13
+
+A linked worktree - a pipeline slot of one main checkout - returns to the integration branch detached at its remote head, and its direct commits push there.
+
 ### Fixed
 
 - `git-to-base` run in a linked worktree - a pipeline slot or a parallel task, whose integration branch the main checkout holds - waits detached at the branch's remote head instead of failing to check it out, stops when a detached HEAD carries commits the remote lacks, and never removes a locked worktree (`worktree-locked`).
