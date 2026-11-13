@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `git-to-base` run in a linked worktree - a pipeline slot or a parallel task, whose integration branch the main checkout holds - waits detached at the branch's remote head instead of failing to check it out, stops when a detached HEAD carries commits the remote lacks, and never removes a locked worktree (`worktree-locked`).
+- `git-commit-push` stops on a detached HEAD as it does on a protected branch, and where a project allows the commit there it pushes `HEAD:<branch>`.
+
 ## [0.18.0] - 2026-11-11
 
 `git-create-release` tags and publishes a release with one cross-platform script, and the settings template lets it run without a prompt.
