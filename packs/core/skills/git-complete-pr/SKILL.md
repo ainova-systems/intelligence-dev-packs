@@ -32,7 +32,7 @@ A factor the project does not require (absent from `pr_success_factors`) is stat
 
 One `gh pr edit <pr> --add-label <outcome> --remove-label <the other three>` call. Then report: PR URL, outcome, factors present, and the owner's list.
 
-A PR carrying no `ai:*` label is human-driven: drain its threads and write no label.
+A PR carrying no state label is human-driven, whatever factors a stage added to it: drain its threads and write no label.
 
 ## Verify
 

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `git-merge-pr` now requires every declared success factor to be fresh at the head on a human-driven pull request too. It used to skip the check whenever no `ai:*` label was present. `--skip-factors` is the owner's explicit waiver for one merge, and the report names each factor waived. A pull request counts as human-driven when it carries no state label, so a factor added by a stage no longer makes `git-merge-pr` and `git-complete-pr` treat it as autonomous.
+
 ## [0.18.1] - 2026-11-13
 
 A linked worktree - a pipeline slot of one main checkout - returns to the integration branch detached at its remote head, and its direct commits push there.
